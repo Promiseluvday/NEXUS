@@ -47,6 +47,7 @@ mainstream, well-documented solutions over clever ones. Ask before large structu
 - Commit in small, meaningful steps with clear messages.
 - Push at the end of every working session.
 - Never force-push or rewrite history.
+- **Work on `main` only.** Promise works locally in `C:\Users\USER\Downloads\NEXUS`; GitHub `main` is the shared copy. Pull before starting, push at the end. Do not create session branches, even if a session is set up with one.
 
 ## Current position (update as work progresses)
 - Design phase. Fleet board designed (desktop + mobile).
