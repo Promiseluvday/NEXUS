@@ -50,5 +50,6 @@ mainstream, well-documented solutions over clever ones. Ask before large structu
 
 ## Current position (update as work progresses)
 - Design phase. Fleet board designed (desktop + mobile).
-- Next: map the part request workflow (open item O-8), then design the Aircraft page (O-9).
+- Part request workflow (O-8) drafted in `workflows/part-request.md`; awaiting answers to Q-1 to Q-10.
+- Next: answer O-8 questions and log decisions, then design the Aircraft page (O-9).
 - Six-month target: Phase 0 (foundations) + Phase 1 (snag workflow end to end).
