@@ -26,7 +26,7 @@
 | ID | Decision |
 |---|---|
 | D-010 | Nexus interconnects four departments: **Engineering, Supply, Procurement, Operations**. Command and Quality sit across all four, approving and auditing. |
-| D-011 | *(Extended by D-016.)* In scope for v1: snags, work orders, check packages and task cards, MEL deferrals, aircraft hours/cycles/landings, component tracking by position, stores and inventory, part requests, approval chains, procurement with cost and invoice history, document attachments, fleet serviceability dashboard, notifications, audit trail. |
+| D-011 | *(Extended by D-016 and D-048.)* In scope for v1: snags, work orders, check packages and task cards, MEL deferrals, aircraft hours/cycles/landings, component tracking by position, stores and inventory, part requests, approval chains, procurement with cost and invoice history, document attachments, fleet serviceability dashboard, notifications, audit trail. |
 | D-012 | Out of scope for v1: automatic maintenance forecasting from the AMP/MPD, financial/ERP functions, flight scheduling, crew rostering. |
 | D-013 | Later Operations modules (after v1): crew qualifications and expiry tracking (Phase 5), then flight scheduling linked to aircraft serviceability and crew validity (Phase 6). |
 | D-014 | Initial aircraft types for development: **Airbus A330-200** and **Gulfstream G550**. Framework stays aircraft-agnostic. |
@@ -74,6 +74,8 @@
 | D-045 | **A pilot report alone shows "Snag open"** on the tail, not U/S or AOG. The tail keeps its last engineer-set status, shown as "Last status: … set by [name] · time", until an engineer changes it. Operations counts "Snag open" separately, never as "not available". *(6 Oct 2026)* |
 | D-046 | **Only an engineer sets a tail status** (U/S, AOG, SVC, SVC · MEL, In check). Every status shows **who set it and when**. *(6 Oct 2026)* |
 | D-047 | **Expected return to service** is an estimate entered by Engineering (duty or certifying engineer) with name and time, never calculated. Visible to all departments. *(6 Oct 2026)* |
+| D-048 | **Non-Airworthiness Deferred Defects (NADD)** are in v1. Engineers and pilots can log them. Each NADD has a countdown, **120 days by default or as the operator defines** (D-025), and NADDs are listed per aircraft by time remaining. A NADD does not change the tail status. Workflow: `workflows/nadd.md`. Extends D-011. *(7 Oct 2026)* |
+| D-049 | NADDs can be **printed**. Nexus emulates the operator's **Non-Airworthiness Deferred Defects Sheet (NADDS)** through a configurable print template. Every print is marked with who printed it, when, the record version, and "uncontrolled when printed". *(7 Oct 2026)* |
 
 ## 6. MEL
 
@@ -107,9 +109,10 @@
 | D-074 | **Only Supply can mark a part available**, after receiving inspection. Procurement cannot. |
 | D-075 | **Separation of duties:** the requester cannot approve the purchase; the buyer cannot receive it into stock. |
 | D-076 | Approval chain is multi-level (e.g. storekeeper → supply director → commander), with status visible to all concerned. The chain's steps are configurable per operator. |
-| D-077 | *(Refined by D-121 and D-122.)* Purchase cost and invoice are attached to each purchase, giving **price history**. Cost data sits behind stricter permissions (Supply, Procurement, Command). |
+| D-077 | *(Refined by D-121, D-122 and D-127.)* Purchase cost and invoice are attached to each purchase, giving **price history**. Cost data sits behind stricter permissions (Supply, Procurement, Command). |
 | D-078 | **Changing an approval chain** is itself approved: Quality proposes, the CO approves. Logged and versioned like D-083. The approver for MEL extensions is set in the approval chain set-up. *(6 Oct 2026)* |
 | D-079 | **Rejecting any approval requires a reason.** The record returns to the person who submitted it, shown as "Rejected" with the reason. Resubmitting creates a new version. *(6 Oct 2026)* |
+| D-140 | **No cannibalisation (robbery).** PAF does not rob parts from one aircraft to fit another, so Nexus has no robbery flow. Parts come only from stores or purchase. (Section 8 continues at D-140 because D-070 to D-079 are used.) *(7 Oct 2026)* |
 
 ## 9. Qualifications
 
@@ -164,11 +167,12 @@ Detail and the per-department table: `docs/department-views.md`.
 |---|---|
 | D-120 | **Each department has its own fleet board and home view** (Engineering, Operations, Supply, Procurement). Every department sees tail, type, status, who set it, and the "Blocked by" headline with holding department and time held. Detail follows the department view table in `docs/department-views.md`. Refines D-094 "role-based home screens". *(6 Oct 2026)* |
 | D-121 | **Access inside a department is granted per user.** Belonging to a department does not grant everything in it. Each user has (a) **permissions** within the department, e.g. "view cost" (not every Supply user sees price), and (b) an **aircraft scope**: the tails they can access. Both are set and changed by a Super Admin and logged (D-033). New permissions are added as the build grows. *(6 Oct 2026)* |
-| D-122 | **Command and Quality see everything, read-only**, across all departments and aircraft, including cost. Their own approving, issuing and loading actions (D-032, D-050, D-076, D-083) are unchanged. *(6 Oct 2026)* |
+| D-122 | **Partly SUPERSEDED by D-127 (Quality).** **Command and Quality see everything, read-only**, across all departments and aircraft, including cost. Their own approving, issuing and loading actions (D-032, D-050, D-076, D-083) are unchanged. *(6 Oct 2026)* |
 | D-123 | **A Super Admin sets a user's department, permissions and aircraft scope** during or after account creation. Users cannot change their own. A self sign-up may request a department; a Super Admin confirms it before the account is active. Every change is logged with who, to whom, from, to and why (D-033). *(6 Oct 2026)* |
 | D-124 | **One person can hold more than one department.** One is the home department (default home screen); others are granted explicitly and logged. Separation of duties (D-075) still applies per action. *(6 Oct 2026)* |
 | D-125 | **Visibility is enforced in the database** (row-level security, D-101), not only hidden on screen. *(6 Oct 2026)* |
 | D-126 | **Audit trail:** full access for Quality, Command and Super Admins. Every other user sees the history of the records they are allowed to see. *(6 Oct 2026)* |
+| D-127 | **Quality does not see cost** and has **no default access to Supply or Procurement data**. A Super Admin grants Quality users access to specific Supply or Procurement information as options (D-121). Quality keeps read-only access to Engineering and Operations records and its own actions (D-032, D-050, D-083, D-016). Command still sees everything, including cost. Supersedes D-122 for Quality. *(7 Oct 2026)* |
 
 ## 14. Roadmap (part-time, learning while building)
 
@@ -196,4 +200,5 @@ Detail and the per-department table: `docs/department-views.md`.
 | O-6 | Identify the expert reviewer and involve them from Phase 0 | Promise |
 | O-7 | Status label wording on the fleet board (AOG / U/S / SVC · MEL) to match PAF usage | Promise |
 | O-8 | Map the part request workflow in detail. Draft in `workflows/part-request.md`; Q-1 to Q-10 still to answer | Promise + Claude |
+| O-10 | NADD questions Q-N1 to Q-N7 in `workflows/nadd.md` (pilot proposal, countdown start, extension approver, paper vs electronic, NADDS fields, cap, categories) | Promise |
 | O-9 | Design the Aircraft page. Now the aircraft dashboard on Home (D-096); in progress on the design canvas | Promise + Claude |

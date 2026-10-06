@@ -54,5 +54,6 @@ mainstream, well-documented solutions over clever ones. Ask before large structu
 - Part request workflow (O-8) drafted in `workflows/part-request.md`; awaiting answers to Q-1 to Q-10.
 - Decisions logged 6 Oct: D-015, D-016, D-027, D-028, D-045 to D-047, D-078, D-079, D-096, D-120 to D-126 (departments and per-user access: department, permissions, aircraft scope). Detail in `docs/department-views.md`.
 - Design prompts for wireframe, home page and department views: `docs/design-prompts.md`.
-- Next: run Prompt 4 then Prompt 3 in Claude Design; answer O-8 questions Q-1 to Q-10.
+- 7 Oct: NADD agreed (D-048, D-049), workflow in `workflows/nadd.md`, open questions O-10. Quality has no cost access (D-127). No cannibalisation (D-140).
+- Next: run Prompts 4, 3, then 5 in Claude Design; answer O-8 (Q-1, Q-3 to Q-10) and O-10 (Q-N1 to Q-N7).
 - Six-month target: Phase 0 (foundations) + Phase 1 (snag workflow end to end).

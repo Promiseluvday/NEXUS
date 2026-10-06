@@ -15,7 +15,8 @@ Every department sees the **same fleet and the same tail statuses**, but each se
 | **Operations** | What the pilot and the flight need: availability, operational limitations, placards |
 | **Supply** | Parts activity per tail: requests, reservations, issues, returns, shelf life |
 | **Procurement** | Supply's parts view plus requisitions, approvals, orders, suppliers and cost |
-| **Command / Quality** | Everything, read-only, including cost (D-122) |
+| **Command** | Everything, read-only, including cost (D-122) |
+| **Quality** | Engineering and Operations records, read-only. **No cost.** Supply and Procurement data only as granted by a Super Admin (D-127) |
 
 The department is set on the user's account, **during or after account creation**.
 
@@ -90,7 +91,7 @@ A user sees the **overlap** of all three. A Supply storekeeper without "view cos
 |---|---|---|
 | Q-D1 | Does the table in section 2 match? | Yes |
 | Q-D2 | Operations sees hours, cycles and landings? | Yes |
-| Q-D3 | Command and Quality? | **See everything, read-only, including cost** (D-122) |
+| Q-D3 | Command and Quality? | Command: everything, read-only, including cost (D-122). **Quality: no cost, Supply/Procurement only as granted** (D-127, 7 Oct) |
 | Q-D4 | More than one department? | **Yes** (D-124) |
 
 Logged as D-120 to D-126 in `docs/DECISIONS.md`.

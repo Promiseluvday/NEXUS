@@ -178,7 +178,7 @@ Every state names the **department holding it**. This is what feeds the live "Bl
 | R-5 | Suspected unapproved parts | Parts with fake or missing release certificates | Receiving inspection records certificate type and number. Approved supplier list owned by Quality (Q-6). A SUP report action that goes to Quality |
 | R-6 | Ghost reservations | Engineer reserves "just in case" and blocks others | Reminders, Supply release (Section 8.3), report of reservations held longer than X |
 | R-7 | Offline false confidence | Engineer offline thinks the part is held when it isn't | "Queued, not reserved" label. Reservation exists only once the server confirms |
-| R-8 | Cannibalisation done off-system | Part robbed from another tail with no record, so the donor tail shows serviceable when it isn't | Either support it (Q-2) or explicitly forbid it in the procedure. Silence is the worst option |
+| R-8 | Cannibalisation done off-system | Part robbed from another tail with no record, so the donor tail shows serviceable when it isn't | **PAF does not cannibalise (D-140).** Nexus has no robbery flow; the procedure must keep forbidding it |
 | R-9 | Approval bottleneck | Command away, AOG waits days | Deputies with time-limited acting authority, same model as D-036. Escalation notification when a step is held past its target |
 
 ---
@@ -190,7 +190,7 @@ Each one needs an answer before this becomes decisions. Where I have a recommend
 | # | Question | Recommendation |
 |---|---|---|
 | **Q-1** | D-076's example chain starts with the **storekeeper**, but the storekeeper usually raises the requisition, and D-075 says a requester can't approve. Should the rule be "the raiser cannot approve any step, and one person cannot approve two steps"? | **Yes.** If the storekeeper raised it, step 1 must go to a different storekeeper or the next level up |
-| **Q-2** | Does PAF practise **cannibalisation (robbery)**? If yes, it needs its own flow: approval, a snag automatically raised on the donor tail, donor shown unserviceable on the fleet board | **Support it in v1** if PAF does it. It directly affects the fleet board and "Blocked by". If not v1, the procedure must forbid off-system robbery |
+| **Q-2** | ✅ **Answered 7 Oct: No (D-140).** Does PAF practise **cannibalisation (robbery)**? If yes, it needs its own flow: approval, a snag automatically raised on the donor tail, donor shown unserviceable on the fleet board | **Support it in v1** if PAF does it. It directly affects the fleet board and "Blocked by". If not v1, the procedure must forbid off-system robbery |
 | **Q-3** | Who may set **AOG** priority? | Any engineer may request it, but it's only confirmed when linked to a job that makes the tail U/S, or when a certifying engineer confirms |
 | **Q-4** | Expired shelf-life or missing certificate at issue: should the system **block** issue or **warn and require an acknowledged reason**? | **Block.** It's a stores control on a human-entered date, not an airworthiness judgment. Supply moves the item to quarantine. Same logic as D-020: a person (receiving inspector) set the status, and the system enforces it |
 | **Q-5** | Is the approval chain the same for every value, or does it depend on **value or priority** (e.g. under ₦X = storekeeper + supply director; over = + commander; AOG = fast-track)? | Configurable thresholds by value and priority. PAF's actual rules to be confirmed from their procurement procedure |

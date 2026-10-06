@@ -162,7 +162,9 @@ and time held. Detail differs:
   time held), reserved awaiting issue, U/S returns due, shelf-life and
   certificate alerts. AOG requests first. No snag technical detail, no
   MEL detail. Actions: Issue part, Receive goods.
-- Command and Quality: everything, read-only, including cost.
+- Command: everything, read-only, including cost.
+- Quality: Engineering and Operations records read-only; no cost; Supply
+  and Procurement only as granted by a Super Admin.
 - Inside a department, each user sees only what their permissions and
   aircraft scope allow (e.g. a storekeeper without "View cost" sees no
   price).
@@ -303,4 +305,52 @@ Put the conflict on the open-questions sticky instead of guessing.
 DONE = Every fix applied; the open-questions sticky shows each item as
 answered or still open; new screens linked both ways; list every
 artboard changed or added.
+```
+
+---
+
+## Prompt 5: NADD (Non-Airworthiness Deferred Defects)
+
+Run after Prompts 4 and 3. Answer Q-N1 to Q-N7 in `workflows/nadd.md` first; the NADDS print artboard needs Q-N5 (the sheet's fields).
+
+```
+[Design standing rules from docs/PROMPTING.md section 1]
+
+TASK: Add the NADD screens to the "Nexus MRO" canvas, wireframe style first,
+then the NADD panel on Home.
+
+CONTEXT: Read workflows/nadd.md. A NADD is a defect that does not affect
+airworthiness, deferred outside the MEL, with a countdown (120 days by
+default, set in Operator settings). Pilots propose; a certifying engineer
+confirms (online, PIN, "not covered by MEL" declaration). A NADD never
+changes the tail status.
+
+SCOPE:
+1. Snag Disposition (D4): add a fourth option "Defer as NADD".
+2. NADD list per aircraft: number, location / item, reported date and by,
+   days remaining, state (Proposed, Open, Extension requested, Expired).
+   Sorted by days remaining. Amber when approaching, red when expired.
+   Buttons: Log NADD, Print NADDS.
+3. Log NADD form (engineer: log and confirm; pilot: "Proposed as NADD").
+4. NADD detail: countdown, confirmation (who, authorization ref, PIN),
+   linked part request, extensions, history; actions Rectify (certify,
+   PIN), Request extension, Reclassify (to MEL or Rectify now).
+5. NADD extension request (goes to Approvals inbox).
+6. Print preview "NADDS" (A4): header with operator, tail and type;
+   table of open NADDs; footer "Printed from Nexus MRO · date · by
+   [name] · version · uncontrolled when printed".
+   Fields: [paste Promise's NADDS field list here].
+7. Home: add a "NADDs" count tile and panel (next to MEL deferrals);
+   add "NADD" to the aircraft section list in the left rail; add
+   "NADD 3 · next expires in 12 days" line to fleet board cards.
+8. Operations availability: add a NADD column (count, link to list).
+9. Operator settings: "NADD default limit (days)" field, default 120.
+10. Mobile: NADD list and Log NADD form (390 x 844).
+
+NOT: No change to tail status from a NADD. No copying of any real PAF
+sheet or data. No calculated due beyond report date + limit.
+STOP IF: The NADDS field list is missing; build everything else and leave
+the print table columns as [Column] placeholders.
+DONE = All screens linked both ways with sticky notes; list every
+artboard added or changed.
 ```
