@@ -228,6 +228,8 @@ PAF has a **Main Store** and a **Forward Store**. A part can be held in either o
 - **Main Store is the store of record.** Parts move **Main → Forward** by a **transfer**: Main issues it (in transit), Forward confirms receipt.
 - If the Forward Store receives a part directly (e.g. from a supplier), it **reports the receipt to the Main Store**. The Main Store acknowledges it, and only then does it count as stock.
 - Reservations (D-071) are made against a specific store.
+- **Store access is per user (D-152):** a user sees only the stores they are granted.
+- **No part enters stock without its release documents uploaded (D-153):** certificate (EASA Form 1, FAA 8130-3, CofC as configured per part class) and serviceable tag.
 
 | # | Transfer state | Holder |
 |---|---|---|

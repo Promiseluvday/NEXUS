@@ -1,6 +1,6 @@
 # Non-Airworthiness Deferred Defects (NADD) workflow
 
-**Status:** Core rules logged as **D-048, D-049** (7 Oct). All section 8 questions answered with the recommendations on 8 Oct and logged as **D-160 to D-165**. Still open: O-13 (4 months vs 120 days; whether NADDs block the A-check).
+**Status:** Core rules logged as **D-048, D-049** (7 Oct). All section 8 questions answered with the recommendations on 8 Oct and logged as **D-160 to D-165**. O-13 answered (D-166): open NADDs never block an A-check, only flagged there and in the pending / overdue list; 4 months = 120 days (30-day months).
 **Builds on:** D-020, D-021, D-023, D-025, D-040 to D-047, D-050 to D-057 (MEL pattern), D-091, D-104
 
 ---

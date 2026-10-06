@@ -72,6 +72,8 @@ The table in section 2 is the **most** a department can see. Each user then gets
 | Department(s) | Supply (home), Procurement (extra) | Super Admin |
 | Permissions within the department | Supply storekeeper: issue, receive. **No "view cost"** | Super Admin |
 | Aircraft scope | NX-201 to NX-204 only (G550 fleet) | Super Admin |
+| Store scope (D-152) | Forward Store only | Super Admin |
+| Engineering sections (D-018) | Line maintenance, Tire Bay | Super Admin |
 
 A user sees the **overlap** of all three. A Supply storekeeper without "view cost" sees part requests and stock, but no price. A Supply director with "view cost" sees both. New permissions are added as the build grows.
 

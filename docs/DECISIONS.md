@@ -33,6 +33,7 @@
 | D-015 | **The aircraft register is controlled by the operator's Super Admins** (D-035). They add aircraft and enter the tail number. Aircraft are **deactivated, never deleted**; deactivation needs a reason and PIN re-entry, no second approval, and is logged with who and when. *(6 Oct 2026)* |
 | D-016 | **ADs and SBs are in v1** as engineer-entered compliance records: applicability, compliance method, status and any next-due figure are entered by an engineer; **Quality verifies each entry** (countersign with PIN). The system never decides applicability or calculates due. Extends D-011. *(6 Oct 2026)* |
 | D-017 | **Flight and crew scheduling are provisioned now, built later** (Phases 5 and 6, D-013). In v1: (a) menu entries "Flight scheduling" and "Crew scheduling" shown as **"Coming soon"**, each with an operator setting to hide them; (b) the data model keeps aircraft availability (status, who set it, expected return to service, D-045 to D-047) and the shared person record with qualifications (D-085) ready for those modules to read; (c) no scheduling logic in v1. When built, scheduling **reads** aircraft availability from Engineering and can never change a tail status (D-046). Refines D-012. *(7 Oct 2026)* |
+| D-018 | **Engineering has three workshop sections** besides line and base maintenance: **Tire Bay**, **Battery Workshop** and **Aerospace Ground Equipment (AGE)**. Each is a work area inside Engineering; access is granted per user (D-121). Their records and workflows are open item O-15. *(8 Oct 2026)* |
 
 ## 3. Core principles
 
@@ -82,7 +83,8 @@
 | D-162 | Every person record carries a **3LC (three-letter code)**, unique per operator, used on printed sheets alongside the full name. *(8 Oct 2026)* |
 | D-163 | **Deferred Defects Log Sheet (DDLS)** replaces the name Hold Item List (HIL). **Every MEL deferral is logged on the DDLS automatically.** An engineer can also place other deferred defects on the DDLS when they judge it a DDLS item and not a NADD. Extensions are allowed only for categories set by the operator (PAF: B, C and D; never A). Workflow: `workflows/ddls.md`. *(8 Oct 2026)* |
 | D-164 | **Technical log references** (TLB book, page and item number) are recorded on every snag, deferral and clearance, because the paper technical log continues alongside Nexus. Opening a DDLS entry needs: TLB book / page / item, MEL category and reference (if MEL), days allowed, pilot report or maintenance entry, (M) and (O) procedure flags, defer date, rectification due date, name and signature. Clearing needs: rectification actions, rectification date, TLB book / page, name and signature. *(8 Oct 2026)* |
-| D-165 | **NADDs and the A-check:** when an A-check package is opened, every open NADD on that tail is listed in it and flagged "rectify before A-check". Whether open NADDs block the A-check from closing is open item O-13. *(8 Oct 2026)* |
+| D-165 | *(Answered by D-166.)* **NADDs and the A-check:** when an A-check package is opened, every open NADD on that tail is listed in it and flagged "rectify before A-check". Whether open NADDs block the A-check from closing is open item O-13. *(8 Oct 2026)* |
+| D-166 | **Open NADDs never block an A-check from closing.** They are flagged in the A-check package and in the pending / overdue list. **Calendar months count as 30 days** (4 months = 120 days), as a configurable counting convention (D-055 pattern). Answers O-13. *(8 Oct 2026)* |
 
 ## 6. MEL
 
@@ -139,6 +141,8 @@
 | D-149 | Requisitions have an **"In clearing"** (customs) state. Document names (request, requisition, issue voucher, etc.) are **configurable labels** in the operator's own terms. Engineers do not see cost by default (D-121). *(8 Oct 2026)* |
 | D-150 | **Forward Store receipts:** the Forward storekeeper does the receiving inspection; the Main Store acknowledges the receipt (D-142). (Answers to O-12.) *(8 Oct 2026)* |
 | D-151 | **Returns from Forward to Main** use the same transfer record in reverse. *(8 Oct 2026)* |
+| D-152 | **Store access is granted per user.** Like aircraft scope (D-121), each user is given access to the Main Store, the Forward Store, or both, by a Super Admin. A user sees stock, transfers and records only for stores they hold. *(8 Oct 2026)* |
+| D-153 | **Release documents are mandatory when a part is registered or received.** The applicable certificate (e.g. EASA Form 1, FAA Form 8130-3, manufacturer CofC) and the serviceable tag must be uploaded (PDF or image, D-026) before the part can be accepted into stock. Which documents are required for each part class (e.g. components vs consumables) is configured by Quality (D-148). *(8 Oct 2026)* |
 
 ## 9. Qualifications
 
@@ -231,6 +235,7 @@ Detail and the per-department table: `docs/department-views.md`.
 | O-10 | ✅ Closed 8 Oct (D-160, D-161). NADD questions Q-N1 to Q-N7 in `workflows/nadd.md` (pilot proposal, countdown start, extension approver, paper vs electronic, NADDS fields, cap, categories) | Promise |
 | O-11 | ✅ Closed 8 Oct (D-067 to D-069). Work order questions Q-W1 to Q-W6 in `workflows/work-order.md` (AOG path, which dispositions need a WO, reserving before approval, packages, mandatory scans, CRS numbering) | Promise |
 | O-12 | ✅ Closed 8 Oct (D-150, D-151). Stores questions Q-S1, Q-S2 in `workflows/part-request.md` (receiving inspection at Forward Store, returns to Main) | Promise |
-| O-13 | NADD limits: (a) PAF's NADDS sheet says "not later than 4 months after entry"; Promise said 120 days. Which governs, calendar months or days? (b) Do open NADDs **block** an A-check from closing, or only appear flagged in it? | Promise |
+| O-13 | ✅ Closed 8 Oct (D-166). NADD limits: (a) PAF's NADDS sheet says "not later than 4 months after entry"; Promise said 120 days. Which governs, calendar months or days? (b) Do open NADDs **block** an A-check from closing, or only appear flagged in it? | Promise |
 | O-14 | **Scheduling data classification** (Phase 6): flight orders and mission lists are classified. Proposal in `workflows/scheduling.md`: on-premise only, need-to-know access, full audit, no cloud copies | Promise |
+| O-15 | **Engineering workshops** (D-018): what each records. Tire Bay (wheel and tyre assemblies, serials, build-up, condition, landings per tyre, retreads?), Battery Workshop (battery serials, capacity checks, charging records), AGE (equipment register, serviceability, calibration and servicing dates entered by staff, defects). Who works in each, and do they need their own work orders? | Promise |
 | O-9 | Design the Aircraft page. Now the aircraft dashboard on Home (D-096); in progress on the design canvas | Promise + Claude |

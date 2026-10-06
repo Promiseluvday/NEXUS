@@ -362,7 +362,9 @@ SCOPE:
    Footer on both: "Printed from Nexus MRO · date · by [name] · version ·
    uncontrolled when printed".
 6. Home and fleet board: "DDLS 2 · NADD 3" counts; tiles open the lists.
-   A-check package: panel "Open NADDs: rectify before A-check".
+   A-check package: panel "Open NADDs: rectify before A-check" (flagged
+   only; it never blocks the package from closing, D-166). Add open and
+   overdue NADDs to the pending / overdue list on Home.
 7. Person record and Create account: add "3LC" field (3 letters, unique).
 8. Operator settings: NADD default limit (days), DDLS extension-allowed
    categories, rows per printed sheet.
@@ -439,6 +441,15 @@ SCOPE:
     qualifications and availability"), and "Coming soon". In Operator
     settings add two switches: "Show Flight scheduling (coming soon)" and
     "Show Crew scheduling (coming soon)". No scheduling features.
+12. Engineering sections (D-018): add "Tire Bay", "Battery Workshop" and
+    "Aerospace Ground Equipment (AGE)" under Engineering in the left rail
+    (shown only to users granted them). Each opens a landing screen with
+    the section name, an empty register table and a sticky "Records and
+    workflow to be defined (O-15)". No invented workflows.
+13. Account screens (Create account, Account page): add "Store access"
+    (Main Store, Forward Store, checkboxes) and "Engineering sections"
+    (Line, Base, Tire Bay, Battery Workshop, AGE) beside aircraft scope.
+    Stores search and transfers show only the stores the user holds.
 
 NOT: No new features beyond this list. Don't change decisions shown on
 existing stickies. Fictional data only.
@@ -491,6 +502,10 @@ C. TWO STORES
     Forward confirms receipt → Main acknowledges.
 10. Forward Store direct receipt: Forward records it and reports to Main;
     shown in Main's "Receipts to acknowledge" list until acknowledged.
+10a. Receiving inspection and part registration: required uploads
+    "Release certificate" (type: EASA Form 1 / FAA 8130-3 / CofC, as
+    configured for the part class) and "Serviceable tag". "Accept to
+    stock" is disabled until both are attached (D-153).
 D. REPORTS AND HISTORIES
 11. Reports screen with these reports, each with date range, Print and
     Download (PDF, spreadsheet): parts removal and installation; work
