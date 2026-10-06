@@ -28,6 +28,10 @@ Command and Quality approving and auditing. Rules that shape navigation:
   and PIN re-entry. Offline state is always visible.
 - Next-due figures are entered by engineers, never calculated.
 - Cost is visible only to Supply, Procurement and Command.
+- Each department (Engineering, Operations, Supply, Procurement) sees its own
+  fleet board and home view. Detail per department: docs/department-views.md.
+  Super Admins set a user's department during or after account creation;
+  users cannot change their own.
 
 SCOPE: Grey boxes, real labels, no colour except status words. One artboard
 per screen (desktop 1440 wide), arranged in rows by area, with arrows or
@@ -63,13 +67,15 @@ N. Audit trail: search by record, person or date.
 O. People: person record -> licences, type ratings, medicals ->
    certifying authorizations (Quality issues, CO/ECO approves).
 P. Administration (Super Admins only): aircraft register (add, deactivate,
-   tail number), users and roles, approval chain set-up, MEL revision
+   tail number), users and roles (create account form with a Department
+   field; account page with "Change department" and its change log),
+   approval chain set-up, MEL revision
    loading (Quality / Technical Records), operator settings.
 Q. Sync queue: items waiting to sync and conflicts to review.
 R. Mobile (390 wide) for B, D, I and Q only, with bottom bar:
    Fleet | Snags | Report | Parts | More.
 
-Add a sticky note on each artboard listing: who can see it (role), and
+Add a sticky note on each artboard listing: which departments can see it, and
 what every button or link on it opens.
 
 NOT: No visual styling beyond grey boxes. No flight scheduling, crew
@@ -114,6 +120,9 @@ CONTEXT: Same rules as the Wireframe page. The home page has three zones:
 3. Bottom strip: 4-week calendar for the tail showing check package
    dates and MEL expiry dates, with previous / next buttons.
 
+Department views: this layout is the Engineering view. Other departments
+get the same frame with different panels (see Prompt 3).
+
 SCOPE: Two new artboards: "Home · desktop" (1440 wide, page) and
 "Home · mobile" (390 x 844). On mobile the left rail becomes a tail
 picker at the top; panels stack; bottom bar Fleet | Snags | Report |
@@ -125,4 +134,52 @@ imitate any commercial MRO system's look, icons or panel names.
 STOP IF: A panel needs data the rules above don't allow (calculated due
 dates, forecasts, cost for an engineer).
 DONE = Both artboards; every link labelled with where it goes.
+```
+
+---
+
+## Prompt 3: Fleet board by department, and department on the account
+
+```
+[Design standing rules from docs/PROMPTING.md section 1]
+
+TASK: Design the fleet board as each department sees it, plus the account
+screens where a Super Admin sets a user's department.
+
+CONTEXT: Same fleet (NX-101 to NX-204), same statuses and "Set by" lines as
+the current Fleet board. Every department sees: tail, type, status word,
+who set it and when, and the "Blocked by" headline with holding department
+and time held. Detail differs:
+- Engineering: the current Fleet board. Leave as is.
+- Operations: availability, open MEL items with category, countdown,
+  the (O) operational procedure and placard, engineer-entered return to
+  service estimate, hours / cycles / landings, the user's own pilot
+  reports. No part numbers, stock, procurement, cost or engineering notes.
+  Actions: Report snag (pilots), Log flight hours.
+- Supply: per tail, part requests (P/N, qty, priority, state, holder,
+  time held), reserved awaiting issue, U/S returns due, shelf-life and
+  certificate alerts. AOG requests first. No snag technical detail, no
+  MEL detail. Actions: Issue part, Receive goods.
+- Procurement: everything Supply sees plus requisitions with approval
+  step, PO, supplier, ETA, overdue deliveries and cost. Actions: Raise PO,
+  Update ETA.
+Header shows the user's department, e.g. "Supply · Storekeeper".
+
+SCOPE: New artboards:
+1. "Fleet board · Operations" (desktop)
+2. "Fleet board · Supply" (desktop)
+3. "Fleet board · Procurement" (desktop)
+4. "Create account" form (Super Admin): name, service number, appointment,
+   Department (required dropdown), role, privileges, save.
+5. "Account page" for an existing user: Department with a
+   "Change department" button, which opens a dialog asking for a reason
+   and PIN, and a change log below (who, from, to, why, when).
+6. "Fleet board · Operations" mobile (390 x 844), dark, for pilots.
+
+NOT: Users cannot change their own department, so no department picker in
+the user's own settings. No cost on Operations or Engineering views. Don't
+change the Engineering Fleet board.
+STOP IF: A department needs information not listed above.
+DONE = Six artboards; a sticky note on each view listing what is hidden
+from that department.
 ```

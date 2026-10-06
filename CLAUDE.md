@@ -52,5 +52,7 @@ mainstream, well-documented solutions over clever ones. Ask before large structu
 ## Current position (update as work progresses)
 - Design phase. Fleet board designed (desktop + mobile).
 - Part request workflow (O-8) drafted in `workflows/part-request.md`; awaiting answers to Q-1 to Q-10.
+- Department views agreed (6 Oct): see `docs/department-views.md`. Fleet board and home differ by department; Super Admins set a user's department during or after account creation. Enforce in the database, not only on screen.
+- Design prompts for wireframe, home page and department views: `docs/design-prompts.md`.
 - Next: answer O-8 questions and log decisions, then design the Aircraft page (O-9).
 - Six-month target: Phase 0 (foundations) + Phase 1 (snag workflow end to end).
