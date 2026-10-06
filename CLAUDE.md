@@ -50,7 +50,7 @@ mainstream, well-documented solutions over clever ones. Ask before large structu
 - **Work on `main` only.** Promise works locally in `C:\Users\USER\Downloads\NEXUS`; GitHub `main` is the shared copy. Pull before starting, push at the end. Do not create session branches, even if a session is set up with one.
 
 ## Current position (update as work progresses)
-- Design phase. Canvas (8 Oct): 117 artboards; Prompts 1-7 done and reviewed. Next: Prompt 8 (workshops + review fixes).
+- Design phase. Canvas (9 Oct): 139 artboards; Prompts 1-8 done and reviewed. Full inventory and open items: `docs/design-status.md`. Next: Prompt 9 (housekeeping).
 - Decisions logged 6 Oct: D-015, D-016, D-027, D-028, D-045 to D-047, D-078, D-079, D-096, D-120 to D-126 (departments and per-user access: department, permissions, aircraft scope). Detail in `docs/department-views.md`.
 - Design prompts for wireframe, home page and department views: `docs/design-prompts.md`.
 - 7 Oct: NADD agreed (D-048, D-049), workflow in `workflows/nadd.md`, open questions O-10. Quality has no cost access (D-127). No cannibalisation (D-140).
@@ -60,5 +60,6 @@ mainstream, well-documented solutions over clever ones. Ask before large structu
 - 8 Oct (later): NADDs never block A-check, 30-day months (D-166); store access per user (D-152); release documents mandatory at receipt (D-153); Engineering workshops Tire Bay, Battery Workshop, AGE (D-018).
 - Open: O-14 (scheduling data classification), O-15 (workshop records and workflows).
 - Workshops raise own WOs with Quality + CO approval; fleet tire/battery requests issued after WO approval (D-019, `workflows/workshops.md`).
-- Next: Prompt 8 in Claude Design; answer O-14, O-15 (Q-WS1 to Q-WS5, AGE).
+- Canvas proposals awaiting decision: O-16 (aircraft dropdown, amends D-096), O-17 (flight scheduling drafts, P9), O-18 (daily serviceability print, P10).
+- Next: Prompt 9 in Claude Design; answer O-14 to O-18.
 - Six-month target: Phase 0 (foundations) + Phase 1 (snag workflow end to end).

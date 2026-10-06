@@ -607,3 +607,32 @@ STOP IF: A screen needs a rule not in workflows/workshops.md or the
 decisions log.
 DONE = All screens linked both ways; list every artboard added or changed.
 ```
+
+---
+
+## Prompt 9: Housekeeping (9 Oct 2026)
+
+Canvas state when written: 139 artboards; Prompts 1 to 8 done. See `docs/design-status.md`.
+
+```
+[Design standing rules from docs/PROMPTING.md section 1]
+
+TASK: Tidy the "Nexus MRO" canvas. No new features.
+
+SCOPE:
+1. "Proposals awaiting decision" sticky: mark P1 to P7 as DECIDED with
+   their decision IDs: P1 → D-063, D-067; P2 → D-065; P3 → D-064;
+   P4 → D-066, D-069; P5 → D-141, D-142, D-150 to D-152; P6 → D-097;
+   P7 → D-144. Keep P8, P9 and P10 as open (O-16, O-17, O-18).
+2. Open-questions sticky: mark C7 resolved (transfer screens TR1, FWD1,
+   ACK1 exist).
+3. C6: on every desktop screen the user name in the top bar opens a small
+   account menu: My account, Sign out (→ Sign in screen).
+4. Mission detail (OP4) and fleet roster (SCH1): for a "Snag open" tail,
+   show "Awaiting engineer assessment · not assignable" instead of "Not
+   available" (D-045: Snag open is counted separately, never as not
+   available).
+
+NOT: No other changes.
+DONE = List every artboard changed.
+```
