@@ -359,7 +359,7 @@ artboard added or changed.
 
 ## Prompt 6: Usability fixes from Promise's review (7 Oct 2026)
 
-Canvas state when written: Prompts 1 to 4 and 3 done (84 artboards, pages Fleet board, Wireframe, Department views). Prompt 5 (NADD) not yet run. Run this before Prompts 7 and 5.
+Canvas state when written: Prompts 1 to 4 and 3 done. Item 11 added 7 Oct (scheduling provision, D-017) (84 artboards, pages Fleet board, Wireframe, Department views). Prompt 5 (NADD) not yet run. Run this before Prompts 7 and 5.
 
 ```
 [Design standing rules from docs/PROMPTING.md section 1]
@@ -410,6 +410,14 @@ SCOPE:
     C2: add a "Sign in" screen (service number or email, password, then
         PIN set-up on first sign-in) and link "Sign out" to it.
     C3, C4: keep as they are.
+11. Scheduling provision (D-017): add "Flight scheduling" and "Crew
+    scheduling" to the Operations area of the left rail and to mobile
+    More, each with a grey "Coming soon" tag. Each opens one placeholder
+    screen: title, one line on what it will do ("Plan flights against
+    aircraft availability from Engineering" / "Roster crew against
+    qualifications and availability"), and "Coming soon". In Operator
+    settings add two switches: "Show Flight scheduling (coming soon)" and
+    "Show Crew scheduling (coming soon)". No scheduling features.
 
 NOT: No new features beyond this list. Don't change decisions shown on
 existing stickies. Fictional data only.

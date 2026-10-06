@@ -27,11 +27,12 @@
 |---|---|
 | D-010 | Nexus interconnects four departments: **Engineering, Supply, Procurement, Operations**. Command and Quality sit across all four, approving and auditing. |
 | D-011 | *(Extended by D-016, D-048 and D-144.)* In scope for v1: snags, work orders, check packages and task cards, MEL deferrals, aircraft hours/cycles/landings, component tracking by position, stores and inventory, part requests, approval chains, procurement with cost and invoice history, document attachments, fleet serviceability dashboard, notifications, audit trail. |
-| D-012 | Out of scope for v1: automatic maintenance forecasting from the AMP/MPD, financial/ERP functions, flight scheduling, crew rostering. |
+| D-012 | *(Refined by D-017: scheduling provisioned as "Coming soon".)* Out of scope for v1: automatic maintenance forecasting from the AMP/MPD, financial/ERP functions, flight scheduling, crew rostering. |
 | D-013 | Later Operations modules (after v1): crew qualifications and expiry tracking (Phase 5), then flight scheduling linked to aircraft serviceability and crew validity (Phase 6). |
 | D-014 | Initial aircraft types for development: **Airbus A330-200** and **Gulfstream G550**. Framework stays aircraft-agnostic. |
 | D-015 | **The aircraft register is controlled by the operator's Super Admins** (D-035). They add aircraft and enter the tail number. Aircraft are **deactivated, never deleted**; deactivation needs a reason and PIN re-entry, no second approval, and is logged with who and when. *(6 Oct 2026)* |
 | D-016 | **ADs and SBs are in v1** as engineer-entered compliance records: applicability, compliance method, status and any next-due figure are entered by an engineer; **Quality verifies each entry** (countersign with PIN). The system never decides applicability or calculates due. Extends D-011. *(6 Oct 2026)* |
+| D-017 | **Flight and crew scheduling are provisioned now, built later** (Phases 5 and 6, D-013). In v1: (a) menu entries "Flight scheduling" and "Crew scheduling" shown as **"Coming soon"**, each with an operator setting to hide them; (b) the data model keeps aircraft availability (status, who set it, expected return to service, D-045 to D-047) and the shared person record with qualifications (D-085) ready for those modules to read; (c) no scheduling logic in v1. When built, scheduling **reads** aircraft availability from Engineering and can never change a tail status (D-046). Refines D-012. *(7 Oct 2026)* |
 
 ## 3. Core principles
 

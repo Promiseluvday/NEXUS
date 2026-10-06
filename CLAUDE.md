@@ -56,5 +56,6 @@ mainstream, well-documented solutions over clever ones. Ask before large structu
 - Design prompts for wireframe, home page and department views: `docs/design-prompts.md`.
 - 7 Oct: NADD agreed (D-048, D-049), workflow in `workflows/nadd.md`, open questions O-10. Quality has no cost access (D-127). No cannibalisation (D-140).
 - 7 Oct (later): work orders need Quality + CO approval (D-063 to D-066, `workflows/work-order.md`), CRS compiled but signed by certifying engineer, two stores (D-141, D-142), part requests without snag (D-143), Procurement outside-MRO oversight (D-144), MEL type-ahead (D-058), printable histories (D-097), navigation rules (D-098).
+- Flight and crew scheduling provisioned as "Coming soon" with hide switches; data model kept ready (D-017). Built in Phases 5–6.
 - Next: Prompts 6 → 7 → 5 in Claude Design; answer O-8, O-10, O-11, O-12.
 - Six-month target: Phase 0 (foundations) + Phase 1 (snag workflow end to end).
