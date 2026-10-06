@@ -1,0 +1,17 @@
+{
+  "name": "nexus-mro",
+  "version": "1.0.0",
+  "description": "Nexus MRO by Liebetag (proprietary)",
+  "scripts": {
+    "db:start": "supabase start -x studio,imgproxy,mailpit,logflare,vector,supavisor,edge-runtime,storage-api,realtime,postgres-meta",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "db:test": "supabase test db",
+    "db:status": "supabase status"
+  },
+  "license": "UNLICENSED",
+  "private": true,
+  "devDependencies": {
+    "supabase": "^2.120.0"
+  }
+}
