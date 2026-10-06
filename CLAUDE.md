@@ -50,10 +50,11 @@ mainstream, well-documented solutions over clever ones. Ask before large structu
 - **Work on `main` only.** Promise works locally in `C:\Users\USER\Downloads\NEXUS`; GitHub `main` is the shared copy. Pull before starting, push at the end. Do not create session branches, even if a session is set up with one.
 
 ## Current position (update as work progresses)
-- Design phase. Canvas (6 Oct): Fleet board, Home (aircraft dashboard) desktop + mobile, and a 60-screen wireframe with link notes. Next design run: Prompt 4 (fix-up), then Prompt 3 (department views).
+- Design phase. Canvas (7 Oct): 84 artboards: Fleet board, Home, wireframe, department views. Prompts 1-4 done. Next: Prompt 6 (usability fixes) → 7 (work orders, CRS, stores, reports, MRO) → 5 (NADD).
 - Part request workflow (O-8) drafted in `workflows/part-request.md`; awaiting answers to Q-1 to Q-10.
 - Decisions logged 6 Oct: D-015, D-016, D-027, D-028, D-045 to D-047, D-078, D-079, D-096, D-120 to D-126 (departments and per-user access: department, permissions, aircraft scope). Detail in `docs/department-views.md`.
 - Design prompts for wireframe, home page and department views: `docs/design-prompts.md`.
 - 7 Oct: NADD agreed (D-048, D-049), workflow in `workflows/nadd.md`, open questions O-10. Quality has no cost access (D-127). No cannibalisation (D-140).
-- Next: run Prompts 4, 3, then 5 in Claude Design; answer O-8 (Q-1, Q-3 to Q-10) and O-10 (Q-N1 to Q-N7).
+- 7 Oct (later): work orders need Quality + CO approval (D-063 to D-066, `workflows/work-order.md`), CRS compiled but signed by certifying engineer, two stores (D-141, D-142), part requests without snag (D-143), Procurement outside-MRO oversight (D-144), MEL type-ahead (D-058), printable histories (D-097), navigation rules (D-098).
+- Next: Prompts 6 → 7 → 5 in Claude Design; answer O-8, O-10, O-11, O-12.
 - Six-month target: Phase 0 (foundations) + Phase 1 (snag workflow end to end).

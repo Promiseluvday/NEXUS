@@ -26,7 +26,7 @@
 | ID | Decision |
 |---|---|
 | D-010 | Nexus interconnects four departments: **Engineering, Supply, Procurement, Operations**. Command and Quality sit across all four, approving and auditing. |
-| D-011 | *(Extended by D-016 and D-048.)* In scope for v1: snags, work orders, check packages and task cards, MEL deferrals, aircraft hours/cycles/landings, component tracking by position, stores and inventory, part requests, approval chains, procurement with cost and invoice history, document attachments, fleet serviceability dashboard, notifications, audit trail. |
+| D-011 | *(Extended by D-016, D-048 and D-144.)* In scope for v1: snags, work orders, check packages and task cards, MEL deferrals, aircraft hours/cycles/landings, component tracking by position, stores and inventory, part requests, approval chains, procurement with cost and invoice history, document attachments, fleet serviceability dashboard, notifications, audit trail. |
 | D-012 | Out of scope for v1: automatic maintenance forecasting from the AMP/MPD, financial/ERP functions, flight scheduling, crew rostering. |
 | D-013 | Later Operations modules (after v1): crew qualifications and expiry tracking (Phase 5), then flight scheduling linked to aircraft serviceability and crew validity (Phase 6). |
 | D-014 | Initial aircraft types for development: **Airbus A330-200** and **Gulfstream G550**. Framework stays aircraft-agnostic. |
@@ -89,14 +89,19 @@
 | D-055 | Counting convention (day of discovery, expiry time zone) is **configurable** to match the operator's approved procedure. |
 | D-056 | Extensions require a **separate approval** with an authority reference. Never an edit to the original deferral. |
 | D-057 | On expiry: the item turns red, alerts escalate to Engineering, Quality and Operations, and the tail shows "MEL limit exceeded". The system does not ground the aircraft itself; the certifying engineer decides, and the record shows they were warned. |
+| D-058 | **Applying an MEL item uses the loaded MEL** (D-050). As the engineer types, Nexus suggests matching items from the aircraft's loaded MEL revision, or the exact item if typed in full. Choosing one fills in the remarks or exceptions, category and interval, and the revision. The engineer then completes the D-053 confirmations and applies it. *(7 Oct 2026)* |
 
-## 7. Checks and packages
+## 7. Checks, packages and work orders
 
 | ID | Decision |
 |---|---|
 | D-060 | Engineers can add **maintenance check packages** per aircraft: check type, engineer-entered due figure, uploaded work pack (PDF), and a list of task cards. |
 | D-061 | Each task card has its own status (not started, in progress, done, certified), assigned engineer, and duplicate-inspection flag. |
 | D-062 | Progress is shown as **"X of Y tasks completed"**, not as a percentage labelled "progress". Weighting by man-hours may come later. |
+| D-063 | **Work orders need two approvals before any work is recorded.** After a snag is assessed, the engineer raises a work order request. **Quality pre-approves**, then the **CO gives final approval** (acting deputy per D-036). No updates, task entries or sign-offs can be added until both approvals are given. Workflow: `workflows/work-order.md`. *(7 Oct 2026)* |
+| D-064 | **Work order numbers are generated automatically by the server** and run **sequentially across the whole fleet**. Numbers are never reused; rejected or cancelled work orders keep theirs. Format is a setting (D-025). *(7 Oct 2026)* |
+| D-065 | **Completion evidence:** before a work order is certified closed, scanned copies of the signed sign-off card and/or technical log page, and the aircraft or engine logbook entry, are attached (PDF or images, D-026). Which scans are mandatory is a setting. *(7 Oct 2026)* |
+| D-066 | **CRS:** when every task in a work package is certified and its findings are closed (D-044), Nexus **compiles** the Certificate of Release to Service with a sequential reference number, printable and downloadable. It is a draft until an authorized certifying engineer signs it (online, PIN, D-043, D-104). Nexus never releases an aircraft on its own (D-020). The layout is a configurable template. *(7 Oct 2026)* |
 
 ## 8. Supply and procurement
 
@@ -113,6 +118,10 @@
 | D-078 | **Changing an approval chain** is itself approved: Quality proposes, the CO approves. Logged and versioned like D-083. The approver for MEL extensions is set in the approval chain set-up. *(6 Oct 2026)* |
 | D-079 | **Rejecting any approval requires a reason.** The record returns to the person who submitted it, shown as "Rejected" with the reason. Resubmitting creates a new version. *(6 Oct 2026)* |
 | D-140 | **No cannibalisation (robbery).** PAF does not rob parts from one aircraft to fit another, so Nexus has no robbery flow. Parts come only from stores or purchase. (Section 8 continues at D-140 because D-070 to D-079 are used.) *(7 Oct 2026)* |
+| D-141 | **Stock is held per store.** PAF has a **Main Store** and a **Forward Store**; a part can be in either or both, and searches show quantity per store. The list of stores is a setting (D-025). *(7 Oct 2026)* |
+| D-142 | **Main Store is the store of record.** Parts move Main → Forward by transfer (issued, in transit, received). If the Forward Store receives a part directly, it reports the receipt to the Main Store, which acknowledges it before it counts as stock. *(7 Oct 2026)* |
+| D-143 | **A part request does not need a snag.** Aircraft parts need a tail and a work order or task card. Consumables can be requested without a snag, against a work order or a stated purpose. *(7 Oct 2026)* |
+| D-144 | **Procurement also runs commercial maintenance oversight** of work sent to outside MROs: negotiating maintenance cost, recording the agreed cost, and logging parts used by the MRO with their cost. Technical acceptance of MRO work stays with Engineering and Quality (D-020). Extends D-011. *(7 Oct 2026)* |
 
 ## 9. Qualifications
 
@@ -136,6 +145,8 @@
 | D-094 | Principles: tail first; three taps to anything routine; status always visible; "what's blocking this?" on every relevant screen; role-based home screens; offline state always visible; signing requires PIN re-entry; history one tap away. |
 | D-095 | First screens designed: Fleet board (desktop and mobile). Next: Aircraft page. **Partly SUPERSEDED by D-096.** |
 | D-096 | **Home is aircraft-first.** The left rail lists "All aircraft" and each tail. "All aircraft" shows the fleet board; choosing a tail shows that aircraft's dashboard (record, totals, open items with "Blocked by" first, due items as entered, recent activity, 4-week calendar). The Aircraft page (O-9) is this dashboard. Layout is Liebetag's own; no copying of commercial MRO screens (D-113). *(6 Oct 2026)* |
+| D-097 | **Every history and register can be printed and downloaded** (PDF and spreadsheet), filtered by date range: parts removal and installation, work order history, completed task history, parts received by month, parts purchased by month or year, and total cost of parts. Cost reports follow cost permissions (D-121, D-127). Prints are marked with who, when and "uncontrolled when printed". *(7 Oct 2026)* |
+| D-098 | **Navigation principles** (add to D-094): every summary tile or box is clickable as a whole, not just its number; every screen has Back and a breadcrumb; a screen never asks for what it already knows (under a tail, the tail is filled in; from a part, the part number is filled in); "History" on a record opens **that record's version history**, not the aircraft history. *(7 Oct 2026)* |
 
 ## 11. Architecture
 
@@ -201,4 +212,6 @@ Detail and the per-department table: `docs/department-views.md`.
 | O-7 | Status label wording on the fleet board (AOG / U/S / SVC · MEL) to match PAF usage | Promise |
 | O-8 | Map the part request workflow in detail. Draft in `workflows/part-request.md`; Q-1 to Q-10 still to answer | Promise + Claude |
 | O-10 | NADD questions Q-N1 to Q-N7 in `workflows/nadd.md` (pilot proposal, countdown start, extension approver, paper vs electronic, NADDS fields, cap, categories) | Promise |
+| O-11 | Work order questions Q-W1 to Q-W6 in `workflows/work-order.md` (AOG path, which dispositions need a WO, reserving before approval, packages, mandatory scans, CRS numbering) | Promise |
+| O-12 | Stores questions Q-S1, Q-S2 in `workflows/part-request.md` (receiving inspection at Forward Store, returns to Main) | Promise |
 | O-9 | Design the Aircraft page. Now the aircraft dashboard on Home (D-096); in progress on the design canvas | Promise + Claude |

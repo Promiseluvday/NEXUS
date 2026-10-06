@@ -14,7 +14,7 @@ Every department sees the **same fleet and the same tail statuses**, but each se
 | **Engineering** | Everything about the aircraft |
 | **Operations** | What the pilot and the flight need: availability, operational limitations, placards |
 | **Supply** | Parts activity per tail: requests, reservations, issues, returns, shelf life |
-| **Procurement** | Supply's parts view plus requisitions, approvals, orders, suppliers and cost |
+| **Procurement** | Supply's parts view plus requisitions, approvals, orders, suppliers and cost, **and outside-MRO jobs: negotiated cost, parts used and their cost (D-144)** |
 | **Command** | Everything, read-only, including cost (D-122) |
 | **Quality** | Engineering and Operations records, read-only. **No cost.** Supply and Procurement data only as granted by a Super Admin (D-127) |
 
@@ -45,6 +45,7 @@ The department is set on the user's account, **during or after account creation*
 | Requisitions, approval step, PO, supplier, ETA | ◐ (state and ETA) | — | ✅ | ✅ |
 | Cost, invoice, price history | — | — | ✅ if user has "view cost" (D-121) | ✅ if user has "view cost" (D-121) |
 | "Needs attention" panel | Eng items | Ops items | Supply items | Proc + Supply items |
+| Outside-MRO jobs: scope, negotiated cost, parts used and cost (D-144) | ◐ (scope and status) | — | — | ✅ |
 | Main actions | Report snag, Log hours | Report snag (pilots), Log hours | Issue, Receive | Raise PO, Update ETA |
 
 **Why "Blocked by" stays visible to every department:** it is the signature feature (D-006). Its value is that each department can see when *it* is the one holding an aircraft down. Hide it and departments stop seeing their own delays. The headline is shared; the detail behind it follows this table.

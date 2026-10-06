@@ -354,3 +354,134 @@ the print table columns as [Column] placeholders.
 DONE = All screens linked both ways with sticky notes; list every
 artboard added or changed.
 ```
+
+---
+
+## Prompt 6: Usability fixes from Promise's review (7 Oct 2026)
+
+Canvas state when written: Prompts 1 to 4 and 3 done (84 artboards, pages Fleet board, Wireframe, Department views). Prompt 5 (NADD) not yet run. Run this before Prompts 7 and 5.
+
+```
+[Design standing rules from docs/PROMPTING.md section 1]
+
+TASK: Apply these usability fixes across every artboard on the "Nexus MRO"
+canvas (all three pages, desktop and mobile).
+
+CONTEXT: New rule D-098: every tile is clickable as a whole; every screen has
+Back and a breadcrumb; a screen never asks for what it already knows;
+"History" on a record opens that record's version history.
+
+SCOPE:
+1. Clickable tiles: every count tile and summary box (e.g. "Open snags 2")
+   is one link covering the whole box, not just the number. Hover and
+   focus state on the whole box.
+2. Back and breadcrumb: every screen below Home gets a Back button and a
+   breadcrumb under the top bar, e.g. "All aircraft › NX-102 › Snags ›
+   SNAG-0142". Mobile: Back arrow in the header.
+3. "All aircraft" (fleet overview, desktop and mobile): remove "Report
+   snag" and "Log flight hours". These live only under a tail.
+4. Log flight hours opened from a tail: the tail is already filled in and
+   shown as read-only text, not a field.
+5. Part detail → "Request this part": the part request form opens with the
+   part number, description and store already filled in (read-only).
+6. Flight records: "History" on an entry opens a new "Flight record
+   version history" screen: every version of that entry, who, when and
+   the reason for each correction. Add a separate "Aircraft history" link.
+   Apply the same rule to every record's History link.
+7. Stores search: add a Search button next to the field (Enter also
+   searches). Show the results state: matching parts with quantity per
+   store ("Main 4 · Forward 1"), certificate and shelf-life flags.
+   Add an empty state "No parts match [P/N]".
+8. Apply MEL item (from Disposition "Defer under MEL" and from MEL list):
+   a type-ahead field "MEL item". As the engineer types, show suggestions
+   from the aircraft's loaded MEL revision (item number and title). Typing
+   an exact item number shows that item first. Choosing an item fills in,
+   read-only: item, title, category, interval, remarks or exceptions,
+   (M) and (O) procedure flags, MEL revision. Then the D-053 confirmations
+   ((M) done, (O) passed to Operations, placard fitted), remarks, and
+   "Apply MEL" (online, PIN).
+9. Part request form: "Request type" = Aircraft part (tail + work order or
+   task card required) or Consumable (no snag needed; work order or
+   "General use" with purpose; tail optional). Remove the requirement to
+   link a snag.
+10. Conflicts on the open-questions sticky:
+    C1: bring "Fleet board · desktop" and "Fleet board · mobile" in line
+        with the Hangar-grade theme and the department rail rule.
+    C2: add a "Sign in" screen (service number or email, password, then
+        PIN set-up on first sign-in) and link "Sign out" to it.
+    C3, C4: keep as they are.
+
+NOT: No new features beyond this list. Don't change decisions shown on
+existing stickies. Fictional data only.
+STOP IF: A fix conflicts with an existing screen's rule; note it on the
+open-questions sticky.
+DONE = Every artboard checked; list each one changed.
+```
+
+---
+
+## Prompt 7: Work orders, completion evidence, CRS, two stores, reports, MRO oversight
+
+Run after Prompt 6. Read `workflows/work-order.md` and section 11A of `workflows/part-request.md`. Some details depend on open questions O-11 and O-12; the prompt uses Claude's recommendations, marked (DEFAULT). Change them if Promise answers differently.
+
+```
+[Design standing rules from docs/PROMPTING.md section 1]
+
+TASK: Add the work order approval flow, completion evidence, CRS, two-store
+stock, printable histories and Procurement's outside-MRO screens to the
+"Nexus MRO" canvas, wireframe style, with link sticky notes.
+
+CONTEXT: Rules D-063 to D-066, D-097, D-141 to D-144.
+
+SCOPE:
+A. WORK ORDERS
+ 1. Work order request form, raised from an assessed snag or a package:
+    scope of work, estimated man-hours, parts (reserve only before
+    approval, DEFAULT). Number shown as "Assigned on submission".
+ 2. Work order detail with an approval strip: Requested → Quality
+    pre-approval → CO final approval → Open → Work complete → Certified.
+    Before approval: all task entries, updates and sign-offs are disabled,
+    with the message "Locked until Quality and CO approve".
+    Number in Plex Mono, e.g. WO-000214 (one sequence for the fleet).
+ 3. Approve / reject screens for Quality and for the CO (reason required
+    to reject). Add both to the Approvals inbox.
+ 4. "Blocked by: work order awaiting CO · 3h" on the tail card and Home.
+ 5. Completion evidence step: upload scanned sign-off card, technical log
+    page, aircraft logbook entry, engine logbook entry (PDF or image).
+    "Certify and close" is disabled until the required scans are attached.
+B. CRS
+ 6. Package detail: when all tasks are certified and findings closed,
+    show "Compile CRS". CRS preview (A4): draft watermark "Not valid until
+    signed", aircraft, package, work orders, tasks, deferred items carried
+    forward (MEL, NADD), certifying staff block.
+ 7. Sign CRS (certifying engineer, online, PIN) → reference number
+    assigned (e.g. CRS-000087) → Print and Download PDF.
+C. TWO STORES
+ 8. Stores search and part detail: quantity per store (Main, Forward).
+ 9. Transfer: Main Store raises transfer to Forward → in transit →
+    Forward confirms receipt → Main acknowledges.
+10. Forward Store direct receipt: Forward records it and reports to Main;
+    shown in Main's "Receipts to acknowledge" list until acknowledged.
+D. REPORTS AND HISTORIES
+11. Reports screen with these reports, each with date range, Print and
+    Download (PDF, spreadsheet): parts removal and installation; work
+    order history; completed task history; parts received (month); parts
+    purchased (month or year); total cost of parts. Cost reports visible
+    only to users with "View cost".
+12. Add Print / Download to every History screen.
+E. PROCUREMENT: OUTSIDE MRO
+13. Outside-MRO jobs list (Procurement): MRO name (fictional), aircraft,
+    scope, quoted cost, negotiated cost, status.
+14. MRO job detail: quotes and negotiation log, agreed cost, parts used by
+    the MRO with cost, invoices (PDF), link to the Engineering work order.
+    Technical acceptance shown as "Accepted by [Engineer] / [Quality]",
+    not by Procurement.
+
+NOT: No CRS without a certifying engineer's signature. No cost on screens
+for users without "View cost". No real MRO names or PAF data.
+STOP IF: A screen needs a rule not in D-063 to D-066, D-097, D-141 to D-144.
+DONE = All screens linked both ways with sticky notes; list every
+artboard added or changed.
+```
+
+**Run order now:** Prompt 6 → Prompt 7 → Prompt 5 (NADD).

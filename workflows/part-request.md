@@ -125,7 +125,9 @@ Every state names the **department holding it**. This is what feeds the live "Bl
 | Field | Notes |
 |---|---|
 | Tail | Required |
-| Linked job | **Required**: snag, non-routine card, task card or work order. No orphan requests (see risk R-1) |
+| Request type | **Aircraft part**: tail and a work order or task card required. **Consumable**: no snag needed (D-143); tail optional; a work order, or "General use" with a stated purpose, required |
+| Linked job | Work order, task card or non-routine card. **A snag is not required** (D-143) |
+| Store | Main Store or Forward Store, shown with quantity in each (D-141) |
 | Part number | From the stores catalogue, or free text if not catalogued (Supply then catalogues it) |
 | IPC / manual reference | Entered by the engineer. **The system does not decide interchangeability** (D-020). Alternate P/Ns are entered by the engineer, not suggested by the system |
 | Quantity and unit | |
@@ -171,7 +173,7 @@ Every state names the **department holding it**. This is what feeds the live "Bl
 
 | # | Risk | How it gets abused or fails | Mitigation |
 |---|---|---|---|
-| R-1 | Orphan requests | Parts drawn with no tail or job: pilferage, or no traceability for what was fitted | Linked job is mandatory. Supply-initiated stock top-ups use a separate **replenishment requisition**, not a part request |
+| R-1 | Orphan requests | Consumables drawn with no purpose: pilferage, no traceability | Aircraft parts need tail + work order. Consumables need a work order or a stated purpose; consumption report per person and per month for Supply and Command. Stock top-ups use a separate **replenishment requisition** |
 | R-2 | Priority inflation | Everything marked AOG, so AOG means nothing | AOG only on a job that makes the tail unserviceable, or confirmed by a certifying engineer (Q-3). Report on priority use per person, visible to Quality and Command |
 | R-3 | Split purchases | Large buy split into small requisitions to stay under an approval threshold | Flag same P/N, or same supplier, raised more than once within a configurable window |
 | R-4 | Buyer–supplier collusion | Inflated prices, favoured supplier | Price history per P/N (D-077), outlier flag against the last price, buyer ≠ receiver (D-075) |
@@ -206,12 +208,33 @@ Each one needs an answer before this becomes decisions. Where I have a recommend
 
 These are drafts only. They go into `DECISIONS.md` as **D-078 onwards** once approved.
 
-- **D-078 (draft):** A part request always belongs to one tail and one job (snag, non-routine card, task card or work order). Stock replenishment uses a separate replenishment requisition.
-- **D-079 (draft):** Part Request and Requisition/PO are separate linked records. Engineering owns the request; Supply and Procurement own the requisition and PO.
-- **D-07A (draft, numbering to be assigned):** Reservation happens at server time only. Offline requests show "Queued, not reserved".
+- ~~D-078 (draft): a part request always belongs to one tail and one job.~~ **Replaced by D-143 (7 Oct):** a snag is not required; consumables can be requested without one. (D-078 and D-079 were later used for other decisions; remaining drafts below need new numbers.)
+- **(draft):** Part Request and Requisition/PO are separate linked records. Engineering owns the request; Supply and Procurement own the requisition and PO.
+- **(draft):** Reservation happens at server time only. Offline requests show "Queued, not reserved".
 - *(Further entries for Q-1 to Q-10 once answered.)*
 
-Note: Section 8 (D-070 to D-077) has only two free numbers left (D-078, D-079), so the rest will need numbering agreed, e.g. continuing at a new block.
+Note: supply and procurement decisions now continue at **D-140 onwards**.
+
+---
+
+## 11A. Two stores: Main Store and Forward Store (D-141, D-142)
+
+PAF has a **Main Store** and a **Forward Store**. A part can be held in either or both.
+
+- Stock is recorded **per store**. Stores search and part detail show quantity in each (e.g. "Main 4 · Forward 1").
+- Stores are a configurable list (D-025); other operators may have one store or several.
+- **Main Store is the store of record.** Parts move **Main → Forward** by a **transfer**: Main issues it (in transit), Forward confirms receipt.
+- If the Forward Store receives a part directly (e.g. from a supplier), it **reports the receipt to the Main Store**. The Main Store acknowledges it, and only then does it count as stock.
+- Reservations (D-071) are made against a specific store.
+
+| # | Transfer state | Holder |
+|---|---|---|
+| T-1 | Transfer raised (Main) | Main Store |
+| T-2 | In transit | Main Store |
+| T-3 | Received at Forward, reported to Main | Main Store (to acknowledge) |
+| T-4 | Acknowledged, in Forward stock | — |
+
+**Open (Q-S1, Q-S2):** who does the receiving inspection (D-074) for a part delivered straight to the Forward Store? Can Forward return parts to Main? Recommendation: the Forward storekeeper inspects, Main acknowledges; returns use the same transfer in reverse.
 
 ---
 
