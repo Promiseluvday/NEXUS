@@ -529,3 +529,81 @@ artboard added or changed.
 ```
 
 **Run order now:** Prompt 6 → Prompt 7 → Prompt 5 (DDLS and NADDS).
+
+---
+
+## Prompt 8: Workshops, and review fixes after Prompts 5 to 7
+
+Canvas state when written (8 Oct 2026): 117 artboards on pages Home, Wireframe, Department views. Prompts 1 to 7 done. Workshop rules: D-019, `workflows/workshops.md`. Items marked (DEFAULT) follow Claude's recommendations for open questions Q-WS1 to Q-WS3; change them if Promise answers differently.
+
+```
+[Design standing rules from docs/PROMPTING.md section 1]
+
+TASK: Design the Tire Bay and Battery Workshop screens, and fix the review
+items below, on the "Nexus MRO" canvas (wireframe style, link stickies).
+
+CONTEXT: Read workflows/workshops.md. Workshops raise their own work
+orders (Quality pre-approval, CO final approval). When an aircraft work
+order needing a tire assembly or battery is approved, the workshop gets a
+request to issue one by serial number.
+
+SCOPE:
+A. TIRE BAY (replace the placeholder TB1)
+ 1. Tire Bay home: tiles (whole tile clickable) for Requests to issue,
+    Serviceable assemblies, Internal work orders, Removed units awaiting
+    strip; registers: Wheels, Tires, Assemblies.
+ 2. Assembly detail: assembly ref, tire S/N, wheel S/N, built by (3LC),
+    build date, pressure recorded, status (serviceable / fitted /
+    removed), fitted to tail and position, landings while fitted (sum of
+    flight records), history.
+ 3. Internal work order request (Tire Bay): job type = Tire request,
+    Wheel request, Tire and wheel build-up, Strip and inspect; goes to
+    Quality then CO, same approval strip as aircraft WOs.
+ 4. Request to issue (from an approved fleet WO): shows WO number, tail,
+    position, assembly P/N; pick a serviceable assembly by S/N; Issue
+    (PIN). Unapproved WOs never appear here.
+ 5. Tire Bay stock location (DEFAULT): serviceable assemblies appear in
+    Stores search as location "Tire Bay".
+B. BATTERY WORKSHOP (replace the placeholder BW1)
+ 6. Battery Workshop home: tiles for Requests to issue, Serviceable
+    batteries, Capacity tests due (date entered by staff), Internal work
+    orders.
+ 7. Battery detail: S/N, P/N, type, status, fitted to, capacity test
+    history (date, result, by, next test date as entered), charge records.
+ 8. Record capacity test: result, notes, next test date (entered), sign
+    (PIN).
+ 9. Internal work order (Battery): job type = Capacity test, Servicing;
+    periodic work order option "Routine tests for [month]" approved once
+    (DEFAULT).
+10. Request to issue battery from an approved fleet WO, as in 4.
+C. FLEET SIDE
+11. Aircraft work order request: when scope is "Tire change" or "Battery
+    change", add "Workshop request: issue tire assembly / battery,
+    position [ ]". After CO approval, the WO detail shows "Request sent to
+    Tire Bay / Battery Workshop" and then "Issued: S/N [ ] by [3LC]".
+D. FIXES FROM REVIEW
+12. CO final approval (WCO): show "CO or acting deputy" (D-067).
+13. Completion evidence (WOE): an item is either "Required" or "Not
+    required for this work order", never both.
+14. Outside-MRO job detail (MRO2): breadcrumb "Procurement › Outside-MRO
+    jobs › MRO-0007"; link it to a work order on the same tail (NX-101).
+15. CRS preview: NADD carried forward shows its expiry date as well as
+    "before next A-check".
+16. Add "Check type: A-check" to Create package, and draw an A-check
+    package detail with the "Open NADDs: rectify before A-check" panel
+    (flagged only, never blocks closing).
+17. Approval chain set-up (P4): add rows "NADD extension (default:
+    Quality)", "DDLS extension", "Workshop work orders".
+18. Operator settings: add "Completion scans required per work order
+    type" table (aircraft, workshop, package).
+19. Open-questions sticky: mark C8 resolved (decisions now logged), C9
+    resolved (D-067: acting deputy only, no verbal path), C10 to C12
+    resolved by items 16 to 18.
+20. AGE placeholder stays; sticky "Waiting for AGE description (O-15)".
+
+NOT: No invented AGE workflow. No calculated test or due dates. Fictional
+data only (NX tails, invented serials and 3LCs).
+STOP IF: A screen needs a rule not in workflows/workshops.md or the
+decisions log.
+DONE = All screens linked both ways; list every artboard added or changed.
+```

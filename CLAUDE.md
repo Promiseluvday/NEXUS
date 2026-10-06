@@ -50,7 +50,7 @@ mainstream, well-documented solutions over clever ones. Ask before large structu
 - **Work on `main` only.** Promise works locally in `C:\Users\USER\Downloads\NEXUS`; GitHub `main` is the shared copy. Pull before starting, push at the end. Do not create session branches, even if a session is set up with one.
 
 ## Current position (update as work progresses)
-- Design phase. Canvas (7 Oct): 84 artboards: Fleet board, Home, wireframe, department views. Prompts 1-4 done. Next: Prompt 6 (usability fixes) → 7 (work orders, CRS, stores, reports, MRO) → 5 (DDLS and NADDS).
+- Design phase. Canvas (8 Oct): 117 artboards; Prompts 1-7 done and reviewed. Next: Prompt 8 (workshops + review fixes).
 - Decisions logged 6 Oct: D-015, D-016, D-027, D-028, D-045 to D-047, D-078, D-079, D-096, D-120 to D-126 (departments and per-user access: department, permissions, aircraft scope). Detail in `docs/department-views.md`.
 - Design prompts for wireframe, home page and department views: `docs/design-prompts.md`.
 - 7 Oct: NADD agreed (D-048, D-049), workflow in `workflows/nadd.md`, open questions O-10. Quality has no cost access (D-127). No cannibalisation (D-140).
@@ -59,5 +59,6 @@ mainstream, well-documented solutions over clever ones. Ask before large structu
 - 8 Oct: O-8, O-10, O-11, O-12 closed with Claude's recommendations (D-067 to D-069, D-145 to D-151, D-160 to D-165). HIL renamed DDLS; MEL deferrals auto-log to it (`workflows/ddls.md`). NADDS layout and 3LC logged. Scheduling pattern in `workflows/scheduling.md` (structure only; operator documents are classified and never stored).
 - 8 Oct (later): NADDs never block A-check, 30-day months (D-166); store access per user (D-152); release documents mandatory at receipt (D-153); Engineering workshops Tire Bay, Battery Workshop, AGE (D-018).
 - Open: O-14 (scheduling data classification), O-15 (workshop records and workflows).
-- Next: Prompts 6 → 7 → 5 in Claude Design.
+- Workshops raise own WOs with Quality + CO approval; fleet tire/battery requests issued after WO approval (D-019, `workflows/workshops.md`).
+- Next: Prompt 8 in Claude Design; answer O-14, O-15 (Q-WS1 to Q-WS5, AGE).
 - Six-month target: Phase 0 (foundations) + Phase 1 (snag workflow end to end).
