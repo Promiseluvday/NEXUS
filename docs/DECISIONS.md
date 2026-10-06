@@ -26,10 +26,12 @@
 | ID | Decision |
 |---|---|
 | D-010 | Nexus interconnects four departments: **Engineering, Supply, Procurement, Operations**. Command and Quality sit across all four, approving and auditing. |
-| D-011 | In scope for v1: snags, work orders, check packages and task cards, MEL deferrals, aircraft hours/cycles/landings, component tracking by position, stores and inventory, part requests, approval chains, procurement with cost and invoice history, document attachments, fleet serviceability dashboard, notifications, audit trail. |
+| D-011 | *(Extended by D-016.)* In scope for v1: snags, work orders, check packages and task cards, MEL deferrals, aircraft hours/cycles/landings, component tracking by position, stores and inventory, part requests, approval chains, procurement with cost and invoice history, document attachments, fleet serviceability dashboard, notifications, audit trail. |
 | D-012 | Out of scope for v1: automatic maintenance forecasting from the AMP/MPD, financial/ERP functions, flight scheduling, crew rostering. |
 | D-013 | Later Operations modules (after v1): crew qualifications and expiry tracking (Phase 5), then flight scheduling linked to aircraft serviceability and crew validity (Phase 6). |
 | D-014 | Initial aircraft types for development: **Airbus A330-200** and **Gulfstream G550**. Framework stays aircraft-agnostic. |
+| D-015 | **The aircraft register is controlled by the operator's Super Admins** (D-035). They add aircraft and enter the tail number. Aircraft are **deactivated, never deleted**; deactivation needs a reason and PIN re-entry, no second approval, and is logged with who and when. *(6 Oct 2026)* |
+| D-016 | **ADs and SBs are in v1** as engineer-entered compliance records: applicability, compliance method, status and any next-due figure are entered by an engineer; **Quality verifies each entry** (countersign with PIN). The system never decides applicability or calculates due. Extends D-011. *(6 Oct 2026)* |
 
 ## 3. Core principles
 
@@ -42,6 +44,8 @@
 | D-024 | Every entry is tied to a named user, with both **device time and server time**. Server time is authoritative. |
 | D-025 | **Configure, don't hard-code.** Anything that differs between operators is a setting: qualification requirements, approval chain steps, MEL counting conventions, duplicate-inspection categories, appointment titles. |
 | D-026 | Work pack and document uploads are **PDF and images only**. Executable files are never accepted. |
+| D-027 | **Flight records are entered by Pilots and Engineering.** Every entry carries the person's name. Engineering corrects an entry by creating a new version with a reason; the original stays in history. *(6 Oct 2026)* |
+| D-028 | The "flags approach" in D-021 uses a **margin configured per operator**: amber "Approaching" inside the margin, red "Reached" at the entered figure. No projections. *(6 Oct 2026)* |
 
 ## 4. Accounts, roles and privileges
 
@@ -67,6 +71,9 @@
 | D-042 | **A pilot cannot close any entry.** Every entry, including soft observations and no-fault-found, is dispositioned by an engineer. |
 | D-043 | Only users holding a valid **Certifying** privilege, in scope for that aircraft type, can close an item. Certification checks the company authorization, licence and type rating. |
 | D-044 | Findings during a check are raised as **non-routine cards** inside the package and enter the snag workflow. A check cannot close while its findings are open. |
+| D-045 | **A pilot report alone shows "Snag open"** on the tail, not U/S or AOG. The tail keeps its last engineer-set status, shown as "Last status: … set by [name] · time", until an engineer changes it. Operations counts "Snag open" separately, never as "not available". *(6 Oct 2026)* |
+| D-046 | **Only an engineer sets a tail status** (U/S, AOG, SVC, SVC · MEL, In check). Every status shows **who set it and when**. *(6 Oct 2026)* |
+| D-047 | **Expected return to service** is an estimate entered by Engineering (duty or certifying engineer) with name and time, never calculated. Visible to all departments. *(6 Oct 2026)* |
 
 ## 6. MEL
 
@@ -100,7 +107,9 @@
 | D-074 | **Only Supply can mark a part available**, after receiving inspection. Procurement cannot. |
 | D-075 | **Separation of duties:** the requester cannot approve the purchase; the buyer cannot receive it into stock. |
 | D-076 | Approval chain is multi-level (e.g. storekeeper → supply director → commander), with status visible to all concerned. The chain's steps are configurable per operator. |
-| D-077 | Purchase cost and invoice are attached to each purchase, giving **price history**. Cost data sits behind stricter permissions (Supply, Procurement, Command). |
+| D-077 | *(Refined by D-121 and D-122.)* Purchase cost and invoice are attached to each purchase, giving **price history**. Cost data sits behind stricter permissions (Supply, Procurement, Command). |
+| D-078 | **Changing an approval chain** is itself approved: Quality proposes, the CO approves. Logged and versioned like D-083. The approver for MEL extensions is set in the approval chain set-up. *(6 Oct 2026)* |
+| D-079 | **Rejecting any approval requires a reason.** The record returns to the person who submitted it, shown as "Rejected" with the reason. Resubmitting creates a new version. *(6 Oct 2026)* |
 
 ## 9. Qualifications
 
@@ -122,7 +131,8 @@
 | D-092 | Typography: IBM Plex Sans for interface, IBM Plex Mono for tails, part numbers, serials, hours and dates. |
 | D-093 | Touch targets minimum 44–48 px for gloved and one-handed use. |
 | D-094 | Principles: tail first; three taps to anything routine; status always visible; "what's blocking this?" on every relevant screen; role-based home screens; offline state always visible; signing requires PIN re-entry; history one tap away. |
-| D-095 | First screens designed: Fleet board (desktop and mobile). Next: Aircraft page. |
+| D-095 | First screens designed: Fleet board (desktop and mobile). Next: Aircraft page. **Partly SUPERSEDED by D-096.** |
+| D-096 | **Home is aircraft-first.** The left rail lists "All aircraft" and each tail. "All aircraft" shows the fleet board; choosing a tail shows that aircraft's dashboard (record, totals, open items with "Blocked by" first, due items as entered, recent activity, 4-week calendar). The Aircraft page (O-9) is this dashboard. Layout is Liebetag's own; no copying of commercial MRO screens (D-113). *(6 Oct 2026)* |
 
 ## 11. Architecture
 
@@ -146,7 +156,21 @@
 | D-113 | Functionality may resemble AMOS-class systems; **no copying** of their code, screens or trade dress. |
 | D-114 | NCAA is approached for **acceptance** of Nexus as an electronic maintenance records system, not as a customer. FAA AC 120-78A is the design benchmark for electronic records and signatures. |
 
-## 13. Roadmap (part-time, learning while building)
+## 13. Departments and access
+
+Detail and the per-department table: `docs/department-views.md`.
+
+| ID | Decision |
+|---|---|
+| D-120 | **Each department has its own fleet board and home view** (Engineering, Operations, Supply, Procurement). Every department sees tail, type, status, who set it, and the "Blocked by" headline with holding department and time held. Detail follows the department view table in `docs/department-views.md`. Refines D-094 "role-based home screens". *(6 Oct 2026)* |
+| D-121 | **Access inside a department is granted per user.** Belonging to a department does not grant everything in it. Each user has (a) **permissions** within the department, e.g. "view cost" (not every Supply user sees price), and (b) an **aircraft scope**: the tails they can access. Both are set and changed by a Super Admin and logged (D-033). New permissions are added as the build grows. *(6 Oct 2026)* |
+| D-122 | **Command and Quality see everything, read-only**, across all departments and aircraft, including cost. Their own approving, issuing and loading actions (D-032, D-050, D-076, D-083) are unchanged. *(6 Oct 2026)* |
+| D-123 | **A Super Admin sets a user's department, permissions and aircraft scope** during or after account creation. Users cannot change their own. A self sign-up may request a department; a Super Admin confirms it before the account is active. Every change is logged with who, to whom, from, to and why (D-033). *(6 Oct 2026)* |
+| D-124 | **One person can hold more than one department.** One is the home department (default home screen); others are granted explicitly and logged. Separation of duties (D-075) still applies per action. *(6 Oct 2026)* |
+| D-125 | **Visibility is enforced in the database** (row-level security, D-101), not only hidden on screen. *(6 Oct 2026)* |
+| D-126 | **Audit trail:** full access for Quality, Command and Super Admins. Every other user sees the history of the records they are allowed to see. *(6 Oct 2026)* |
+
+## 14. Roadmap (part-time, learning while building)
 
 | Phase | Months | Content |
 |---|---|---|
@@ -171,5 +195,5 @@
 | O-5 | Declare the venture through the proper PAF channel before pitching | Promise |
 | O-6 | Identify the expert reviewer and involve them from Phase 0 | Promise |
 | O-7 | Status label wording on the fleet board (AOG / U/S / SVC · MEL) to match PAF usage | Promise |
-| O-8 | Map the part request workflow in detail | Promise + Claude |
-| O-9 | Design the Aircraft page | Promise + Claude |
+| O-8 | Map the part request workflow in detail. Draft in `workflows/part-request.md`; Q-1 to Q-10 still to answer | Promise + Claude |
+| O-9 | Design the Aircraft page. Now the aircraft dashboard on Home (D-096); in progress on the design canvas | Promise + Claude |

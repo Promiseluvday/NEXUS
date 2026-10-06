@@ -52,7 +52,7 @@ mainstream, well-documented solutions over clever ones. Ask before large structu
 ## Current position (update as work progresses)
 - Design phase. Canvas (6 Oct): Fleet board, Home (aircraft dashboard) desktop + mobile, and a 60-screen wireframe with link notes. Next design run: Prompt 4 (fix-up), then Prompt 3 (department views).
 - Part request workflow (O-8) drafted in `workflows/part-request.md`; awaiting answers to Q-1 to Q-10.
-- Department views agreed (6 Oct): see `docs/department-views.md`. Fleet board and home differ by department; Super Admins set a user's department during or after account creation. Enforce in the database, not only on screen.
+- Decisions logged 6 Oct: D-015, D-016, D-027, D-028, D-045 to D-047, D-078, D-079, D-096, D-120 to D-126 (departments and per-user access: department, permissions, aircraft scope). Detail in `docs/department-views.md`.
 - Design prompts for wireframe, home page and department views: `docs/design-prompts.md`.
-- Next: answer O-8 questions and log decisions, then design the Aircraft page (O-9).
+- Next: run Prompt 4 then Prompt 3 in Claude Design; answer O-8 questions Q-1 to Q-10.
 - Six-month target: Phase 0 (foundations) + Phase 1 (snag workflow end to end).

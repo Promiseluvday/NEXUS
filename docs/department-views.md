@@ -1,6 +1,6 @@
 # Department views
 
-**Status:** Agreed by Promise on 6 Oct 2026. To be logged in `docs/DECISIONS.md` (proposed IDs below) once Promise gives the go-ahead.
+**Status:** Agreed by Promise and logged on 6 Oct 2026 as **D-120 to D-126** in `docs/DECISIONS.md`.
 **Builds on:** D-010, D-033, D-035, D-077, D-094 ("role-based home screens"), D-101 (row-level security)
 
 ---
@@ -15,7 +15,7 @@ Every department sees the **same fleet and the same tail statuses**, but each se
 | **Operations** | What the pilot and the flight need: availability, operational limitations, placards |
 | **Supply** | Parts activity per tail: requests, reservations, issues, returns, shelf life |
 | **Procurement** | Supply's parts view plus requisitions, approvals, orders, suppliers and cost |
-| **Command / Quality** | Across all four (proposed; see Q-D3) |
+| **Command / Quality** | Everything, read-only, including cost (D-122) |
 
 The department is set on the user's account, **during or after account creation**.
 
@@ -42,7 +42,7 @@ The department is set on the user's account, **during or after account creation*
 | Stock, reservations, awaiting issue, U/S returns | ◐ (own requests) | — | ✅ | ✅ |
 | Shelf-life and certificate alerts | ◐ | — | ✅ | ✅ |
 | Requisitions, approval step, PO, supplier, ETA | ◐ (state and ETA) | — | ✅ | ✅ |
-| Cost, invoice, price history | — | — | ✅ (D-077) | ✅ (D-077) |
+| Cost, invoice, price history | — | — | ✅ if user has "view cost" (D-121) | ✅ if user has "view cost" (D-121) |
 | "Needs attention" panel | Eng items | Ops items | Supply items | Proc + Supply items |
 | Main actions | Report snag, Log hours | Report snag (pilots), Log hours | Issue, Receive | Raise PO, Update ETA |
 
@@ -61,6 +61,18 @@ The department is set on the user's account, **during or after account creation*
 
 ---
 
+## 3A. Access inside a department (D-121)
+
+The table in section 2 is the **most** a department can see. Each user then gets:
+
+| Setting | Example | Set by |
+|---|---|---|
+| Department(s) | Supply (home), Procurement (extra) | Super Admin |
+| Permissions within the department | Supply storekeeper: issue, receive. **No "view cost"** | Super Admin |
+| Aircraft scope | NX-201 to NX-204 only (G550 fleet) | Super Admin |
+
+A user sees the **overlap** of all three. A Supply storekeeper without "view cost" sees part requests and stock, but no price. A Supply director with "view cost" sees both. New permissions are added as the build grows.
+
 ## 4. Risks
 
 | Risk | What goes wrong | Mitigation |
@@ -72,19 +84,13 @@ The department is set on the user's account, **during or after account creation*
 
 ---
 
-## 5. Questions for Promise
+## 5. Answers (6 Oct 2026)
 
-| # | Question | Recommendation |
+| # | Question | Answer |
 |---|---|---|
-| Q-D1 | Does the table in section 2 match what each department needs? | Review row by row. Operations and Supply are my best estimates |
-| Q-D2 | Should Operations see hours, cycles and landings? | Yes: they feed flight planning and pilots log them |
-| Q-D3 | Command and Quality see everything, read-only, plus their approvals? | Yes. Command sees cost; Quality sees everything except cost |
-| Q-D4 | Can a user hold more than one department? | One home department plus explicitly granted extra views |
+| Q-D1 | Does the table in section 2 match? | Yes |
+| Q-D2 | Operations sees hours, cycles and landings? | Yes |
+| Q-D3 | Command and Quality? | **See everything, read-only, including cost** (D-122) |
+| Q-D4 | More than one department? | **Yes** (D-124) |
 
----
-
-## 6. Proposed decisions
-
-- **D-096 (draft):** Each department has its own fleet board view and home screen. Tail, status, who set it, and the "Blocked by" headline are visible to all; detail follows the department view table.
-- **D-097 (draft):** Department visibility is enforced in the database (row-level security), not only on screen.
-- **D-098 (draft; section 4 is full, so it sits here unless renumbered):** Every account has one home department, set by a Super Admin during or after account creation. Users cannot change their own department; changes are logged.
+Logged as D-120 to D-126 in `docs/DECISIONS.md`.

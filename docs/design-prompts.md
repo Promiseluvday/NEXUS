@@ -162,6 +162,10 @@ and time held. Detail differs:
   time held), reserved awaiting issue, U/S returns due, shelf-life and
   certificate alerts. AOG requests first. No snag technical detail, no
   MEL detail. Actions: Issue part, Receive goods.
+- Command and Quality: everything, read-only, including cost.
+- Inside a department, each user sees only what their permissions and
+  aircraft scope allow (e.g. a storekeeper without "View cost" sees no
+  price).
 - Procurement: everything Supply sees plus requisitions with approval
   step, PO, supplier, ETA, overdue deliveries and cost. Actions: Raise PO,
   Update ETA.
@@ -172,10 +176,13 @@ SCOPE: New artboards:
 2. "Fleet board · Supply" (desktop)
 3. "Fleet board · Procurement" (desktop)
 4. "Create account" form (Super Admin): name, service number, appointment,
-   Department (required dropdown), role, privileges, save.
-5. "Account page" for an existing user: Department with a
-   "Change department" button, which opens a dialog asking for a reason
-   and PIN, and a change log below (who, from, to, why, when).
+   home Department (required), extra departments (optional), role,
+   permissions within each department (checkboxes, e.g. "View cost",
+   "Issue parts", "Approve"), aircraft scope (all, by type, or pick tails),
+   privileges, save with PIN.
+5. "Account page" for an existing user: departments, permissions and
+   aircraft scope, each with a "Change" button that asks for a reason and
+   PIN, and a change log below (who, what, from, to, why, when).
 6. "Fleet board · Operations" mobile (390 x 844), dark, for pilots.
 7. "Home · Supply" desktop: the Home aircraft dashboard for NX-102 as a
    storekeeper sees it (panels: Aircraft record, Part requests and
@@ -196,7 +203,7 @@ from that department.
 
 Status of the canvas on 6 Oct 2026: Prompt 1 done (60 wireframe screens, A to S plus OP, with link notes and 19 open questions). Prompt 2 done (Home desktop and mobile). Prompt 3 not yet run.
 
-**Before pasting:** the answers in section 3 are Claude's recommendations. Items marked (CONFIRM) need Promise's decision. Change any you disagree with.
+All answers below were confirmed by Promise on 6 Oct 2026 and logged in `docs/DECISIONS.md`.
 
 ```
 [Design standing rules from docs/PROMPTING.md section 1]
@@ -259,11 +266,11 @@ h. P3 Users and roles: keep the Department column. "Approve sign-up" opens
     work pack upload (PDF), task card list.
  9. Task card certification uses the same Certify (PIN) pattern as D5;
     for duplicate-inspection cards a second, different engineer signs.
-10. (CONFIRM) Flight hours are logged by Pilots and Engineering; every
+10. Flight hours are logged by Pilots and Engineering; every
     entry carries the name; Engineering can correct with a new version.
-11. (CONFIRM) Deactivating an aircraft needs reason + PIN; no second
+11. Deactivating an aircraft needs reason + PIN; no second
     approval.
-12. (CONFIRM) Changing an approval chain: Quality proposes, CO approves.
+12. Changing an approval chain: Quality proposes, CO approves.
     MEL extension approver is set in the approval chain set-up.
 13. Audit trail: full access for Quality, Command, Super Admins. Every
     user sees the History of records they are allowed to see.
@@ -273,7 +280,7 @@ h. P3 Users and roles: keep the Department column. "Approve sign-up" opens
 16. Rejecting any approval needs a reason; the record returns to the
     person who submitted it, shown as "Rejected" with the reason;
     resubmitting creates a new version.
-17. (CONFIRM) ADs and SBs stay in v1 as engineer-entered records.
+17. ADs and SBs stay in v1 as engineer-entered records.
     Quality verifies each entry (countersign with PIN). The system does
     not decide applicability.
 18. Expected return to service is entered by Engineering (duty or
