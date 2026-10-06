@@ -32,6 +32,7 @@
 | **O-16 (P8)** | Aircraft list as a dropdown beside "All aircraft" instead of one rail row per tail. Amends D-096 | Canvas, every screen |
 | **O-17 (P9)** | Flight requests, outstanding missions and fleet roster drawn as drafts. Decide: design now, build in Phase 6 (recommended), or bring forward. Plus Q-OP1 to Q-OP4 | OP2 to OP4, SCH1 |
 | **O-18 (P10)** | Daily serviceability state print. Plus Q-PR1 to Q-PR3 | PRS, PRS2 |
+| **O-19** | Fleet board v2 reference (`design/fleet-board/`): P-FB-1 to P-FB-4. P-FB-2 conflicts with D-045 (amber flag vs "Snag open" chip): choose one | `design/fleet-board/review.md` |
 | O-15 | Workshops Q-WS1 to Q-WS5, and the AGE description | `workflows/workshops.md` |
 | O-14 | Classification handling for scheduling data | `workflows/scheduling.md` |
 

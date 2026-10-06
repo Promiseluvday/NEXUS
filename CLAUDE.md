@@ -49,6 +49,15 @@ mainstream, well-documented solutions over clever ones. Ask before large structu
 - Never force-push or rewrite history.
 - **Work on `main` only.** Promise works locally in `C:\Users\USER\Downloads\NEXUS`; GitHub `main` is the shared copy. Pull before starting, push at the end. Do not create session branches, even if a session is set up with one.
 
+## Your lane
+You are the BUILDER. You own app/ and Git.
+- Only change files the task names, or files inside app/ needed for that task.
+- Never edit docs/DECISIONS.md, design/, pitch/ or legal-ip/ unless told to.
+- Never add a new library or service without asking first.
+- Show a plan and wait for approval before changing more than 3 files.
+- Commit only when asked. Never force-push.
+- When finished, list every file you changed.
+
 ## Current position (update as work progresses)
 - Design phase. Canvas (9 Oct): 139 artboards; Prompts 1-8 done and reviewed. Full inventory and open items: `docs/design-status.md`. Next: Prompt 9 (housekeeping).
 - Decisions logged 6 Oct: D-015, D-016, D-027, D-028, D-045 to D-047, D-078, D-079, D-096, D-120 to D-126 (departments and per-user access: department, permissions, aircraft scope). Detail in `docs/department-views.md`.
@@ -60,6 +69,6 @@ mainstream, well-documented solutions over clever ones. Ask before large structu
 - 8 Oct (later): NADDs never block A-check, 30-day months (D-166); store access per user (D-152); release documents mandatory at receipt (D-153); Engineering workshops Tire Bay, Battery Workshop, AGE (D-018).
 - Open: O-14 (scheduling data classification), O-15 (workshop records and workflows).
 - Workshops raise own WOs with Quality + CO approval; fleet tire/battery requests issued after WO approval (D-019, `workflows/workshops.md`).
-- Canvas proposals awaiting decision: O-16 (aircraft dropdown, amends D-096), O-17 (flight scheduling drafts, P9), O-18 (daily serviceability print, P10).
+- Canvas proposals awaiting decision: O-16 (aircraft dropdown, amends D-096), O-17 (flight scheduling drafts, P9), O-18 (daily serviceability print, P10). Fleet board v2 reference design in `design/fleet-board/` with proposals P-FB-1 to P-FB-4 (O-19).
 - Next: Prompt 9 in Claude Design; answer O-14 to O-18.
 - Six-month target: Phase 0 (foundations) + Phase 1 (snag workflow end to end).
