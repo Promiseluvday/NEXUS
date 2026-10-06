@@ -50,7 +50,7 @@ mainstream, well-documented solutions over clever ones. Ask before large structu
 - **Work on `main` only.** Promise works locally in `C:\Users\USER\Downloads\NEXUS`; GitHub `main` is the shared copy. Pull before starting, push at the end. Do not create session branches, even if a session is set up with one.
 
 ## Current position (update as work progresses)
-- Design phase. Fleet board designed (desktop + mobile).
+- Design phase. Canvas (6 Oct): Fleet board, Home (aircraft dashboard) desktop + mobile, and a 60-screen wireframe with link notes. Next design run: Prompt 4 (fix-up), then Prompt 3 (department views).
 - Part request workflow (O-8) drafted in `workflows/part-request.md`; awaiting answers to Q-1 to Q-10.
 - Department views agreed (6 Oct): see `docs/department-views.md`. Fleet board and home differ by department; Super Admins set a user's department during or after account creation. Enforce in the database, not only on screen.
 - Design prompts for wireframe, home page and department views: `docs/design-prompts.md`.
