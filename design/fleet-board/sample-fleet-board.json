@@ -1,0 +1,298 @@
+{
+  "_note": "FICTIONAL SAMPLE DATA ONLY (D-112). Shape = fleet board read model, see data-contract.md.",
+  "server_time": "2026-10-04T10:00:00+01:00",
+  "operator_settings": {
+    "hours_format": "hh:mm",
+    "pilot_report_effect": "flag_only",
+    "status_labels": {
+      "AOG": {
+        "long": "AOG",
+        "short": "AOG",
+        "tone": "red"
+      },
+      "US": {
+        "long": "Unserviceable",
+        "short": "U/S",
+        "tone": "red"
+      },
+      "CHECK": {
+        "long": "In check",
+        "short": "In check",
+        "tone": "blue"
+      },
+      "SVC_MEL": {
+        "long": "Serviceable · MEL",
+        "short": "SVC · MEL",
+        "tone": "amber"
+      },
+      "SVC": {
+        "long": "Serviceable",
+        "short": "SVC",
+        "tone": "green"
+      }
+    }
+  },
+  "summary": {
+    "tails_total": 6,
+    "tails_serviceable": 4,
+    "tails_down": 1,
+    "tails_in_check": 1,
+    "tails_with_mel": 3,
+    "mel_deferrals_open": 4,
+    "tails_with_unassessed_report": 1
+  },
+  "tails": [
+    {
+      "tail_id": "t-101",
+      "registration": "NX-101",
+      "type_code": "A332",
+      "type_name": "Airbus A330-200",
+      "status": {
+        "code": "AOG",
+        "set_by": {
+          "name": "Eng. K. Adeyinka",
+          "role": "Certifying engineer"
+        },
+        "set_at": "2026-10-02T05:50:00+01:00",
+        "status_event_id": "se-9001"
+      },
+      "blockers": [
+        {
+          "kind": "part_request",
+          "ref": "PR-0142",
+          "summary": "Hydraulic pump P/N SAMPLE-HP-01: requisition awaiting CO approval (step 3 of 3)",
+          "holder_dept": "Command",
+          "holder_role": "CO",
+          "held_since": "2026-10-02T06:00:00+01:00"
+        }
+      ],
+      "flags": [],
+      "totals": {
+        "airframe_minutes": 1284395,
+        "cycles": 7812,
+        "landings": 7815,
+        "as_of_flight_record": "FR-55120"
+      },
+      "open_snags": 3,
+      "open_mel": 1,
+      "mel_next": null,
+      "check": null
+    },
+    {
+      "tail_id": "t-203",
+      "registration": "NX-203",
+      "type_code": "GLF5",
+      "type_name": "Gulfstream G550",
+      "status": {
+        "code": "SVC",
+        "set_by": {
+          "name": "Eng. R. Danjuma",
+          "role": "Certifying engineer"
+        },
+        "set_at": "2026-10-04T06:10:00+01:00",
+        "status_event_id": "se-9044"
+      },
+      "blockers": [],
+      "flags": [
+        {
+          "kind": "unassessed_report",
+          "ref": "SN-0388",
+          "summary": "Pilot report: cabin pressure fluctuation",
+          "holder_dept": "Engineering",
+          "held_since": "2026-10-04T08:40:00+01:00"
+        }
+      ],
+      "totals": {
+        "airframe_minutes": 434410,
+        "cycles": 3318,
+        "landings": 3318,
+        "as_of_flight_record": "FR-55131"
+      },
+      "open_snags": 1,
+      "open_mel": 0,
+      "mel_next": null,
+      "check": null
+    },
+    {
+      "tail_id": "t-102",
+      "registration": "NX-102",
+      "type_code": "A332",
+      "type_name": "Airbus A330-200",
+      "status": {
+        "code": "CHECK",
+        "set_by": {
+          "name": "Eng. F. Ogunleye",
+          "role": "Engineer (planning)"
+        },
+        "set_at": "2026-09-29T07:00:00+01:00",
+        "status_event_id": "se-8990"
+      },
+      "blockers": [
+        {
+          "kind": "part_request",
+          "ref": "PR-0145",
+          "summary": "Finding NRC-07 needs seal kit: reserved in stores, awaiting issue",
+          "holder_dept": "Supply",
+          "holder_role": "Storekeeper",
+          "held_since": "2026-10-04T04:00:00+01:00"
+        }
+      ],
+      "flags": [],
+      "totals": {
+        "airframe_minutes": 1137020,
+        "cycles": 6204,
+        "landings": 6206,
+        "as_of_flight_record": "FR-54870"
+      },
+      "open_snags": 2,
+      "open_mel": 0,
+      "mel_next": null,
+      "check": {
+        "package_ref": "CP-0031",
+        "name": "600 FH inspection",
+        "tasks_done": 34,
+        "tasks_total": 52
+      }
+    },
+    {
+      "tail_id": "t-204",
+      "registration": "NX-204",
+      "type_code": "GLF5",
+      "type_name": "Gulfstream G550",
+      "status": {
+        "code": "SVC_MEL",
+        "set_by": {
+          "name": "Eng. R. Danjuma",
+          "role": "Certifying engineer"
+        },
+        "set_at": "2026-10-01T16:20:00+01:00",
+        "status_event_id": "se-9010"
+      },
+      "blockers": [],
+      "flags": [],
+      "totals": {
+        "airframe_minutes": 480745,
+        "cycles": 3901,
+        "landings": 3903,
+        "as_of_flight_record": "FR-55127"
+      },
+      "open_snags": 2,
+      "open_mel": 2,
+      "mel_next": {
+        "ref": "MEL-0077",
+        "category": "B",
+        "expires_at": "2026-10-05T10:00:00+01:00",
+        "mel_revision": "Rev 4"
+      },
+      "check": null
+    },
+    {
+      "tail_id": "t-201",
+      "registration": "NX-201",
+      "type_code": "GLF5",
+      "type_name": "Gulfstream G550",
+      "status": {
+        "code": "SVC_MEL",
+        "set_by": {
+          "name": "Eng. K. Adeyinka",
+          "role": "Certifying engineer"
+        },
+        "set_at": "2026-09-30T11:05:00+01:00",
+        "status_event_id": "se-9002"
+      },
+      "blockers": [],
+      "flags": [],
+      "totals": {
+        "airframe_minutes": 559100,
+        "cycles": 4107,
+        "landings": 4109,
+        "as_of_flight_record": "FR-55102"
+      },
+      "open_snags": 0,
+      "open_mel": 1,
+      "mel_next": {
+        "ref": "MEL-0071",
+        "category": "C",
+        "expires_at": "2026-10-10T10:00:00+01:00",
+        "mel_revision": "Rev 4"
+      },
+      "check": null
+    },
+    {
+      "tail_id": "t-202",
+      "registration": "NX-202",
+      "type_code": "GLF5",
+      "type_name": "Gulfstream G550",
+      "status": {
+        "code": "SVC",
+        "set_by": {
+          "name": "Eng. F. Ogunleye",
+          "role": "Certifying engineer"
+        },
+        "set_at": "2026-10-03T18:30:00+01:00",
+        "status_event_id": "se-9031"
+      },
+      "blockers": [],
+      "flags": [],
+      "totals": {
+        "airframe_minutes": 412520,
+        "cycles": 2960,
+        "landings": 2961,
+        "as_of_flight_record": "FR-55119"
+      },
+      "open_snags": 0,
+      "open_mel": 0,
+      "mel_next": null,
+      "check": null
+    }
+  ],
+  "attention": [
+    {
+      "tone": "red",
+      "tag": "AOG",
+      "scope": "NX-101",
+      "text": "Requisition for hydraulic pump awaiting CO approval for 2 days",
+      "owner": "Command (CO)",
+      "ref": "PR-0142"
+    },
+    {
+      "tone": "amber",
+      "tag": "Report",
+      "scope": "NX-203",
+      "text": "Pilot report unassessed: check before dispatch",
+      "owner": "Engineering",
+      "ref": "SN-0388"
+    },
+    {
+      "tone": "amber",
+      "tag": "Due",
+      "scope": "NX-204",
+      "text": "MEL Cat B deferral expires in 1 day",
+      "owner": "Engineering",
+      "ref": "MEL-0077"
+    },
+    {
+      "tone": "blue",
+      "tag": "Expiry",
+      "scope": "AUTH",
+      "text": "One certifying authorization expires in 14 days",
+      "owner": "Quality",
+      "ref": "CA-0012"
+    },
+    {
+      "tone": "blue",
+      "tag": "Expiry",
+      "scope": "STORES",
+      "text": "Sealant batch shelf life ends in 9 days",
+      "owner": "Supply",
+      "ref": "BT-0410"
+    }
+  ],
+  "viewer": {
+    "name": "[Duty engineer]",
+    "dept": "Engineering",
+    "privileges": [
+      "certifying:GLF5"
+    ]
+  }
+}

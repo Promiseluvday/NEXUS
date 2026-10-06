@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fleet Board v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0f1b2d; --navy-2:#16263d; --teal:#0f766e; --teal-ink:#5eead4;
+  --bg:#eef1f5; --card:#ffffff; --ink:#111827; --muted:#5b6474; --line:#dde2ea;
+  --green:#1f7a3a; --green-bg:#e6f4ea;
+  --amber:#8a5a00; --amber-bg:#fdf1d8;
+  --red:#b42318;   --red-bg:#fde8e7;
+  --blue:#1d4ed8;  --blue-bg:#e8efff;
+  --grey:#4b5563;  --grey-bg:#eef0f3;
+  --sans:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f4f3ef;font-family:var(--sans);color:var(--ink);padding:32px 16px}
+.page-note{max-width:1440px;margin:0 auto 12px;font-size:13px;color:var(--muted)}
+.frame-label{max-width:1440px;margin:24px auto 8px;font-size:13px;color:var(--muted)}
+.mono{font-family:var(--mono)}
+/* ---------- desktop ---------- */
+.desk{max-width:1440px;margin:0 auto;background:var(--bg);border:1px solid var(--line);overflow:hidden}
+.top{background:var(--navy);color:#fff;display:flex;align-items:center;gap:20px;padding:12px 22px}
+.brand{font-weight:600;font-size:18px;white-space:nowrap}.brand b{color:var(--teal-ink);font-weight:600}
+.brand small{font-size:11px;color:#9fb0c6;margin-left:6px;font-weight:400}
+.search{flex:1;max-width:480px;background:var(--navy-2);border:1px solid #2a3d58;color:#9fb0c6;border-radius:8px;padding:0 14px;height:44px;display:flex;align-items:center;font-size:14px}
+.sync{display:flex;align-items:center;gap:8px;font-size:13px;padding:0 14px;height:32px;border-radius:999px}
+.sync.on{background:#0d3b36;color:#a7f3d0}.sync.off{background:#4a3606;color:#fde68a}
+.dot{width:8px;height:8px;border-radius:50%;background:currentColor}
+.who{margin-left:auto;text-align:right;font-size:13px}.who small{display:block;color:#9fb0c6;font-size:11px}
+.shell{display:flex;min-height:900px}
+.nav{width:210px;background:#fff;border-right:1px solid var(--line);padding:16px 10px}
+.nav a{display:flex;align-items:center;height:44px;padding:0 12px;border-radius:8px;color:#334155;text-decoration:none;font-size:15px}
+.nav a.on{background:#e3f3f1;color:var(--teal);font-weight:600}
+.main{flex:1;padding:24px 28px;display:grid;grid-template-columns:1fr 300px;gap:20px;align-content:start}
+.head{grid-column:1/-1;display:flex;align-items:flex-end;gap:12px}
+.head h1{font-size:26px;font-weight:600}.head p{font-size:13px;color:var(--muted);margin-top:4px}
+.btn{height:44px;padding:0 18px;border-radius:8px;font:600 14px var(--sans);border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer}
+.btn.pri{background:var(--teal);color:#fff;border-color:var(--teal)}
+.acts{margin-left:auto;display:flex;gap:10px}
+.tiles{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.tile{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.tile .n{font:600 30px var(--mono)}.tile .l{font-size:13px;margin-top:2px}.tile .s{font-size:12px;color:var(--muted);margin-top:4px}
+.chips{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap}
+.chip{height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:#fff;font:500 14px var(--sans);display:flex;align-items:center}
+.chip.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-content:start}
+.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.ch{display:flex;align-items:flex-start;gap:10px}.reg{font:600 21px var(--mono);letter-spacing:.5px}.typ{font-size:12px;color:var(--muted)}
+.badge{margin-left:auto;font:600 12px var(--sans);padding:4px 10px;border-radius:999px;white-space:nowrap}
+.t-red{color:var(--red);background:var(--red-bg)}.t-amber{color:var(--amber);background:var(--amber-bg)}
+.t-green{color:var(--green);background:var(--green-bg)}.t-blue{color:var(--blue);background:var(--blue-bg)}.t-grey{color:var(--grey);background:var(--grey-bg)}
+.badge.solid.t-red{background:var(--red);color:#fff}
+.prov{font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:center;border-left:3px solid var(--line);padding-left:8px}
+.prov b{font-weight:500;color:#334155}
+.panel{border-radius:8px;padding:10px 12px;border:1px solid}
+.panel.t-red{border-color:#f5c2be}.panel.t-amber{border-color:#f3d79a}.panel.t-blue{border-color:#c7d6fb}.panel.t-green{border-color:#bfe3c9}
+.panel .k{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;opacity:.85}
+.panel .v{font-size:14px;font-weight:500;color:var(--ink);margin:3px 0 6px}
+.hold{font-size:12px;color:var(--muted);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.dept{font:600 11px var(--sans);background:#fff;border:1px solid var(--line);color:#334155;padding:2px 7px;border-radius:5px}
+.ref{font:500 11px var(--mono);color:var(--muted)}
+.prog{font-size:13px;display:flex;justify-content:space-between}.bar{height:6px;background:var(--grey-bg);border-radius:3px;overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;background:var(--blue)}
+.nums{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;border-top:1px solid var(--line);padding-top:10px}
+.nums div{font-size:11px;color:var(--muted)}.nums b{display:block;font:500 14px var(--mono);color:var(--ink);margin-top:2px}
+.open{height:44px;display:flex;align-items:center;color:var(--teal);font-weight:600;font-size:14px;text-decoration:none;margin:-6px 0 -10px}
+.side{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px;align-self:start}
+.side h2{font-size:16px;font-weight:600;margin-bottom:6px}
+.att{padding:11px 0;border-bottom:1px solid var(--line)}.att:last-child{border:0}
+.att .r{display:flex;gap:8px;align-items:center;font-size:12px}.att .r .badge{margin:0}
+.att p{font-size:14px;font-weight:500;margin:5px 0 3px}.att small{font-size:12px;color:var(--muted)}
+/* ---------- mobile ---------- */
+.mob-wrap{max-width:1440px;margin:0 auto;display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap}
+.phone{width:390px;max-width:100%;min-height:844px;background:#0b1422;color:#e5ecf5;border-radius:28px;border:1px solid #1f2d44;overflow:hidden;display:flex;flex-direction:column}
+.mh{padding:20px 18px 8px;display:flex;align-items:center}.mh h3{font-size:18px;font-weight:600}.mh h3 b{color:var(--teal-ink);font-weight:600}
+.mh p{font-size:12px;color:#8ea0b8}.icon{margin-left:auto;width:44px;height:44px;border-radius:10px;border:1px solid #2a3d58;display:grid;place-items:center;color:#cbd5e1}
+.off{margin:6px 14px;background:#3d2c05;color:#fde68a;border-radius:10px;padding:10px 12px;font-size:13px}
+.off b{font-weight:600}.off small{display:block;color:#e7cf8a;font-size:12px;margin-top:2px}
+.mt{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:6px 14px}
+.mt div{min-height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;text-align:center;padding:4px}
+.m-green{background:#0f3020;color:#86efac}.m-red{background:#3b1210;color:#fca5a5}.m-blue{background:#13234a;color:#a5b4fc}
+.ml{padding:6px 14px 14px;display:flex;flex-direction:column;gap:10px;flex:1}
+.mc{background:#13213a;border:1px solid #22344f;border-radius:12px;padding:12px 14px;min-height:64px}
+.mc .row{display:flex;align-items:center;gap:8px}.mc .reg{font-size:18px;color:#fff}.mc .typ{color:#8ea0b8}
+.mc .badge{font-size:12px}
+.mc .t-red{background:#5b1712;color:#fecaca}.mc .badge.solid.t-red{background:#c0281b;color:#fff}.mc .t-amber{background:#4a3606;color:#fde68a}
+.mc .t-green{background:#0f3020;color:#86efac}.mc .t-blue{background:#1b2c5c;color:#c7d2fe}
+.mc p{font-size:14px;margin:6px 0 3px;color:#e5ecf5}.mc small{font-size:12px;color:#8ea0b8;display:block}
+.mc .flag{margin-top:6px;font-size:12px;color:#fde68a;background:#3d2c05;border-radius:6px;padding:5px 8px}
+.stale{color:#e7cf8a}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid #1f2d44;padding:8px 6px 18px;align-items:center}
+.tabs span{height:48px;display:grid;place-items:center;font-size:12px;color:#8ea0b8}.tabs .on{color:var(--teal-ink);font-weight:600}
+.tabs .rep{background:var(--teal);color:#fff;border-radius:999px;font-weight:600;font-size:14px}
+/* ---------- notes ---------- */
+.notes{flex:1;min-width:300px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:18px 20px;font-size:14px;line-height:1.5}
+.notes h3{font-size:15px;margin-bottom:8px}.notes li{margin:0 0 8px 18px}.notes code{font-family:var(--mono);font-size:12px;background:var(--grey-bg);padding:1px 4px;border-radius:4px}
+.pp{font:600 10px var(--sans);color:#7c3aed;background:#f1eafe;border-radius:4px;padding:1px 5px;margin-left:4px;vertical-align:1px}
+@media (max-width:900px){.main{grid-template-columns:1fr}.cards{grid-template-columns:1fr}.tiles{grid-template-columns:repeat(2,1fr)}.nav{display:none}.top{flex-wrap:wrap}.who{margin-left:0}}
+</style>
+</head>
+<body>
+<p class="page-note">Nexus MRO · Fleet board v2 (corrected) · every value below is rendered from <code class="mono">sample-fleet-board.json</code>, the shape defined in <code class="mono">data-contract.md</code>. Fictional data only. Items marked <span class="pp">PROPOSAL</span> are not decisions until logged in DECISIONS.md.</p>
+<p class="frame-label">Fleet board · desktop · online</p>
+<div class="desk" id="desk"></div>
+<p class="frame-label">Fleet board · mobile · offline (cached snapshot from 08:42)</p>
+<div class="mob-wrap"><div class="phone" id="phone"></div>
+<div class="notes"><h3>What changed from v1 and why</h3><ol>
+<li><b>Status shows who set it and when</b> <span class="pp">PROPOSAL P-FB-1</span>. Status is a recorded event by a named person, never derived by the system (D-020, D-024).</li>
+<li><b>An unassessed pilot report is a flag, not a status change</b> <span class="pp">PROPOSAL P-FB-2</span>. NX-203 keeps its last engineer-set status and carries a "check before dispatch" flag. Operators whose procedure grounds on a tech-log entry can switch <code>pilot_report_effect</code>.</li>
+<li><b>Blocker holder follows the item's real holder.</b> NX-101's requisition sits at the CO approval step, so the holder is Command, not Procurement (matches part-request RQ-2).</li>
+<li><b>Engineers mark what blocks release</b> <span class="pp">PROPOSAL P-FB-3</span>. The board shows the longest-held blocker plus "+N more".</li>
+<li><b>Counts say what they count:</b> tiles count aircraft; the MEL tile also gives the number of deferrals.</li>
+<li><b>One label set, long and short forms</b> (D-025, open item O-7). Desktop uses long, mobile uses short.</li>
+<li><b>"In check" = blue</b> <span class="pp">PROPOSAL P-FB-4</span> (D-091 has no entry for it).</li>
+<li><b>Mobile lists all 6 tails</b>, worst first. v1 dropped NX-201 and NX-202.</li>
+<li><b>Offline values are stamped "at 08:42"</b>; held times are frozen at the snapshot, not ticking as if live.</li>
+<li><b>Hours shown as hh:mm</b> from stored minutes; format is an operator setting.</li>
+<li><b>All tap targets ≥ 44 px</b> (D-093): chips, nav, tiles, buttons.</li>
+</ol></div></div>
+<script>
+const DATA = {"_note": "FICTIONAL SAMPLE DATA ONLY (D-112). Shape = fleet board read model, see data-contract.md.", "server_time": "2026-10-04T10:00:00+01:00", "operator_settings": {"hours_format": "hh:mm", "pilot_report_effect": "flag_only", "status_labels": {"AOG": {"long": "AOG", "short": "AOG", "tone": "red"}, "US": {"long": "Unserviceable", "short": "U/S", "tone": "red"}, "CHECK": {"long": "In check", "short": "In check", "tone": "blue"}, "SVC_MEL": {"long": "Serviceable · MEL", "short": "SVC · MEL", "tone": "amber"}, "SVC": {"long": "Serviceable", "short": "SVC", "tone": "green"}}}, "summary": {"tails_total": 6, "tails_serviceable": 4, "tails_down": 1, "tails_in_check": 1, "tails_with_mel": 3, "mel_deferrals_open": 4, "tails_with_unassessed_report": 1}, "tails": [{"tail_id": "t-101", "registration": "NX-101", "type_code": "A332", "type_name": "Airbus A330-200", "status": {"code": "AOG", "set_by": {"name": "Eng. K. Adeyinka", "role": "Certifying engineer"}, "set_at": "2026-10-02T05:50:00+01:00", "status_event_id": "se-9001"}, "blockers": [{"kind": "part_request", "ref": "PR-0142", "summary": "Hydraulic pump P/N SAMPLE-HP-01: requisition awaiting CO approval (step 3 of 3)", "holder_dept": "Command", "holder_role": "CO", "held_since": "2026-10-02T06:00:00+01:00"}], "flags": [], "totals": {"airframe_minutes": 1284395, "cycles": 7812, "landings": 7815, "as_of_flight_record": "FR-55120"}, "open_snags": 3, "open_mel": 1, "mel_next": null, "check": null}, {"tail_id": "t-203", "registration": "NX-203", "type_code": "GLF5", "type_name": "Gulfstream G550", "status": {"code": "SVC", "set_by": {"name": "Eng. R. Danjuma", "role": "Certifying engineer"}, "set_at": "2026-10-04T06:10:00+01:00", "status_event_id": "se-9044"}, "blockers": [], "flags": [{"kind": "unassessed_report", "ref": "SN-0388", "summary": "Pilot report: cabin pressure fluctuation", "holder_dept": "Engineering", "held_since": "2026-10-04T08:40:00+01:00"}], "totals": {"airframe_minutes": 434410, "cycles": 3318, "landings": 3318, "as_of_flight_record": "FR-55131"}, "open_snags": 1, "open_mel": 0, "mel_next": null, "check": null}, {"tail_id": "t-102", "registration": "NX-102", "type_code": "A332", "type_name": "Airbus A330-200", "status": {"code": "CHECK", "set_by": {"name": "Eng. F. Ogunleye", "role": "Engineer (planning)"}, "set_at": "2026-09-29T07:00:00+01:00", "status_event_id": "se-8990"}, "blockers": [{"kind": "part_request", "ref": "PR-0145", "summary": "Finding NRC-07 needs seal kit: reserved in stores, awaiting issue", "holder_dept": "Supply", "holder_role": "Storekeeper", "held_since": "2026-10-04T04:00:00+01:00"}], "flags": [], "totals": {"airframe_minutes": 1137020, "cycles": 6204, "landings": 6206, "as_of_flight_record": "FR-54870"}, "open_snags": 2, "open_mel": 0, "mel_next": null, "check": {"package_ref": "CP-0031", "name": "600 FH inspection", "tasks_done": 34, "tasks_total": 52}}, {"tail_id": "t-204", "registration": "NX-204", "type_code": "GLF5", "type_name": "Gulfstream G550", "status": {"code": "SVC_MEL", "set_by": {"name": "Eng. R. Danjuma", "role": "Certifying engineer"}, "set_at": "2026-10-01T16:20:00+01:00", "status_event_id": "se-9010"}, "blockers": [], "flags": [], "totals": {"airframe_minutes": 480745, "cycles": 3901, "landings": 3903, "as_of_flight_record": "FR-55127"}, "open_snags": 2, "open_mel": 2, "mel_next": {"ref": "MEL-0077", "category": "B", "expires_at": "2026-10-05T10:00:00+01:00", "mel_revision": "Rev 4"}, "check": null}, {"tail_id": "t-201", "registration": "NX-201", "type_code": "GLF5", "type_name": "Gulfstream G550", "status": {"code": "SVC_MEL", "set_by": {"name": "Eng. K. Adeyinka", "role": "Certifying engineer"}, "set_at": "2026-09-30T11:05:00+01:00", "status_event_id": "se-9002"}, "blockers": [], "flags": [], "totals": {"airframe_minutes": 559100, "cycles": 4107, "landings": 4109, "as_of_flight_record": "FR-55102"}, "open_snags": 0, "open_mel": 1, "mel_next": {"ref": "MEL-0071", "category": "C", "expires_at": "2026-10-10T10:00:00+01:00", "mel_revision": "Rev 4"}, "check": null}, {"tail_id": "t-202", "registration": "NX-202", "type_code": "GLF5", "type_name": "Gulfstream G550", "status": {"code": "SVC", "set_by": {"name": "Eng. F. Ogunleye", "role": "Certifying engineer"}, "set_at": "2026-10-03T18:30:00+01:00", "status_event_id": "se-9031"}, "blockers": [], "flags": [], "totals": {"airframe_minutes": 412520, "cycles": 2960, "landings": 2961, "as_of_flight_record": "FR-55119"}, "open_snags": 0, "open_mel": 0, "mel_next": null, "check": null}], "attention": [{"tone": "red", "tag": "AOG", "scope": "NX-101", "text": "Requisition for hydraulic pump awaiting CO approval for 2 days", "owner": "Command (CO)", "ref": "PR-0142"}, {"tone": "amber", "tag": "Report", "scope": "NX-203", "text": "Pilot report unassessed: check before dispatch", "owner": "Engineering", "ref": "SN-0388"}, {"tone": "amber", "tag": "Due", "scope": "NX-204", "text": "MEL Cat B deferral expires in 1 day", "owner": "Engineering", "ref": "MEL-0077"}, {"tone": "blue", "tag": "Expiry", "scope": "AUTH", "text": "One certifying authorization expires in 14 days", "owner": "Quality", "ref": "CA-0012"}, {"tone": "blue", "tag": "Expiry", "scope": "STORES", "text": "Sealant batch shelf life ends in 9 days", "owner": "Supply", "ref": "BT-0410"}], "viewer": {"name": "[Duty engineer]", "dept": "Engineering", "privileges": ["certifying:GLF5"]}};
+const L = DATA.operator_settings.status_labels;
+const ORDER = {AOG:0,US:1,CHECK:2,SVC_MEL:3,SVC:4};
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ms = iso => new Date(iso).getTime();
+function dur(fromIso, nowIso){ let m=Math.max(0,Math.round((ms(nowIso)-ms(fromIso))/60000));
+  const d=Math.floor(m/1440); m-=d*1440; const h=Math.floor(m/60); m-=h*60;
+  return d? `${d}d ${h}h` : h? (m? `${h}h ${m}m` : `${h}h`) : `${m}m`; }
+function hhmm(min){ const h=Math.floor(min/60), m=min%60; return DATA.operator_settings.hours_format==='decimal' ? (min/60).toFixed(1) : `${h.toLocaleString('en-GB')}:${String(m).padStart(2,'0')}`; }
+function clock(iso){ return new Date(iso).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:'Africa/Lagos'}); }
+function day(iso){ return new Date(iso).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'Africa/Lagos'}); }
+function when(iso, nowIso){ const sameDay = day(iso)===day(nowIso); return sameDay? clock(iso) : new Date(iso).toLocaleDateString('en-GB',{day:'numeric',month:'short',timeZone:'Africa/Lagos'})+' '+clock(iso); }
+function untilTxt(iso, nowIso){ const m=(ms(iso)-ms(nowIso))/60000; if(m<=0) return 'limit exceeded'; const d=Math.round(m/1440); return d>=1? `${d} day${d>1?'s':''}` : `${Math.round(m/60)}h`; }
+// Display order: down first, then tails with an unassessed report, then check, MEL, clean.
+const rank = t => t.flags.length && ORDER[t.status.code]>1 ? 1.5 : ORDER[t.status.code];
+const sorted = [...DATA.tails].sort((a,b)=>rank(a)-rank(b) || b.blockers.length-a.blockers.length);
+const S = DATA.summary;
+
+// sanity check: summary must agree with tails (backend contract rule)
+(function(){ const t=DATA.tails; const c={
+  tails_serviceable:t.filter(x=>['SVC','SVC_MEL'].includes(x.status.code)).length,
+  tails_down:t.filter(x=>['AOG','US'].includes(x.status.code)).length,
+  tails_in_check:t.filter(x=>x.status.code==='CHECK').length,
+  mel_deferrals_open:t.reduce((a,x)=>a+x.open_mel,0) };
+  for(const k in c) if(c[k]!==S[k]) console.error('summary mismatch',k,c[k],S[k]); })();
+
+function badge(code, form){ const l=L[code]; return `<span class="badge t-${l.tone}${code==='AOG'?' solid':''}">${esc(l[form])}</span>`; }
+
+function deskCard(t, now){
+  const b = t.blockers[0], more = t.blockers.length-1, f = t.flags[0];
+  let body = '';
+  if(b){ const tone = t.status.code==='CHECK' ? 'blue' : 'red';
+    body += `<div class="panel t-${tone}"><div class="k">Blocked by</div><div class="v">${esc(b.summary)}</div>
+      <div class="hold"><span class="dept">${esc(b.holder_dept)}${b.holder_role?' · '+esc(b.holder_role):''}</span> holding for ${dur(b.held_since,now)} <span class="ref">${esc(b.ref)}</span>${more>0?` <span>+${more} more</span>`:''}</div></div>`; }
+  if(f){ body += `<div class="panel t-amber"><div class="k">Unassessed report · check before dispatch</div><div class="v">${esc(f.summary)}</div>
+      <div class="hold"><span class="dept">${esc(f.holder_dept)}</span> awaiting assessment for ${dur(f.held_since,now)} <span class="ref">${esc(f.ref)}</span></div></div>`; }
+  if(!b && t.mel_next){ const tone = (ms(t.mel_next.expires_at)-ms(now)) < 2*86400000 ? 'amber':'amber';
+    body += `<div class="panel t-${tone}"><div class="v" style="margin:0">MEL Cat ${esc(t.mel_next.category)} item: ${untilTxt(t.mel_next.expires_at,now)} remaining <span class="ref">${esc(t.mel_next.ref)} · ${esc(t.mel_next.mel_revision)}</span></div></div>`; }
+  if(!b && !f && !t.mel_next && !t.check){ body += `<div class="panel t-green"><div class="v" style="margin:0">No blocking items recorded</div></div>`; }
+  if(t.check){ const c=t.check; body += `<div><div class="prog"><span>${esc(c.name)} <span class="ref">${esc(c.package_ref)}</span></span><span>${c.tasks_done} of ${c.tasks_total} tasks completed</span></div><div class="bar"><i style="width:${(c.tasks_done/c.tasks_total*100).toFixed(1)}%"></i></div></div>`; }
+  return `<article class="card">
+    <div class="ch"><div><div class="reg">${esc(t.registration)}</div><div class="typ">${esc(t.type_name)}</div></div>${badge(t.status.code,'long')}</div>
+    <div class="prov">Status set by <b>${esc(t.status.set_by.name)}</b> · ${when(t.status.set_at,now)}</div>
+    ${body}
+    <div class="nums"><div>Hours<b>${hhmm(t.totals.airframe_minutes)}</b></div><div>Cycles<b>${t.totals.cycles.toLocaleString('en-GB')}</b></div><div>Snags<b>${t.open_snags}</b></div><div>MEL<b>${t.open_mel}</b></div></div>
+    <a class="open" href="#">Open aircraft →</a></article>`;
+}
+
+function renderDesk(){
+  const now = DATA.server_time;
+  document.getElementById('desk').innerHTML = `
+  <div class="top"><div class="brand">Nexus <b>MRO</b><small>by Liebetag</small></div>
+    <div class="search">Search tail, part number, snag ID</div>
+    <div class="sync on"><span class="dot"></span>Online · all synced</div>
+    <div class="who">${esc(DATA.viewer.name)}<small>${esc(DATA.viewer.dept)} · Certifying (G550)</small></div></div>
+  <div class="shell"><nav class="nav">${['Fleet board','Aircraft','Snags','Checks and packages','MEL deferrals','Parts and stock','Procurement','Approvals','Audit trail'].map((n,i)=>`<a href="#" class="${i?'':'on'}">${n}</a>`).join('')}</nav>
+  <div class="main">
+    <div class="head"><div><h1>Fleet board</h1><p>${day(now)} · server time ${clock(now)} · ${S.tails_total} aircraft · sample data, fictional tails</p></div>
+      <div class="acts"><button class="btn">Log flight hours</button><button class="btn pri">Report snag</button></div></div>
+    <div class="tiles">
+      <div class="tile"><div class="n" style="color:var(--green)">${S.tails_serviceable}</div><div class="l">Aircraft serviceable (incl. MEL)</div><div class="s">${S.tails_with_unassessed_report} with an unassessed report</div></div>
+      <div class="tile"><div class="n" style="color:var(--red)">${S.tails_down}</div><div class="l">Aircraft AOG or unserviceable</div><div class="s">Set by certifying engineers</div></div>
+      <div class="tile"><div class="n" style="color:var(--blue)">${S.tails_in_check}</div><div class="l">Aircraft in scheduled check</div><div class="s">&nbsp;</div></div>
+      <div class="tile"><div class="n" style="color:var(--amber)">${S.tails_with_mel}</div><div class="l">Aircraft with open MEL items</div><div class="s">${S.mel_deferrals_open} deferrals in total</div></div>
+    </div>
+    <div class="chips">
+      <span class="chip on">All (${S.tails_total})</span><span class="chip">AOG / unserviceable (${S.tails_down})</span><span class="chip">In check (${S.tails_in_check})</span>
+      <span class="chip">Aircraft with MEL (${S.tails_with_mel})</span><span class="chip">Serviceable (${S.tails_serviceable})</span><span class="chip">Unassessed reports (${S.tails_with_unassessed_report})</span></div>
+    <section class="cards">${sorted.map(t=>deskCard(t,now)).join('')}</section>
+    <aside class="side"><h2>Needs attention</h2>${DATA.attention.map(a=>`<div class="att"><div class="r"><span class="badge t-${a.tone}${a.tone==='red'?' solid':''}">${esc(a.tag)}</span><span class="mono">${esc(a.scope)}</span><span class="ref" style="margin-left:auto">${esc(a.ref)}</span></div><p>${esc(a.text)}</p><small>Owner: ${esc(a.owner)}</small></div>`).join('')}
+      <div class="att"><small>Linked departments: Engineering · Supply · Procurement · Operations</small></div></aside>
+  </div></div>`;
+}
+
+function renderPhone(){
+  const snap = '2026-10-04T08:42:00+01:00', queued = 2;
+  const line = t => { const b=t.blockers[0], f=t.flags[0];
+    if(!b && f) return `<p>${esc(f.summary)}</p><small>${esc(f.holder_dept)} · awaiting assessment <span class="stale">${dur(f.held_since,snap)} at ${clock(snap)}</span></small>`;
+    if(b) return `<p>${esc(b.summary)}</p><small>${esc(b.holder_dept)} · holding <span class="stale">${dur(b.held_since,snap)} at ${clock(snap)}</span></small>`;
+    if(t.check) return `<p>${esc(t.check.name)} · ${t.check.tasks_done} of ${t.check.tasks_total} tasks done</p>`;
+    if(t.mel_next) return `<p>MEL Cat ${esc(t.mel_next.category)} item: ${untilTxt(t.mel_next.expires_at,snap)} remaining</p><small>${t.open_mel} deferral${t.open_mel>1?'s':''} open</small>`;
+    return `<p>No blocking items recorded</p>`; };
+  document.getElementById('phone').innerHTML = `
+    <div class="mh"><div><h3>Nexus <b>MRO</b></h3><p>Fleet board · ${S.tails_total} aircraft</p></div><div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></div></div>
+    <div class="off"><b>Offline · ${queued} items queued, not sent</b><small>Showing data as at ${clock(snap)}. Times and reservations may have changed.</small></div>
+    <div class="mt"><div class="m-green">${S.tails_serviceable} Serviceable</div><div class="m-red">${S.tails_down} Down</div><div class="m-blue">${S.tails_in_check} In check</div></div>
+    <div class="ml">${sorted.map(t=>`<div class="mc"><div class="row"><span class="reg mono">${esc(t.registration)}</span><span class="typ">${esc(t.type_code)}</span>${badge(t.status.code,'short')}</div>
+      ${line(t)}${t.flags[0]?`<div class="flag">Unassessed report · check before dispatch</div>`:''}
+      <small>Set by ${esc(t.status.set_by.name)} · ${when(t.status.set_at,snap)}</small></div>`).join('')}</div>
+    <div class="tabs"><span class="on">Fleet</span><span>Snags</span><span class="rep">Report</span><span>Parts</span><span>More</span></div>`;
+}
+renderDesk(); renderPhone();
+</script>
+</body>
+</html>
