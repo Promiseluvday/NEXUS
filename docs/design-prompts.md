@@ -309,48 +309,69 @@ artboard changed or added.
 
 ---
 
-## Prompt 5: NADD (Non-Airworthiness Deferred Defects)
+## Prompt 5: Deferred defects: DDLS and NADDS
 
-Run after Prompts 4 and 3. Answer Q-N1 to Q-N7 in `workflows/nadd.md` first; the NADDS print artboard needs Q-N5 (the sheet's fields).
+Rewritten 8 Oct 2026 with the operator's sheet layouts (D-160 to D-165). Run after Prompts 6 and 7.
 
 ```
 [Design standing rules from docs/PROMPTING.md section 1]
 
-TASK: Add the NADD screens to the "Nexus MRO" canvas, wireframe style first,
-then the NADD panel on Home.
+TASK: Add the deferred-defect screens to the "Nexus MRO" canvas: the
+Deferred Defects Log Sheet (DDLS) and the Non-Airworthiness Deferred
+Defects (NADD) list, with their printable sheets.
 
-CONTEXT: Read workflows/nadd.md. A NADD is a defect that does not affect
-airworthiness, deferred outside the MEL, with a countdown (120 days by
-default, set in Operator settings). Pilots propose; a certifying engineer
-confirms (online, PIN, "not covered by MEL" declaration). A NADD never
-changes the tail status.
+CONTEXT: Read workflows/ddls.md and workflows/nadd.md.
+- Every MEL deferral appears on the tail's DDLS automatically. Engineers
+  can also put other airworthiness-related deferred defects on the DDLS.
+- NADDs are convenience items only, on a separate NADDS. A pilot can
+  propose a NADD; a certifying engineer confirms it (online, PIN,
+  "not covered by MEL, no airworthiness effect").
+- Countdown: DDLS uses days allowed (from MEL category or entered with a
+  manual reference); NADD uses the operator default (120 days) from the
+  report date. Amber approaching, red expired. Neither changes tail status.
+- Every person has a 3LC (three-letter code), printed in Name columns.
+- Paper technical log continues: snags, deferrals and clearances record
+  TLB book, page and item numbers.
 
 SCOPE:
-1. Snag Disposition (D4): add a fourth option "Defer as NADD".
-2. NADD list per aircraft: number, location / item, reported date and by,
-   days remaining, state (Proposed, Open, Extension requested, Expired).
-   Sorted by days remaining. Amber when approaching, red when expired.
-   Buttons: Log NADD, Print NADDS.
-3. Log NADD form (engineer: log and confirm; pilot: "Proposed as NADD").
-4. NADD detail: countdown, confirmation (who, authorization ref, PIN),
-   linked part request, extensions, history; actions Rectify (certify,
-   PIN), Request extension, Reclassify (to MEL or Rectify now).
-5. NADD extension request (goes to Approvals inbox).
-6. Print preview "NADDS" (A4): header with operator, tail and type;
-   table of open NADDs; footer "Printed from Nexus MRO · date · by
-   [name] · version · uncontrolled when printed".
-   Fields: [paste Promise's NADDS field list here].
-7. Home: add a "NADDs" count tile and panel (next to MEL deferrals);
-   add "NADD" to the aircraft section list in the left rail; add
-   "NADD 3 · next expires in 12 days" line to fleet board cards.
-8. Operations availability: add a NADD column (count, link to list).
-9. Operator settings: "NADD default limit (days)" field, default 120.
-10. Mobile: NADD list and Log NADD form (390 x 844).
+1. Snag Disposition (D4): options become Rectify now (work order) ·
+   Defer under MEL (→ DDLS automatically) · Defer on DDLS (not MEL) ·
+   Defer as NADD · No fault found. Add TLB Book / Page / Item fields to
+   Report snag and to every disposition.
+2. DDLS screen per tail: page number; entries with TLB refs, MEL cat and
+   ref, days allowed, defect text, M / O flags, defer date, due date,
+   who; extension (only for categories the operator allows: B, C, D;
+   no extension button for Cat A); clearing (actions, date, TLB ref,
+   who, PIN). "Page closed" when all entries are cleared, with a notice
+   to CAMO.
+3. Defer on DDLS (not MEL) form: days allowed + manual reference
+   required.
+4. NADD list per tail sorted by days remaining; Log NADD form (engineer:
+   log and confirm; pilot: "Propose as NADD"); NADD detail (confirmation,
+   extension, rectify with PIN, reclassify to DDLS or Rectify now).
+5. Print previews (A4 landscape), our own clean layout in the
+   Hangar-grade theme, operator crest as an uploaded placeholder box:
+   a. NADDS: header Aircraft Reg, Sheet No.; title "Non-Airworthiness
+      Deferred Defects"; columns S/N · Date · Log Ref No or WO Ref ·
+      Name (3LC) · Defect / Discrepancy · Action Taken · Date ·
+      Name (3LC) · Log Ref No; 8 rows; remarks lines at the foot.
+   b. DDLS: header Aircraft type, Registration, page No.; one block per
+      entry with the opening, clearing and extension fields above;
+      4 entries per page; footer "When all entries are closed, return
+      the completed page to CAMO".
+   Footer on both: "Printed from Nexus MRO · date · by [name] · version ·
+   uncontrolled when printed".
+6. Home and fleet board: "DDLS 2 · NADD 3" counts; tiles open the lists.
+   A-check package: panel "Open NADDs: rectify before A-check".
+7. Person record and Create account: add "3LC" field (3 letters, unique).
+8. Operator settings: NADD default limit (days), DDLS extension-allowed
+   categories, rows per printed sheet.
+9. Mobile: DDLS and NADD lists, Log NADD / Propose NADD form.
 
-NOT: No change to tail status from a NADD. No copying of any real PAF
-sheet or data. No calculated due beyond report date + limit.
-STOP IF: The NADDS field list is missing; build everything else and leave
-the print table columns as [Column] placeholders.
+NOT: No copying of the operator's actual sheet artwork, crest or form
+numbers. Fictional data only (NX tails, invented defects, invented 3LCs).
+No change to tail status from DDLS or NADD entries.
+STOP IF: A field or rule isn't in workflows/ddls.md or workflows/nadd.md.
 DONE = All screens linked both ways with sticky notes; list every
 artboard added or changed.
 ```
@@ -430,7 +451,7 @@ DONE = Every artboard checked; list each one changed.
 
 ## Prompt 7: Work orders, completion evidence, CRS, two stores, reports, MRO oversight
 
-Run after Prompt 6. Read `workflows/work-order.md` and section 11A of `workflows/part-request.md`. Some details depend on open questions O-11 and O-12; the prompt uses Claude's recommendations, marked (DEFAULT). Change them if Promise answers differently.
+Run after Prompt 6. Read `workflows/work-order.md` and section 11A of `workflows/part-request.md`. O-11 and O-12 were answered on 8 Oct with the recommendations (D-067 to D-069, D-150, D-151).
 
 ```
 [Design standing rules from docs/PROMPTING.md section 1]
@@ -445,7 +466,7 @@ SCOPE:
 A. WORK ORDERS
  1. Work order request form, raised from an assessed snag or a package:
     scope of work, estimated man-hours, parts (reserve only before
-    approval, DEFAULT). Number shown as "Assigned on submission".
+    approval). Number shown as "Assigned on submission".
  2. Work order detail with an approval strip: Requested → Quality
     pre-approval → CO final approval → Open → Work complete → Certified.
     Before approval: all task entries, updates and sign-offs are disabled,
@@ -492,4 +513,4 @@ DONE = All screens linked both ways with sticky notes; list every
 artboard added or changed.
 ```
 
-**Run order now:** Prompt 6 → Prompt 7 → Prompt 5 (NADD).
+**Run order now:** Prompt 6 → Prompt 7 → Prompt 5 (DDLS and NADDS).

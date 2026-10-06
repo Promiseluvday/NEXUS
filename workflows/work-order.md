@@ -76,6 +76,8 @@ The holder at each state feeds "Blocked by" (D-006). A tail waiting on CO approv
 
 ## 7. Questions for Promise (open item O-11)
 
+**All answered 8 Oct 2026 with the recommendations below; logged as D-067 to D-069.**
+
 | # | Question | Recommendation |
 |---|---|---|
 | Q-W1 | **Is there an AOG or emergency path** when the CO is unavailable (acting deputy only, or verbal approval recorded afterwards)? | Acting deputy (D-036) only; no verbal path. Keeps the record clean |

@@ -187,6 +187,8 @@ Every state names the **department holding it**. This is what feeds the live "Bl
 
 ## 10. Questions for Promise
 
+**All answered 8 Oct 2026 with the recommendations below; logged as D-140 and D-145 to D-149.**
+
 Each one needs an answer before this becomes decisions. Where I have a recommendation, it is stated.
 
 | # | Question | Recommendation |

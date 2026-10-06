@@ -1,6 +1,6 @@
 # Non-Airworthiness Deferred Defects (NADD) workflow
 
-**Status:** Core rules agreed by Promise on 7 Oct 2026 and logged as **D-048 and D-049**. Questions in section 8 are open (O-10).
+**Status:** Core rules logged as **D-048, D-049** (7 Oct). All section 8 questions answered with the recommendations on 8 Oct and logged as **D-160 to D-165**. Still open: O-13 (4 months vs 120 days; whether NADDs block the A-check).
 **Builds on:** D-020, D-021, D-023, D-025, D-040 to D-047, D-050 to D-057 (MEL pattern), D-091, D-104
 
 ---
@@ -91,6 +91,9 @@ Calling a defect *non-airworthiness* is itself an airworthiness judgment. Under 
 
 - Nexus prints a **NADDS** for a tail: all open NADDs, or one selected NADD.
 - The print **layout is a configurable template** (D-025). PAF's NADDS is the first template. Other operators get their own.
+- **PAF layout (D-161):** header *Aircraft Reg* and *Sheet No.*; title "Non-Airworthiness Deferred Defects"; columns **S/N · Date · Log Ref No or WO Ref · Name (3LC) · Defect / Discrepancy · Action Taken · Date · Name (3LC) · Log Ref No**; 8 rows per sheet; remarks lines at the foot (PAF: "convenience items only"; "rectify before A-check but not later than 4 months after entry"). The first Date / Name / Log Ref belong to the entry; the second set to the rectification.
+- **3LC:** each person's three-letter code (D-162) prints in the Name columns.
+- **A-check:** open NADDs are listed and flagged in any A-check package opened on the tail (D-165).
 - **Every print carries:** "Printed from Nexus MRO · [date/time] · by [name] · record version [n] · uncontrolled when printed".
 - **The electronic record is the master** (D-023, D-114). If the paper sheet is signed by hand, the signature must also be entered in Nexus, or the paper becomes a second, conflicting record (Q-N4).
 - **Fictional data only during development** (D-112). The template is built from a **field list Promise describes**, not from a scanned real sheet. A blank form layout from PAF must not be committed to Git.

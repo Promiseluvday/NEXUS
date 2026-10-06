@@ -67,7 +67,7 @@
 
 | ID | Decision |
 |---|---|
-| D-040 | Lifecycle: Pilot reports (Open – Reported) → Engineer assesses (Under Assessment) → **Rectify now / Defer under MEL / No fault found** → Certifying engineer signs → Closed, tail status updated. |
+| D-040 | *(DDLS and NADD dispositions: D-160 to D-165.)* Lifecycle: Pilot reports (Open – Reported) → Engineer assesses (Under Assessment) → **Rectify now / Defer under MEL / No fault found** → Certifying engineer signs → Closed, tail status updated. |
 | D-041 | Pilots log snags after the tech-log entry, including **soft observations** they want checked. |
 | D-042 | **A pilot cannot close any entry.** Every entry, including soft observations and no-fault-found, is dispositioned by an engineer. |
 | D-043 | Only users holding a valid **Certifying** privilege, in scope for that aircraft type, can close an item. Certification checks the company authorization, licence and type rating. |
@@ -77,6 +77,12 @@
 | D-047 | **Expected return to service** is an estimate entered by Engineering (duty or certifying engineer) with name and time, never calculated. Visible to all departments. *(6 Oct 2026)* |
 | D-048 | **Non-Airworthiness Deferred Defects (NADD)** are in v1. Engineers and pilots can log them. Each NADD has a countdown, **120 days by default or as the operator defines** (D-025), and NADDs are listed per aircraft by time remaining. A NADD does not change the tail status. Workflow: `workflows/nadd.md`. Extends D-011. *(7 Oct 2026)* |
 | D-049 | NADDs can be **printed**. Nexus emulates the operator's **Non-Airworthiness Deferred Defects Sheet (NADDS)** through a configurable print template. Every print is marked with who printed it, when, the record version, and "uncontrolled when printed". *(7 Oct 2026)* |
+| D-160 | **NADD rules** (answers to O-10): a pilot logs a NADD as **"proposed"**; a certifying engineer confirms it (online, PIN, declaring it is not covered by the MEL and does not affect airworthiness). The countdown starts on the **report date**. Extensions are approved by the approver set in the chain (Quality by default). The **electronic record is the master**; printed sheets are copies. No cap on NADDs per tail by default (configurable). One default limit for all NADDs. (Section 5 continues at D-160.) *(8 Oct 2026)* |
+| D-161 | **NADDS print** follows the operator's sheet: header Aircraft Reg and Sheet No.; columns S/N, Date, Log Ref No or WO Ref, Name (3LC), Defect / Discrepancy, Action Taken, Date, Name (3LC), Log Ref No; a fixed number of rows per sheet (8 for PAF); configurable remarks lines. The layout is a template (D-049); the operator's crest is uploaded by the operator, never shipped by Liebetag. *(8 Oct 2026)* |
+| D-162 | Every person record carries a **3LC (three-letter code)**, unique per operator, used on printed sheets alongside the full name. *(8 Oct 2026)* |
+| D-163 | **Deferred Defects Log Sheet (DDLS)** replaces the name Hold Item List (HIL). **Every MEL deferral is logged on the DDLS automatically.** An engineer can also place other deferred defects on the DDLS when they judge it a DDLS item and not a NADD. Extensions are allowed only for categories set by the operator (PAF: B, C and D; never A). Workflow: `workflows/ddls.md`. *(8 Oct 2026)* |
+| D-164 | **Technical log references** (TLB book, page and item number) are recorded on every snag, deferral and clearance, because the paper technical log continues alongside Nexus. Opening a DDLS entry needs: TLB book / page / item, MEL category and reference (if MEL), days allowed, pilot report or maintenance entry, (M) and (O) procedure flags, defer date, rectification due date, name and signature. Clearing needs: rectification actions, rectification date, TLB book / page, name and signature. *(8 Oct 2026)* |
+| D-165 | **NADDs and the A-check:** when an A-check package is opened, every open NADD on that tail is listed in it and flagged "rectify before A-check". Whether open NADDs block the A-check from closing is open item O-13. *(8 Oct 2026)* |
 
 ## 6. MEL
 
@@ -103,6 +109,9 @@
 | D-064 | **Work order numbers are generated automatically by the server** and run **sequentially across the whole fleet**. Numbers are never reused; rejected or cancelled work orders keep theirs. Format is a setting (D-025). *(7 Oct 2026)* |
 | D-065 | **Completion evidence:** before a work order is certified closed, scanned copies of the signed sign-off card and/or technical log page, and the aircraft or engine logbook entry, are attached (PDF or images, D-026). Which scans are mandatory is a setting. *(7 Oct 2026)* |
 | D-066 | **CRS:** when every task in a work package is certified and its findings are closed (D-044), Nexus **compiles** the Certificate of Release to Service with a sequential reference number, printable and downloadable. It is a draft until an authorized certifying engineer signs it (online, PIN, D-043, D-104). Nexus never releases an aircraft on its own (D-020). The layout is a configurable template. *(7 Oct 2026)* |
+| D-067 | **Work order scope** (answers to O-11): only "Rectify now" and check packages need a work order; MEL, NADD and no-fault-found use their own controls. A check package has **one** work order; each non-routine finding gets its own. When the CO is unavailable, only the acting deputy (D-036) approves; there is no verbal approval path. *(8 Oct 2026)* |
+| D-068 | Parts can be **reserved before** a work order is approved, so an AOG part isn't lost; they are **issued only after** approval. *(8 Oct 2026)* |
+| D-069 | Which completion scans are mandatory is set per operator (D-065). CRS references run in **one fleet-wide sequence**, never reused. *(8 Oct 2026)* |
 
 ## 8. Supply and procurement
 
@@ -110,7 +119,7 @@
 |---|---|
 | D-070 | Engineers can **search stores** and see live availability and quantity before walking to the store. |
 | D-071 | Stock updates in real time on every issue, receipt and return. A part is **reserved** the moment it is requested, so two engineers cannot claim the last unit. |
-| D-072 | Parts carry **certificate status, shelf life and expiry**. Expired or uncertified parts are clearly flagged. |
+| D-072 | *(Refined by D-148.)* Parts carry **certificate status, shelf life and expiry**. Expired or uncertified parts are clearly flagged. |
 | D-073 | Handoffs: Engineering requests → Supply issues from stock, or raises a requisition → Procurement runs approval and PO → Supply receives, inspects, stocks → Engineering notified. |
 | D-074 | **Only Supply can mark a part available**, after receiving inspection. Procurement cannot. |
 | D-075 | **Separation of duties:** the requester cannot approve the purchase; the buyer cannot receive it into stock. |
@@ -123,6 +132,13 @@
 | D-142 | **Main Store is the store of record.** Parts move Main → Forward by transfer (issued, in transit, received). If the Forward Store receives a part directly, it reports the receipt to the Main Store, which acknowledges it before it counts as stock. *(7 Oct 2026)* |
 | D-143 | **A part request does not need a snag.** Aircraft parts need a tail and a work order or task card. Consumables can be requested without a snag, against a work order or a stated purpose. *(7 Oct 2026)* |
 | D-144 | **Procurement also runs commercial maintenance oversight** of work sent to outside MROs: negotiating maintenance cost, recording the agreed cost, and logging parts used by the MRO with their cost. Technical acceptance of MRO work stays with Engineering and Quality (D-020). Extends D-011. *(7 Oct 2026)* |
+| D-145 | **Part request and requisition / PO are separate linked records** (Engineering owns the request; Supply and Procurement own the requisition and PO). In v1 one request line = one requisition line. Stock is reserved only at **server time**; an offline request shows "Queued, not reserved". (Answers to O-8.) *(8 Oct 2026)* |
+| D-146 | **Approval separation:** whoever raises a requisition cannot approve any step of it, and no one approves two steps of the same requisition. Approval chains can vary by **value and priority**; thresholds are configured per operator. Refines D-075, D-076. *(8 Oct 2026)* |
+| D-147 | **AOG priority:** any engineer may request it; it is confirmed only when the linked job makes the tail U/S or a certifying engineer confirms it. A priority-use report per person is visible to Quality and Command. *(8 Oct 2026)* |
+| D-148 | **Expired shelf-life or uncertified stock cannot be issued**; Supply moves it to quarantine. Refines D-072. Quality owns, as configuration, the **approved supplier list** and the **accepted release certificate types**; receiving inspection records which certificate was accepted. *(8 Oct 2026)* |
+| D-149 | Requisitions have an **"In clearing"** (customs) state. Document names (request, requisition, issue voucher, etc.) are **configurable labels** in the operator's own terms. Engineers do not see cost by default (D-121). *(8 Oct 2026)* |
+| D-150 | **Forward Store receipts:** the Forward storekeeper does the receiving inspection; the Main Store acknowledges the receipt (D-142). (Answers to O-12.) *(8 Oct 2026)* |
+| D-151 | **Returns from Forward to Main** use the same transfer record in reverse. *(8 Oct 2026)* |
 
 ## 9. Qualifications
 
@@ -211,8 +227,10 @@ Detail and the per-department table: `docs/department-views.md`.
 | O-5 | Declare the venture through the proper PAF channel before pitching | Promise |
 | O-6 | Identify the expert reviewer and involve them from Phase 0 | Promise |
 | O-7 | Status label wording on the fleet board (AOG / U/S / SVC · MEL) to match PAF usage | Promise |
-| O-8 | Map the part request workflow in detail. Draft in `workflows/part-request.md`; Q-1 to Q-10 still to answer | Promise + Claude |
-| O-10 | NADD questions Q-N1 to Q-N7 in `workflows/nadd.md` (pilot proposal, countdown start, extension approver, paper vs electronic, NADDS fields, cap, categories) | Promise |
-| O-11 | Work order questions Q-W1 to Q-W6 in `workflows/work-order.md` (AOG path, which dispositions need a WO, reserving before approval, packages, mandatory scans, CRS numbering) | Promise |
-| O-12 | Stores questions Q-S1, Q-S2 in `workflows/part-request.md` (receiving inspection at Forward Store, returns to Main) | Promise |
+| O-8 | ✅ Closed 8 Oct (D-145 to D-149). Map the part request workflow in detail. Draft in `workflows/part-request.md`; Q-1 to Q-10 still to answer | Promise + Claude |
+| O-10 | ✅ Closed 8 Oct (D-160, D-161). NADD questions Q-N1 to Q-N7 in `workflows/nadd.md` (pilot proposal, countdown start, extension approver, paper vs electronic, NADDS fields, cap, categories) | Promise |
+| O-11 | ✅ Closed 8 Oct (D-067 to D-069). Work order questions Q-W1 to Q-W6 in `workflows/work-order.md` (AOG path, which dispositions need a WO, reserving before approval, packages, mandatory scans, CRS numbering) | Promise |
+| O-12 | ✅ Closed 8 Oct (D-150, D-151). Stores questions Q-S1, Q-S2 in `workflows/part-request.md` (receiving inspection at Forward Store, returns to Main) | Promise |
+| O-13 | NADD limits: (a) PAF's NADDS sheet says "not later than 4 months after entry"; Promise said 120 days. Which governs, calendar months or days? (b) Do open NADDs **block** an A-check from closing, or only appear flagged in it? | Promise |
+| O-14 | **Scheduling data classification** (Phase 6): flight orders and mission lists are classified. Proposal in `workflows/scheduling.md`: on-premise only, need-to-know access, full audit, no cloud copies | Promise |
 | O-9 | Design the Aircraft page. Now the aircraft dashboard on Home (D-096); in progress on the design canvas | Promise + Claude |
