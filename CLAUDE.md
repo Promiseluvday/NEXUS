@@ -55,7 +55,7 @@ You are the BUILDER. You own app/ and Git.
 - Never edit docs/DECISIONS.md, design/, pitch/ or legal-ip/ unless told to.
 - Never add a new library or service without asking first.
 - Show a plan and wait for approval before changing more than 3 files.
-- Commit only when asked. Never force-push.
+- Commit and push at the end of each approved task. Never force-push.
 - When finished, list every file you changed.
 
 ## Current position (update as work progresses)

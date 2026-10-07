@@ -636,3 +636,50 @@ SCOPE:
 NOT: No other changes.
 DONE = List every artboard changed.
 ```
+
+---
+
+## Prompt 10: Cleaner home rail, snag colours, new theme (8 Oct 2026)
+
+Decisions: D-200, D-201, D-202, D-204, D-212. Run after Prompt 9.
+
+```
+[Design standing rules from docs/PROMPTING.md section 1, but use the D-212
+colours below instead of navy and teal]
+
+TASK: Apply these agreed changes across every artboard on the "Nexus MRO"
+canvas (desktop and mobile).
+
+SCOPE:
+1. Left rail (D-201, D-202): top item "All aircraft" with a dropdown arrow
+   that opens the tail list. Below it, one row per department the user may
+   use (Engineering, Operations, Supply, Procurement, plus Quality /
+   Command for oversight users), each with a dropdown arrow that opens its
+   subsections:
+     Engineering → Work orders, Snags, MEL / DDLS / NADD, Tire Bay,
+                   Battery Workshop, AGE (sections only if granted)
+     Operations  → Availability, Flight scheduling, Crew, Missions
+     Supply      → Stores search, Main Store, Forward Store, Receiving,
+                   Transfers, U/S returns (stores only if granted)
+     Procurement → Requisitions, Purchase orders, Outside MRO
+   Then Approvals, Queries, Reports. Administration only for Super Admins.
+   Collapsed by default except the user's home department. Mobile: same
+   structure inside "More".
+2. Snag display (D-200): pilot report = blue chip "Snag open"; once an
+   engineer starts assessing = amber chip "Snag attended". Show the last
+   engineer-set status beside either. Update fleet board, Home, print
+   (PRS) and Operations screens.
+3. Dates and times (D-204): every date field opens a calendar; dates read
+   "07 Oct 2026"; times 24-hour "14:30".
+4. Colours (D-212): black header and text; white cards on a light-blue
+   page ground; light-blue buttons with black text; yellow for the
+   Liebetag mark and highlights; links in a deeper blue; never light-blue
+   text on white. Status colours unchanged (D-091), always with a word.
+5. Open-questions sticky: mark P8, P10, P11 to P20 decided with their
+   D-numbers (D-200 to D-213).
+
+NOT: No new screens or features. Fictional data only.
+STOP IF: A colour fails 4.5:1 contrast for text; note it and use the
+nearest passing shade.
+DONE = List every artboard changed.
+```
