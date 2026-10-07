@@ -163,3 +163,108 @@ insert into public.operator_setting (key, value, reason) values
   ('work_order.number_format',        '"WO-{000000}"',       'Initial set-up (D-064)'),
   ('scheduling.show_flight_coming_soon', 'true',             'Initial set-up (D-017)'),
   ('scheduling.show_crew_coming_soon',   'true',             'Initial set-up (D-017)');
+
+-- =============================================================================
+-- Phase 1 sample data (fictional, D-112)
+-- =============================================================================
+
+-- ------------------------------------------------------------- usernames -----
+-- Sign in with username or email (D-206). Username = the person's 3LC in lower case.
+update public.user_account ua set username = lower(p.three_letter_code)
+  from public.person p where p.id = ua.person_id;
+
+-- ------------------------------------------------------- approval chains -----
+insert into public.approval_chain (action_type, name) values
+  ('work_order',     'Work order (D-063)'),
+  ('ddls_extension', 'DDLS / MEL extension (D-056, D-163)'),
+  ('nadd_extension', 'NADD extension (D-160)');
+
+insert into public.approval_chain_step (action_type, step_no, name, department_code, appointment_id) values
+  ('work_order',     1, 'Quality pre-approval', 'QUA', null),
+  ('work_order',     2, 'CO final approval',    null,  '30000000-0000-0000-0000-000000000002'),
+  ('ddls_extension', 1, 'Quality approval',     'QUA', null),
+  ('nadd_extension', 1, 'Quality approval',     'QUA', null);
+
+-- ------------------------------------------------------------- settings -----
+insert into public.operator_setting (key, value, reason) values
+  ('operator.time_zone',            '"Africa/Lagos"',      'Initial set-up (D-055)'),
+  ('mel.discovery_day_counts',      'false',               'Initial set-up (D-055)'),
+  ('ddls.entries_per_page',         '4',                   'Initial set-up (D-163)'),
+  ('nadds.rows_per_sheet',          '8',                   'Initial set-up (D-161)'),
+  ('repeat.threshold',              '3',                   'Initial set-up (D-208)'),
+  ('repeat.window_days',            '30',                  'Initial set-up (D-208)'),
+  ('work_order.required_scans',     '["sign_off_card"]',   'Initial set-up (D-065)'),
+  ('snag.number_format',            '"SNAG-{000000}"',     'Initial set-up (D-213)'),
+  ('nadd.number_format',            '"NADD-{000000}"',     'Initial set-up (D-048)'),
+  ('technical_query.number_format', '"TQ-{000000}"',       'Initial set-up (D-207)'),
+  ('auth.username_email_domain',    '"users.nexus.local"', 'Initial set-up (D-206)'),
+  ('display.date_format',           '"DD Mmm YYYY"',       'Initial set-up (D-204)'),
+  ('display.time_format',           '"HH:MM"',             'Initial set-up (D-204)');
+
+-- --------------------------------------------------- MEL (fictional items) -----
+insert into public.mel_revision (id, aircraft_type_code, revision, approval_date, approval_reference, loaded_by) values
+  ('50000000-0000-0000-0000-000000000001', 'G550',     '[SAMPLE-07]', '2026-03-01', '[SAMPLE-APPROVAL-G550-07]', '10000000-0000-0000-0000-000000000004'),
+  ('50000000-0000-0000-0000-000000000002', 'A330-200', '[SAMPLE-12]', '2026-02-01', '[SAMPLE-APPROVAL-A330-12]', '10000000-0000-0000-0000-000000000004');
+
+insert into public.mel_item (revision_id, item_number, title, category, interval_value, interval_unit, remarks, m_procedure, o_procedure) values
+  ('50000000-0000-0000-0000-000000000001', '21-31-01', '[SAMPLE] Cabin pressure indicator',    'C', 10,  'calendar_days', '[SAMPLE] May be inoperative provided the alternate indication is verified.', true,  true),
+  ('50000000-0000-0000-0000-000000000001', '21-31-02', '[SAMPLE] Cabin altitude warning light', 'B', 3,   'calendar_days', '[SAMPLE] One may be inoperative.',                                       false, true),
+  ('50000000-0000-0000-0000-000000000001', '33-21-01', '[SAMPLE] Passenger reading lights',     'D', 120, 'calendar_days', '[SAMPLE] Any in excess of those required may be inoperative.',           false, false),
+  ('50000000-0000-0000-0000-000000000001', '34-11-01', '[SAMPLE] Standby airspeed indicator',   'A', 10,  'flight_hours',  '[SAMPLE] Repairs to be made within 10 flight hours.',                    true,  true),
+  ('50000000-0000-0000-0000-000000000002', '21-51-01', '[SAMPLE] Pack temperature sensor',      'C', 10,  'calendar_days', '[SAMPLE] One may be inoperative.',                                       true,  false),
+  ('50000000-0000-0000-0000-000000000002', '33-41-01', '[SAMPLE] Logo light',                   'D', 120, 'calendar_days', '[SAMPLE] May be inoperative.',                                           false, false);
+
+update public.mel_revision set status = 'active', activated_by = loaded_by, activated_at = now()
+ where id in ('50000000-0000-0000-0000-000000000001', '50000000-0000-0000-0000-000000000002');
+
+-- ---------------------------------------------------- cabin zones (D-209) -----
+insert into public.cabin_zone (aircraft_type_code, code, name, is_emergency_equipment) values
+  ('G550', 'CAB-FWD', 'Forward cabin',            false),
+  ('G550', 'CAB-AFT', 'Aft cabin',                false),
+  ('G550', 'GALLEY',  'Galley',                   false),
+  ('G550', 'LAV',     'Lavatory',                 false),
+  ('G550', 'EXIT-1',  'Main entry door and exit', true),
+  ('G550', 'OXY',     'Passenger oxygen',         true),
+  ('G550', 'EMER-LT', 'Emergency lighting',       true);
+
+-- ------------------------------------------- tail statuses (set by engineers) -----
+insert into public.tail_status_event (aircraft_id, status, reason, expected_rts_on, set_by, set_at) values
+  ('40000000-0000-0000-0000-000000000101', 'AOG',      '[SAMPLE] Hydraulic pump awaiting replacement', current_date + 3, '10000000-0000-0000-0000-000000000005', now() - interval '2 days'),
+  ('40000000-0000-0000-0000-000000000102', 'IN_CHECK', '600 FH inspection',                            current_date + 2, '10000000-0000-0000-0000-000000000005', now() - interval '4 days'),
+  ('40000000-0000-0000-0000-000000000201', 'SVC',      'Daily inspection complete',                    null,             '10000000-0000-0000-0000-000000000006', now() - interval '1 day'),
+  ('40000000-0000-0000-0000-000000000202', 'SVC',      'Daily inspection complete',                    null,             '10000000-0000-0000-0000-000000000005', now() - interval '20 hours'),
+  ('40000000-0000-0000-0000-000000000203', 'SVC',      'Daily inspection complete',                    null,             '10000000-0000-0000-0000-000000000005', now() - interval '10 hours'),
+  ('40000000-0000-0000-0000-000000000204', 'SVC_MEL',  'Serviceable with MEL item 21-31-02',           null,             '10000000-0000-0000-0000-000000000006', now() - interval '1 day');
+
+-- ------------------------------------------------------------ sample snags -----
+-- NX-203: pilot report, not yet attended (blue "Snag open", D-200).
+insert into public.snag (number, aircraft_id, reported_by, reporter_kind, description, ata, tlb_book, tlb_page, tlb_item, created_at)
+values (app.next_number('snag', 'SNAG-{000000}'), '40000000-0000-0000-0000-000000000203',
+        '10000000-0000-0000-0000-000000000007', 'pilot',
+        '[SAMPLE] Cabin pressure fluctuation during climb', '21-31', '14', '0371', '1', now() - interval '80 minutes');
+
+-- NX-204: a deferred snag under MEL 21-31-02 (Cat B, 3 days), on the DDLS.
+with s as (
+  insert into public.snag (number, aircraft_id, reported_by, reporter_kind, description, ata,
+                           tlb_book, tlb_page, tlb_item, status, disposition,
+                           attended_by, attended_at, dispositioned_by, dispositioned_at)
+  values (app.next_number('snag', 'SNAG-{000000}'), '40000000-0000-0000-0000-000000000204',
+          '10000000-0000-0000-0000-000000000007', 'pilot',
+          '[SAMPLE] Cabin altitude warning light inoperative', '21-31', '14', '0368', '1',
+          'deferred', 'mel',
+          '10000000-0000-0000-0000-000000000006', now() - interval '2 days',
+          '10000000-0000-0000-0000-000000000006', now() - interval '2 days')
+  returning id, description, tlb_book, tlb_page, tlb_item)
+insert into public.ddls_entry (aircraft_id, snag_id, kind, page_no, entry_no, mel_item_id, mel_revision_id,
+                               mel_ref, mel_category, interval_value, interval_unit, defect_text,
+                               m_required, o_required, m_done, o_passed, placard_fitted,
+                               tlb_book, tlb_page, tlb_item, deferred_by, deferred_at, due_at)
+select '40000000-0000-0000-0000-000000000204', s.id, 'mel', 1, 1, i.id, i.revision_id,
+       i.item_number, i.category, i.interval_value, i.interval_unit, s.description,
+       i.m_procedure, i.o_procedure, i.m_procedure, i.o_procedure, true,
+       s.tlb_book, s.tlb_page, s.tlb_item, '10000000-0000-0000-0000-000000000006',
+       now() - interval '2 days', app.due_from_days(now() - interval '2 days', 3)
+  from s, public.mel_item i
+ where i.revision_id = '50000000-0000-0000-0000-000000000001' and i.item_number = '21-31-02';
+insert into app.number_series (series, last_value)
+values ('ddls:40000000-0000-0000-0000-000000000204', 1);

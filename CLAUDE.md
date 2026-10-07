@@ -70,5 +70,7 @@ You are the BUILDER. You own app/ and Git.
 - Open: O-14 (scheduling data classification), O-15 (workshop records and workflows).
 - Workshops raise own WOs with Quality + CO approval; fleet tire/battery requests issued after WO approval (D-019, `workflows/workshops.md`).
 - Canvas proposals awaiting decision: O-16 (aircraft dropdown, amends D-096), O-17 (flight scheduling drafts, P9), O-18 (daily serviceability print, P10). Fleet board v2 reference design in `design/fleet-board/` with proposals P-FB-1 to P-FB-4 (O-19).
-- Next: Prompt 9 in Claude Design; answer O-14 to O-18.
+- 9 Oct: design round 2 logged (D-200 to D-214); O-16 to O-19 closed; O-20 open (scheduling questions).
+- Backend: Phase 0 done (migrations 0001–0009, 37 tests). Phase 1A done (0010–0021: accounts, approvals, tail status, snags, attachments, work orders, MEL, DDLS, NADD, queries, repeat defects, fleet board, API lock-down; 90 tests). See `app/README.md`.
+- Next: Phase 1B (React PWA screens), which needs library approval first. Promise runs Prompts 9 and 10 in Claude Design. Open: O-1 to O-7 (O-5 urgent), O-14, O-15, O-20.
 - Six-month target: Phase 0 (foundations) + Phase 1 (snag workflow end to end).
