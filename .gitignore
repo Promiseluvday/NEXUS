@@ -5,3 +5,4 @@ build/
 .env.*
 *.log
 real-data/
+!.env.example

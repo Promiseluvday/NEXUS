@@ -2,10 +2,11 @@
 
 Proprietary to Liebetag. All rights reserved.
 
-This folder holds the application. Right now it contains the backend only: the database, its rules, and automatic checks. There are no screens yet.
+This folder holds the application: the database with its rules and checks, and the screens (a React app that works on phone, tablet and desktop).
 
 - **Phase 0, foundations:** people, departments, aircraft, stores, access, authorizations, audit
 - **Phase 1A, snag workflow backend:** snags, work orders with approvals, MEL, DDLS, NADD, attachments, technical queries, repeat defects, fleet board
+- **Phase 1B slice 1, first screens:** sign in with username, set PIN, home rail (departments and aircraft dropdown), fleet board, aircraft summary, report snag
 
 One database per operator (agreed 9 Oct 2026): each customer, e.g. PAF, gets its own database on its own server.
 
@@ -17,6 +18,15 @@ One database per operator (agreed 9 Oct 2026): each customer, e.g. PAF, gets its
 app/
 ├── package.json            Project file: lists the tools and the run commands
 ├── package-lock.json       Exact tool versions (keeps everyone's set-up identical)
+├── index.html, vite.config.ts, tsconfig.json   Start-up page and build settings
+├── .env.example            Template for .env.local (database address and key; never committed)
+├── public/icon.svg         App icon
+├── src/                    The screens
+│   ├── main.tsx, App.tsx   Start-up; which screen shows for which address
+│   ├── theme.css           Colours (D-212), status colours (D-091), fonts, 44 px touch targets
+│   ├── lib/                Connection to the database, sign-in state, date formats (D-204)
+│   ├── components/         Rail, aircraft dropdown, status chips
+│   └── screens/            Sign in, set PIN, home frame, fleet board, report snag
 └── supabase/
     ├── config.toml         Settings for running Supabase on your own machine
     ├── migrations/         The database, built up step by step (run in order)
@@ -105,10 +115,29 @@ Then, in PowerShell:
 
 ```
 cd C:\Users\USER\Downloads\NEXUS\app
-npm install          # downloads the Supabase tool (first time only)
+npm install          # downloads the tools (first time, and after a pull that adds tools)
 npm run db:start     # starts the database (first time downloads ~2 GB; later it's quick)
-npm run db:test      # runs all 127 checks; should end with "Result: PASS"
+npm run db:test      # runs all 127 database checks; should end with "Result: PASS"
 ```
+
+### Opening the screens
+
+Once, create your settings file:
+1. Copy `.env.example` to `.env.local` (same folder): `copy .env.example .env.local`
+2. Run `npm run db:status`, copy the **anon key** value, and paste it into `.env.local` after `VITE_SUPABASE_ANON_KEY=`.
+
+Then each time:
+```
+npm run db:start     # if the database isn't already running
+npm run dev          # starts the screens
+```
+Open **http://localhost:5173** in your browser. Stop with Ctrl+C.
+
+Sign in with a sample **username**: `kdo` (duty engineer, G550s), `pla` (pilot), `qar` (Quality, all aircraft, view only), `tmb` (certifying engineer), `abe` (Engineering CO), `zem` (Commander), `sbk` (storekeeper), `fao` (procurement). Password for all: `nexus-dev-only`. On first sign-in you set a PIN (4 to 8 digits).
+
+To try it on a phone on the same Wi-Fi, use the "Network" address `npm run dev` prints, and put your PC's address instead of `127.0.0.1` in `.env.local`.
+
+Screen checks: `npm run test` (date formats, username rules). `npm run typecheck` checks the code for mistakes. `npm run types` refreshes `src/lib/database.types.ts` after a database change.
 
 If you already had the database running from Phase 0, run `npm run db:stop`, then `npm run db:start` (it now also starts file storage for uploads), then `npm run db:reset` to load the new migrations and sample data.
 
@@ -120,7 +149,7 @@ Other commands:
 | `npm run db:status` | Shows the local addresses and keys |
 | `npm run db:stop` | Stops the database (your data is kept until the next reset) |
 
-**Local sign-in for testing:** any sample email in `supabase/seed.sql` (e.g. `kdo@nexus.test`), password `nexus-dev-only`. These exist only on your machine.
+**Local sign-in for testing:** the usernames above, or the full sample address (e.g. `kdo@users.nexus.local`). These exist only on your machine.
 
 **Keys:** `npm run db:status` prints local keys. They are the standard demo keys Supabase uses for every local install, not secrets. Real keys for a real server go in a `.env` file, which Git ignores. **Never commit them.**
 
@@ -128,7 +157,8 @@ Other commands:
 
 ## Not built yet
 
-- Any screens (the React app): Phase 1B
+- Remaining Phase 1B screens: snag detail and dispositions (slice 2), approvals, work orders and uploads (slice 3), queries, cabin map and prints (slice 4)
+- Account request and forgotten-password screens (D-206)
 - Offline store and sync queue on the device: Phase 1C
 - Parts, stores transactions, procurement (later phases)
 - Flight and crew scheduling (after Phase 1, D-205)
