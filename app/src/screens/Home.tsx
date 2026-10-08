@@ -1,16 +1,83 @@
 // The frame around every screen after sign-in:
-//   black top bar (Liebetag mark, who is signed in, Sign out: D-206)
-//   left rail (departments and aircraft: D-201, D-202)
+//   black top bar: ☰ (phones), Liebetag mark, online/offline pill (D-094),
+//     ＋ New menu (all actions in one place), user menu (Sign out, D-206)
+//   left rail: departments and aircraft (D-201, D-202)
 //   the chosen screen on the right.
 // On a phone the rail slides in from the left with the ☰ button.
-import { useState } from 'react';
-import { Link, Outlet, useParams } from 'react-router';
+import { useEffect, useState } from 'react';
+import { Link, Outlet, useLocation, useNavigate, useParams } from 'react-router';
 import { useAuth } from '../lib/auth';
 import { Rail } from '../components/Rail';
 import { useAircraftList } from '../components/AircraftPicker';
+import { Menu, MenuItem } from '../components/Menu';
+
+// "Online" / "Offline" is always visible (D-094). Until Phase 1C adds the
+// offline queue, actions need a connection, and the pill says so.
+function OnlinePill() {
+  const [online, setOnline] = useState(navigator.onLine);
+  useEffect(() => {
+    const up = () => setOnline(true);
+    const down = () => setOnline(false);
+    window.addEventListener('online', up);
+    window.addEventListener('offline', down);
+    return () => {
+      window.removeEventListener('online', up);
+      window.removeEventListener('offline', down);
+    };
+  }, []);
+  return online
+    ? <span className="pill pill-online" title="Connected to the Nexus server">Online</span>
+    : <span className="pill pill-offline" role="status" title="Actions cannot be sent until the connection returns">Offline · actions not sent</span>;
+}
+
+// Every "create something" action in one menu. Shows only what this user may
+// do. Opened while looking at a tail, the tail is filled in (D-098).
+function NewMenu() {
+  const { me } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const tailId = location.pathname.startsWith('/aircraft/') ? location.pathname.split('/')[2] : '';
+  const eng = me?.departments.some((d) => d.code === 'ENG');
+  const ops = me?.departments.some((d) => d.code === 'OPS');
+  if (!eng && !ops && !me?.isOversight) return null;
+  return (
+    <Menu label="＋ New" align="right" className="new-button">
+      {(close) => (
+        <>
+          {me?.canReportSnags && (
+            <MenuItem onSelect={() => { close(); navigate(`/report-snag${tailId ? `?aircraft=${tailId}` : ''}`); }}>
+              Report snag
+            </MenuItem>
+          )}
+          {(eng || ops) && <MenuItem soon>Cabin item</MenuItem>}
+          {eng && <MenuItem soon>Request part</MenuItem>}
+          <MenuItem soon>Raise technical query</MenuItem>
+        </>
+      )}
+    </Menu>
+  );
+}
+
+function UserMenu() {
+  const { me, signOut } = useAuth();
+  return (
+    <Menu label={<span className="mono">{me?.tlc}</span>} ariaLabel="Account" align="right" className="plain">
+      {() => (
+        <>
+          <div className="menu-head">
+            <strong>{me?.fullName}</strong> <span className="mono">{me?.tlc}</span>
+            <div className="small muted">{me?.departments.map((d) => d.name).join(' · ')}</div>
+          </div>
+          <MenuItem soon>Change PIN</MenuItem>
+          <MenuItem soon>My account</MenuItem>
+          <MenuItem onSelect={signOut}>Sign out</MenuItem>
+        </>
+      )}
+    </Menu>
+  );
+}
 
 export function Home() {
-  const { me, signOut } = useAuth();
   const aircraft = useAircraftList();
   const [railOpen, setRailOpen] = useState(false);
 
@@ -27,16 +94,12 @@ export function Home() {
           ☰
         </button>
         <Link to="/" className="brand">
-          <span className="brand-mark">N</span> Nexus MRO
+          <span className="brand-mark">N</span> <span className="brand-name">Nexus MRO</span>
         </Link>
         <span className="spacer" />
-        <span className="who">
-          <span className="name">{me?.fullName} </span>
-          <span className="mono">{me?.tlc}</span>
-          <br />
-          <span className="small">{me?.departments.map((d) => d.name).join(' · ')}</span>
-        </span>
-        <button type="button" className="plain" onClick={signOut}>Sign out</button>
+        <OnlinePill />
+        <NewMenu />
+        <UserMenu />
       </header>
       <Rail aircraft={aircraft} open={railOpen} onNavigate={() => setRailOpen(false)} />
       <main className="main" onClick={() => railOpen && setRailOpen(false)}>

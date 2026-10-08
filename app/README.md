@@ -7,6 +7,7 @@ This folder holds the application: the database with its rules and checks, and t
 - **Phase 0, foundations:** people, departments, aircraft, stores, access, authorizations, audit
 - **Phase 1A, snag workflow backend:** snags, work orders with approvals, MEL, DDLS, NADD, attachments, technical queries, repeat defects, fleet board
 - **Phase 1B slice 1, first screens:** sign in with username, set PIN, home rail (departments and aircraft dropdown), fleet board, aircraft summary, report snag
+- **UX pass:** grouped rail dropdowns, ＋ New and user menus, tail search, online/offline pill, slimmer fleet board. Layout rules in `docs/ui-rules.md`
 
 One database per operator (agreed 9 Oct 2026): each customer, e.g. PAF, gets its own database on its own server.
 
@@ -25,7 +26,7 @@ app/
 │   ├── main.tsx, App.tsx   Start-up; which screen shows for which address
 │   ├── theme.css           Colours (D-212), status colours (D-091), fonts, 44 px touch targets
 │   ├── lib/                Connection to the database, sign-in state, date formats (D-204)
-│   ├── components/         Rail, aircraft dropdown, status chips
+│   ├── components/         Rail, dropdown menu, tail search, status chips
 │   └── screens/            Sign in, set PIN, home frame, fleet board, report snag
 └── supabase/
     ├── config.toml         Settings for running Supabase on your own machine

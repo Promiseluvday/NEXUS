@@ -2,16 +2,19 @@
 //
 // Everything shown comes from app.fleet_board() in the database, which only
 // returns aircraft this user may see. The screen adds nothing of its own
-// except counting rows for the tiles and "held for" times (subtraction of
+// except counting rows for the filter and "held for" times (subtraction of
 // two recorded times). It never works out serviceability (D-020).
 //
-// Whole tiles and whole rows are clickable (D-098). The board refreshes every
-// minute and with the Refresh button.
-import { useCallback, useEffect, useMemo, useState } from 'react';
+// Layout rules (docs/ui-rules.md): status and "Blocked by" are always on
+// show, never inside a dropdown. The filter is a row of chips on desktop and
+// one dropdown on a phone, so aircraft are visible without scrolling.
+// Whole rows are clickable (D-098); the ▸ arrow opens the tail's open items
+// in place.
+import { Fragment, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { useAuth } from '../lib/auth';
-import { actions, errorText } from '../lib/supabase';
-import { formatDateTime, formatPlainDate, heldFor } from '../lib/format';
+import { actions, db, errorText } from '../lib/supabase';
+import { formatDateTime, formatPlainDate, formatTime, heldFor, type DisplaySettings } from '../lib/format';
 import { SnagChip, TailStatusChip } from '../components/StatusChip';
 
 export type FleetRow = {
@@ -59,8 +62,8 @@ function useFleetBoard() {
   return { rows, error, loadedAt, load };
 }
 
-// Tiles: each counts AIRCRAFT, and clicking one filters the board.
-const TILES: { key: string; label: string; match: (r: FleetRow) => boolean }[] = [
+// Filters: each counts AIRCRAFT.
+const FILTERS: { key: string; label: string; match: (r: FleetRow) => boolean }[] = [
   { key: 'all', label: 'All aircraft', match: () => true },
   { key: 'SVC', label: 'Serviceable', match: (r) => r.status === 'SVC' },
   { key: 'SVC_MEL', label: 'Serviceable · MEL', match: (r) => r.status === 'SVC_MEL' },
@@ -69,8 +72,8 @@ const TILES: { key: string; label: string; match: (r: FleetRow) => boolean }[] =
   { key: 'snag', label: 'Snag open or attended', match: (r) => r.snag_display !== null },
 ];
 
-function Blocked({ row, now }: { row: FleetRow; now: Date }) {
-  if (!row.blocked_by) return <span className="muted">—</span>;
+function Blocked({ row, now, compact = false }: { row: FleetRow; now: Date; compact?: boolean }) {
+  if (!row.blocked_by) return compact ? null : <span className="muted">—</span>;
   return (
     <div className="blocked">
       <div>{row.blocked_by}</div>
@@ -81,14 +84,82 @@ function Blocked({ row, now }: { row: FleetRow; now: Date }) {
   );
 }
 
+// One "Open items" summary instead of three columns of zeros.
+function OpenItems({ row, display, compact = false }: { row: FleetRow; display: DisplaySettings; compact?: boolean }) {
+  const parts: ReactNode[] = [];
+  if (row.open_snags) parts.push(<div key="s">{row.open_snags} snag{row.open_snags > 1 ? 's' : ''}</div>);
+  if (row.open_ddls) parts.push(
+    <div key="d">{row.open_ddls} DDLS <span className="small muted">· due {formatDateTime(row.next_ddls_due, display)}</span></div>,
+  );
+  if (row.open_nadds) parts.push(
+    <div key="n">{row.open_nadds} NADD <span className="small muted">· due {formatDateTime(row.next_nadd_due, display)}</span></div>,
+  );
+  return (
+    <>
+      <SnagChip display={row.snag_display} />
+      {parts.length ? parts : compact ? <span className="small muted">No open items</span> : <span className="muted">—</span>}
+    </>
+  );
+}
+
+function StatusCell({ row, display, short = false }: { row: FleetRow; display: DisplaySettings; short?: boolean }) {
+  return (
+    <>
+      <TailStatusChip status={row.status} short={short} />
+      {row.status_set_by && (
+        <div className="small muted">
+          by <span className="mono">{row.status_set_by}</span> · {formatDateTime(row.status_set_at, display)}
+        </div>
+      )}
+      {row.expected_rts_on && <div className="small">Expected RTS {formatPlainDate(row.expected_rts_on, display)}</div>}
+    </>
+  );
+}
+
+// The tail's open snags, loaded when the ▸ arrow is opened. Operations sees
+// only the snags it reported (the database decides, D-120).
+const SNAG_STATE: Record<string, string> = {
+  reported: 'Snag open', attended: 'Snag attended', in_work: 'In work', deferred: 'Deferred',
+};
+
+function OpenSnags({ aircraftId, display }: { aircraftId: string; display: DisplaySettings }) {
+  const [snags, setSnags] = useState<{ id: string; number: string; status: string; description: string; created_at: string }[] | null>(null);
+  useEffect(() => {
+    db.from('snag')
+      .select('id, number, status, description, created_at')
+      .eq('aircraft_id', aircraftId)
+      .neq('status', 'closed')
+      .order('created_at', { ascending: false })
+      .then(({ data }) => setSnags(data ?? []));
+  }, [aircraftId]);
+  if (!snags) return <span className="muted">Loading…</span>;
+  if (!snags.length) return <span className="muted">No open snags you can see.</span>;
+  return (
+    <ul className="open-list">
+      {snags.map((s) => (
+        <li key={s.id}>
+          <span className="mono">{s.number}</span>
+          <span className={`chip tone-${s.status === 'reported' ? 'blue' : s.status === 'attended' ? 'amber' : 'grey'}`}>
+            {SNAG_STATE[s.status] ?? s.status}
+          </span>
+          <span>{s.description}</span>
+          <span className="small muted">{formatDateTime(s.created_at, display)}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export function FleetBoard() {
-  const { display, me } = useAuth();
+  const { display } = useAuth();
   const navigate = useNavigate();
   const { rows, error, loadedAt, load } = useFleetBoard();
   const [filter, setFilter] = useState('all');
+  const [expanded, setExpanded] = useState<string | null>(null);
   const now = loadedAt ?? new Date();
 
-  const shown = useMemo(() => rows.filter(TILES.find((t) => t.key === filter)!.match), [rows, filter]);
+  const shown = useMemo(() => rows.filter(FILTERS.find((t) => t.key === filter)!.match), [rows, filter]);
+  const count = (key: string) => rows.filter(FILTERS.find((t) => t.key === key)!.match).length;
   const open = (r: FleetRow) => navigate(`/aircraft/${r.aircraft_id}`);
 
   return (
@@ -96,76 +167,69 @@ export function FleetBoard() {
       <div className="page-head">
         <div>
           <h1>All aircraft</h1>
-          <div className="small muted">
-            {loadedAt ? `As at ${formatDateTime(loadedAt, display)}` : 'Loading…'}
-          </div>
+          <button type="button" className="link-button small" onClick={load} title="Refresh now">
+            {loadedAt ? `Updated ${formatTime(loadedAt, display)}` : 'Loading…'} ↻
+          </button>
         </div>
-        <div className="row" style={{ flex: '0 0 auto' }}>
-          <button type="button" onClick={load}>Refresh</button>
-          {me?.canReportSnags && <Link className="button" to="/report-snag">Report snag</Link>}
-        </div>
+        {/* Phone: one dropdown instead of a wall of tiles */}
+        <label className="filter-select">
+          <span className="visually-hidden">Show</span>
+          <select value={filter} onChange={(e) => setFilter(e.target.value)}>
+            {FILTERS.map((f) => (
+              <option key={f.key} value={f.key}>Show: {f.label} ({count(f.key)})</option>
+            ))}
+          </select>
+        </label>
       </div>
 
       {error && <div className="error" role="alert">{error}</div>}
 
-      <div className="tiles">
-        {TILES.map((t) => (
-          <button
-            key={t.key}
-            type="button"
-            className={`tile${filter === t.key ? ' selected' : ''}`}
-            aria-pressed={filter === t.key}
-            onClick={() => setFilter(t.key)}
-          >
-            <span className="num">{rows.filter(t.match).length}</span>
-            {t.label}
+      {/* Desktop and tablet: one slim row of count chips */}
+      <div className="filters" role="group" aria-label="Filter aircraft">
+        {FILTERS.map((f) => (
+          <button key={f.key} type="button" className={`filter${filter === f.key ? ' selected' : ''}`}
+            aria-pressed={filter === f.key} onClick={() => setFilter(f.key)}>
+            <span className="num">{count(f.key)}</span> {f.label}
           </button>
         ))}
       </div>
 
-      {/* Desktop and tablet: one row per aircraft */}
       <table className="board">
         <thead>
           <tr>
+            <th aria-label="Open items list" style={{ width: 44 }} />
             <th>Tail</th>
             <th>Status (set by engineer)</th>
-            <th>Snags</th>
-            <th>DDLS</th>
-            <th>NADD</th>
+            <th>Open items</th>
             <th>Blocked by</th>
           </tr>
         </thead>
         <tbody>
           {shown.map((r) => (
-            <tr key={r.aircraft_id} onClick={() => open(r)} tabIndex={0}
-              onKeyDown={(e) => e.key === 'Enter' && open(r)}>
-              <td>
-                <div className="tail">{r.tail}</div>
-                <div className="small muted">{r.aircraft_type}</div>
-              </td>
-              <td>
-                <TailStatusChip status={r.status} />
-                <div className="small muted">
-                  {r.status_set_by && <>by <span className="mono">{r.status_set_by}</span> · {formatDateTime(r.status_set_at, display)}</>}
-                </div>
-                {r.expected_rts_on && (
-                  <div className="small">Expected RTS {formatPlainDate(r.expected_rts_on, display)}</div>
-                )}
-              </td>
-              <td>
-                <SnagChip display={r.snag_display} />
-                <div className="small muted">{r.open_snags} open</div>
-              </td>
-              <td>
-                <span className="num">{r.open_ddls}</span>
-                {r.next_ddls_due && <div className="small muted">next due {formatDateTime(r.next_ddls_due, display)}</div>}
-              </td>
-              <td>
-                <span className="num">{r.open_nadds}</span>
-                {r.next_nadd_due && <div className="small muted">next due {formatDateTime(r.next_nadd_due, display)}</div>}
-              </td>
-              <td><Blocked row={r} now={now} /></td>
-            </tr>
+            <Fragment key={r.aircraft_id}>
+              <tr onClick={() => open(r)} tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && open(r)}>
+                <td>
+                  <button type="button" className="expand" aria-expanded={expanded === r.aircraft_id}
+                    aria-label={`Show open items for ${r.tail}`}
+                    onClick={(e) => { e.stopPropagation(); setExpanded((x) => (x === r.aircraft_id ? null : r.aircraft_id)); }}>
+                    <span aria-hidden>▸</span>
+                  </button>
+                </td>
+                <td>
+                  <div className="tail">{r.tail}</div>
+                  <div className="small muted">{r.aircraft_type}</div>
+                </td>
+                <td><StatusCell row={r} display={display} /></td>
+                <td><OpenItems row={r} display={display} /></td>
+                <td><Blocked row={r} now={now} /></td>
+              </tr>
+              {expanded === r.aircraft_id && (
+                <tr className="expanded-row">
+                  <td />
+                  <td colSpan={4}><OpenSnags aircraftId={r.aircraft_id} display={display} /></td>
+                </tr>
+              )}
+            </Fragment>
           ))}
         </tbody>
       </table>
@@ -182,18 +246,13 @@ export function FleetBoard() {
               {r.aircraft_type}
               {r.status_set_by && <> · by <span className="mono">{r.status_set_by}</span> {formatDateTime(r.status_set_at, display)}</>}
             </div>
-            <p style={{ margin: '8px 0' }}>
-              <SnagChip display={r.snag_display} />{' '}
-              <span className="small">
-                {r.open_snags} snags · {r.open_ddls} DDLS · {r.open_nadds} NADD
-              </span>
-            </p>
-            <Blocked row={r} now={now} />
+            <div className="card-items"><OpenItems row={r} display={display} compact /></div>
+            <Blocked row={r} now={now} compact />
           </button>
         ))}
       </div>
 
-      {rows.length > 0 && shown.length === 0 && <p className="muted">No aircraft match this tile.</p>}
+      {rows.length > 0 && shown.length === 0 && <p className="muted">No aircraft match this filter.</p>}
       {loadedAt && rows.length === 0 && !error && (
         <p className="muted">No aircraft in your aircraft scope. A Super Admin grants aircraft access (D-121).</p>
       )}
@@ -202,10 +261,11 @@ export function FleetBoard() {
 }
 
 // One aircraft's summary. The full aircraft dashboard (D-096) comes in a
-// later slice; this shows the same facts as its fleet board row.
+// later slice; this shows the same facts as its fleet board row plus its
+// open snags. "Report snag" for this tail is in the ＋ New menu, tail filled in.
 export function AircraftSummary() {
   const { id } = useParams();
-  const { display, me } = useAuth();
+  const { display } = useAuth();
   const { rows, error, loadedAt } = useFleetBoard();
   const r = rows.find((x) => x.aircraft_id === id);
   const now = loadedAt ?? new Date();
@@ -222,29 +282,25 @@ export function AircraftSummary() {
           <h1 className="tail">{r.tail}</h1>
           <div className="muted">{r.aircraft_type}</div>
         </div>
-        {me?.canReportSnags && (
-          <Link className="button" to={`/report-snag?aircraft=${r.aircraft_id}`}>Report snag on {r.tail}</Link>
-        )}
       </div>
       <div className="card">
-        <p>
-          <TailStatusChip status={r.status} /> <SnagChip display={r.snag_display} />
-        </p>
-        <p className="muted">
-          {r.status_set_by
-            ? <>Status set by <span className="mono">{r.status_set_by}</span> · {formatDateTime(r.status_set_at, display)}</>
-            : 'No status recorded yet.'}
-          {r.expected_rts_on && <> · Expected RTS {formatPlainDate(r.expected_rts_on, display)}</>}
-        </p>
-        <h2 style={{ fontSize: 16 }}>Blocked by</h2>
-        <Blocked row={r} now={now} />
-        <h2 style={{ fontSize: 16 }}>Open items</h2>
-        <ul>
-          <li>{r.open_snags} open snags</li>
-          <li>{r.open_ddls} DDLS entries{r.next_ddls_due && <>, next due {formatDateTime(r.next_ddls_due, display)}</>}</li>
-          <li>{r.open_nadds} NADDs{r.next_nadd_due && <>, next due {formatDateTime(r.next_nadd_due, display)}</>}</li>
-        </ul>
-        <p className="small muted">The full aircraft dashboard (snag list, history, calendar) comes in the next slice.</p>
+        <div className="summary-grid">
+          <section>
+            <h2>Status</h2>
+            <StatusCell row={r} display={display} />
+          </section>
+          <section>
+            <h2>Blocked by</h2>
+            <Blocked row={r} now={now} />
+          </section>
+          <section>
+            <h2>Open items</h2>
+            <OpenItems row={r} display={display} />
+          </section>
+        </div>
+        <h2>Open snags</h2>
+        <OpenSnags aircraftId={r.aircraft_id} display={display} />
+        <p className="small muted">The full aircraft dashboard (history, DDLS and NADD detail, calendar) comes in the next slice.</p>
       </div>
     </div>
   );

@@ -73,5 +73,6 @@ You are the BUILDER. You own app/ and Git.
 - 9 Oct: design round 2 logged (D-200 to D-214); O-16 to O-19 closed; O-20 open (scheduling questions).
 - Backend: Phase 0 done (migrations 0001–0009, 37 tests). Phase 1A done (0010–0021: accounts, approvals, tail status, snags, attachments, work orders, MEL, DDLS, NADD, queries, repeat defects, fleet board, API lock-down; 90 tests). See `app/README.md`.
 - 8 Oct: Phase 1B libraries approved (React, Vite, TypeScript, supabase-js, Dexie, vite-plugin-pwa, react-router, @fontsource IBM Plex, Vitest). Username sign-in uses a hidden email `<username>@users.nexus.local`. Slice 1 done: sign in, set PIN, rail, fleet board, aircraft summary, report snag (`npm run dev`).
+- 8 Oct (later): UX pass done. Rule: group navigation and actions in dropdowns, never hide status, max two levels (`docs/ui-rules.md`).
 - Next: Phase 1B slice 2 (snag detail, attend, five dispositions with PIN signing). Promise runs Prompts 9 and 10 in Claude Design. Open: O-1 to O-7 (O-5 urgent), O-14, O-15, O-20.
 - Six-month target: Phase 0 (foundations) + Phase 1 (snag workflow end to end).

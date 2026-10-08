@@ -1,41 +1,50 @@
-// The left rail (D-201, D-202).
-//   * "All aircraft" (the fleet board), then the aircraft dropdown.
-//   * The departments this user may use, each with a dropdown arrow that
-//     opens its subsections.
-//   * Command and Quality see every department, marked "View" where they
-//     only read (D-122).
-// Subsections not built yet open a "coming in a later slice" page, so the
-// whole map is visible from day one.
+// The left rail (D-201, D-202, docs/ui-rules.md).
+//   * "All aircraft" (the fleet board) and the tail search.
+//   * The user's own departments. Each opens with a dropdown arrow; only one
+//     is open at a time so the rail never floods.
+//   * Inside a department, related screens are grouped one level deeper
+//     (e.g. Workshops ▸ Tire Bay, Battery Workshop, AGE). Never deeper than
+//     that: department ▸ group ▸ screen.
+//   * Command and Quality also get "Other departments", collapsed, marked
+//     "View" because they only read there (D-122).
+//   * Screens not built yet show a "Soon" tag.
+// Actions (Report snag, Request part…) are NOT in the rail. They live in
+// the ＋ New menu in the top bar.
 import { useState } from 'react';
-import { NavLink, useLocation, useNavigate } from 'react-router';
-import { useAuth } from '../lib/auth';
-import { AircraftPicker, type AircraftOption } from './AircraftPicker';
+import { NavLink, useNavigate } from 'react-router';
+import { useAuth, type Department } from '../lib/auth';
+import { TailSearch, type AircraftOption } from './AircraftPicker';
 
-type Sub = { label: string; to: string; action?: boolean }; // action: hidden in view-only departments
+type Screen = { label: string; to: string };
+type Entry = Screen | { group: string; items: Screen[] };
 
-// Subsections per department. Paths under /section/ are placeholders for
-// screens built in later slices.
-const SUBSECTIONS: Record<string, Sub[]> = {
+// Screens under /section/ are not built yet ("Soon").
+const MENU: Record<string, Entry[]> = {
   ENG: [
-    { label: 'Fleet board', to: '/' },
-    { label: 'Report snag', to: '/report-snag', action: true },
-    { label: 'Snags', to: '/section/ENG/snags' },
+    { group: 'Snags & deferrals', items: [
+      { label: 'Snags', to: '/section/ENG/snags' },
+      { label: 'DDLS', to: '/section/ENG/ddls' },
+      { label: 'NADDs', to: '/section/ENG/nadds' },
+    ] },
     { label: 'Work orders', to: '/section/ENG/work-orders' },
-    { label: 'DDLS', to: '/section/ENG/ddls' },
-    { label: 'NADDs', to: '/section/ENG/nadds' },
-    { label: 'Tire Bay', to: '/section/ENG/tire-bay' },
-    { label: 'Battery Workshop', to: '/section/ENG/battery-workshop' },
-    { label: 'AGE', to: '/section/ENG/age' },
+    { group: 'Workshops', items: [
+      { label: 'Tire Bay', to: '/section/ENG/tire-bay' },
+      { label: 'Battery Workshop', to: '/section/ENG/battery-workshop' },
+      { label: 'AGE', to: '/section/ENG/age' },
+    ] },
   ],
   OPS: [
     { label: 'Aircraft availability', to: '/' },
-    { label: 'Report snag', to: '/report-snag', action: true },
-    { label: 'Flight scheduling', to: '/section/OPS/flight-scheduling' },
-    { label: 'Crew scheduling', to: '/section/OPS/crew-scheduling' },
+    { group: 'Scheduling', items: [
+      { label: 'Flight scheduling', to: '/section/OPS/flight-scheduling' },
+      { label: 'Crew scheduling', to: '/section/OPS/crew-scheduling' },
+    ] },
   ],
   SUP: [
-    { label: 'Main Store', to: '/section/SUP/main-store' },
-    { label: 'Forward Store', to: '/section/SUP/forward-store' },
+    { group: 'Stores', items: [
+      { label: 'Main Store', to: '/section/SUP/main-store' },
+      { label: 'Forward Store', to: '/section/SUP/forward-store' },
+    ] },
     { label: 'Receiving', to: '/section/SUP/receiving' },
   ],
   PRO: [
@@ -54,69 +63,104 @@ const SUBSECTIONS: Record<string, Sub[]> = {
   ],
 };
 
+const isSoon = (s: Screen) => s.to.startsWith('/section/');
+
+function ScreenLink({ s, onNavigate }: { s: Screen; onNavigate: () => void }) {
+  return (
+    <NavLink to={s.to} end className={`rail-link${isSoon(s) ? ' soon' : ''}`} onClick={onNavigate}>
+      {s.label}
+      {isSoon(s) && <span className="rail-tag">Soon</span>}
+    </NavLink>
+  );
+}
+
+function DepartmentBlock(props: {
+  d: Department; viewOnly: boolean; open: boolean; onToggle: () => void; onNavigate: () => void;
+}) {
+  const { d, viewOnly, open, onToggle, onNavigate } = props;
+  const [openGroup, setOpenGroup] = useState<string | null>(null);
+  return (
+    <div>
+      <button type="button" className="rail-link" aria-expanded={open} onClick={onToggle}>
+        {d.name}
+        {viewOnly && <span className="rail-tag">View</span>}
+        <span className="caret" aria-hidden>▸</span>
+      </button>
+      {open && (
+        <div className="rail-sub">
+          {(MENU[d.code] ?? []).map((e) =>
+            'group' in e ? (
+              <div key={e.group}>
+                <button
+                  type="button"
+                  className="rail-link"
+                  aria-expanded={openGroup === e.group}
+                  onClick={() => setOpenGroup((g) => (g === e.group ? null : e.group))}
+                >
+                  {e.group}
+                  <span className="caret" aria-hidden>▸</span>
+                </button>
+                {openGroup === e.group && (
+                  <div className="rail-sub">
+                    {e.items.map((s) => <ScreenLink key={s.to} s={s} onNavigate={onNavigate} />)}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <ScreenLink key={e.to + e.label} s={e} onNavigate={onNavigate} />
+            ),
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 type Props = { aircraft: AircraftOption[]; open: boolean; onNavigate: () => void };
 
 export function Rail({ aircraft, open, onNavigate }: Props) {
   const { me } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const heldCodes = new Set(me?.departments.map((d) => d.code));
-  const shown = me?.isOversight ? me.allDepartments : (me?.departments ?? []);
+  const own = me?.departments ?? [];
+  const ownCodes = new Set(own.map((d) => d.code));
+  const others = me?.isOversight ? (me.allDepartments.filter((d) => !ownCodes.has(d.code))) : [];
 
-  // The user's own departments start open; others start closed.
-  const [expanded, setExpanded] = useState<Record<string, boolean>>(
-    () => Object.fromEntries((me?.departments ?? []).map((d) => [d.code, true])),
-  );
-
-  const currentTail = location.pathname.startsWith('/aircraft/') ? location.pathname.split('/')[2] : '';
+  // Accordion: one department open at a time. The home department starts open.
+  const [openDept, setOpenDept] = useState<string | null>(own[0]?.code ?? null);
+  const [othersOpen, setOthersOpen] = useState(false);
+  const toggle = (code: string) => setOpenDept((c) => (c === code ? null : code));
 
   return (
     <nav className={`rail${open ? ' open' : ''}`} aria-label="Main">
       <NavLink to="/" end className="rail-link" onClick={onNavigate}>
         All aircraft
       </NavLink>
-      <label className="rail-heading" htmlFor="rail-aircraft">Aircraft</label>
-      <AircraftPicker
-        id="rail-aircraft"
+      <TailSearch
         aircraft={aircraft}
-        value={currentTail}
-        placeholder="Go to a tail…"
-        onChange={(id) => {
-          if (id) {
-            navigate(`/aircraft/${id}`);
-            onNavigate();
-          }
+        onPick={(id) => {
+          navigate(`/aircraft/${id}`);
+          onNavigate();
         }}
       />
 
-      <div className="rail-heading">Departments</div>
-      {shown.map((d) => {
-        const isOpen = expanded[d.code] ?? false;
-        const viewOnly = !heldCodes.has(d.code);
-        return (
-          <div key={d.code}>
-            <button
-              type="button"
-              className="rail-link"
-              aria-expanded={isOpen}
-              onClick={() => setExpanded((e) => ({ ...e, [d.code]: !isOpen }))}
-            >
-              {d.name}
-              {viewOnly && <span className="rail-tag">View</span>}
-              <span className="caret" aria-hidden>▸</span>
-            </button>
-            {isOpen && (
-              <div className="rail-sub">
-                {(SUBSECTIONS[d.code] ?? []).filter((s) => !(viewOnly && s.action)).map((s) => (
-                  <NavLink key={s.to + s.label} to={s.to} end className="rail-link" onClick={onNavigate}>
-                    {s.label}
-                  </NavLink>
-                ))}
-              </div>
-            )}
-          </div>
-        );
-      })}
+      <div className="rail-heading">My departments</div>
+      {own.map((d) => (
+        <DepartmentBlock key={d.code} d={d} viewOnly={false} open={openDept === d.code}
+          onToggle={() => toggle(d.code)} onNavigate={onNavigate} />
+      ))}
+
+      {others.length > 0 && (
+        <>
+          <button type="button" className="rail-heading rail-heading-button" aria-expanded={othersOpen}
+            onClick={() => setOthersOpen((o) => !o)}>
+            Other departments ({others.length}) <span className="caret" aria-hidden>▸</span>
+          </button>
+          {othersOpen && others.map((d) => (
+            <DepartmentBlock key={d.code} d={d} viewOnly open={openDept === d.code}
+              onToggle={() => toggle(d.code)} onNavigate={onNavigate} />
+          ))}
+        </>
+      )}
     </nav>
   );
 }
