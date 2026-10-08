@@ -81,10 +81,21 @@ All three are stored. If the estimate and the server receipt disagree in a way t
 
 ---
 
-## 5. Open points for Promise
+## 5. Answers (9 Oct 2026)
 
-| # | Question |
+| # | Question | Answer |
+|---|---|---|
+| Q-OS1 | Which devices sign offline? | **Line tablets only**, enrolled by a Super Admin |
+| Q-OS2 | Offline limit | **72 hours** (setting `offline.max_hours`) |
+| Q-OS3 | Show provisional releases? | **Yes.** On the signing tablet, anything signed offline shows "provisional" until the server accepts it. The server (and so Operations elsewhere) only learns of it when the tablet reconnects; from then on the record carries "signed offline at … · received …" |
+
+## 6. How it is built (Phase 1C)
+
+| Piece | Where |
 |---|---|
-| Q-OS1 | Which devices will sign offline (line tablets only, or also personal phones)? |
-| Q-OS2 | 72 hours offline limit: right for detachments? |
-| Q-OS3 | Should a provisionally released aircraft show "SVC (provisional)" to Operations until the server accepts it? (recommended: yes) |
+| Devices: request, enrol, revoke, report lost | `public.device`, `app.request_device`, `app.enrol_device`, `app.revoke_device` |
+| Personal offline key per user and tablet, issued online with a 6-digit PIN | `app.offline_key`, `app.issue_offline_key` |
+| On the tablet: the key is stored mixed with a value made from the PIN (no check that a thief could use) | `app/src/lib/offline/signing.ts` |
+| Each offline signature is a code made from the key and the exact text of what was signed | same |
+| Server check on sync, then the action runs as if signed online at that time | `app.submit_offline_signature` |
+| Every offline signature, accepted or not, for Quality | `public.offline_signature`, Offline signatures screen |

@@ -19,6 +19,20 @@ export type Database = {
                   Relationships: [
                     
                   ]
+                },"offline_key": {
+                  Row: {
+                    "device_id": string,"issued_at": string,"key": string,"last_seen_at": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "device_id": string,"issued_at"?: string,"key": string,"last_seen_at"?: string,"user_id": string
+                  }
+                  Update: {
+                    "device_id"?: string,"issued_at"?: string,"key"?: string,"last_seen_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"user_pin": {
                   Row: {
                     "pin_hash": string,"set_at": string,"user_id": string
@@ -117,8 +131,17 @@ export type Database = {
 "defer_on_ddls_core":
 { Args: { "p_days_allowed": number,"p_m_required"?: boolean,"p_manual_reference": string,"p_o_required"?: boolean,"p_pin": string,"p_remarks"?: string,"p_snag": string,"p_tlb_book"?: string,"p_tlb_item"?: string,"p_tlb_page"?: string }; Returns: string
                            },
+"device_checkin":
+{ Args: { "p_device": string }; Returns: Json
+                           },
+"device_problem":
+{ Args: { "p_device": string }; Returns: string
+                           },
 "due_from_days":
 { Args: { "p_days": number,"p_start": string }; Returns: string
+                           },
+"enrol_device":
+{ Args: { "p_device": string }; Returns: undefined
                            },
 "fleet_board":
 { Args: Record<PropertyKey, never>; Returns: {
@@ -152,6 +175,9 @@ export type Database = {
 "is_super_admin":
 { Args: { "p_department"?: string }; Returns: boolean
                            },
+"issue_offline_key":
+{ Args: { "p_device": string,"p_pin": string }; Returns: string
+                           },
 "my_active_appointments":
 { Args: Record<PropertyKey, never>; Returns: Database["public"]['Tables']["appointment"]['Row'][]
                           SetofOptions: {
@@ -182,6 +208,9 @@ export type Database = {
 "next_number":
 { Args: { "p_default_format": string,"p_series": string }; Returns: string
                            },
+"offline_signed_at":
+{ Args: Record<PropertyKey, never>; Returns: string
+                           },
 "open_mel_revision":
 { Args: { "p_aircraft_type": string,"p_approval_date": string,"p_approval_reference": string,"p_revision": string }; Returns: string
                            },
@@ -190,6 +219,9 @@ export type Database = {
                            },
 "person_has_permission":
 { Args: { "p_permission": string,"p_person": string }; Returns: boolean
+                           },
+"pin_ok":
+{ Args: { "p_pin": string }; Returns: boolean
                            },
 "propose_nadd":
 { Args: { "p_aircraft": string,"p_ata"?: string,"p_client_ref"?: string,"p_description": string,"p_device_time"?: string,"p_location"?: string,"p_tlb_book"?: string,"p_tlb_item"?: string,"p_tlb_page"?: string,"p_zone"?: string }; Returns: string
@@ -226,6 +258,9 @@ export type Database = {
 "request_ddls_extension":
 { Args: { "p_authority_reference": string,"p_entry": string,"p_extra_days": number,"p_reason": string }; Returns: string
                            },
+"request_device":
+{ Args: { "p_label": string }; Returns: string
+                           },
 "request_nadd_extension":
 { Args: { "p_extra_days": number,"p_nadd": string,"p_reason": string }; Returns: string
                            },
@@ -234,6 +269,9 @@ export type Database = {
                            },
 "require_certifying":
 { Args: { "p_aircraft": string,"p_pin": string }; Returns: undefined
+                           },
+"revoke_device":
+{ Args: { "p_device": string,"p_lost"?: boolean,"p_reason": string }; Returns: undefined
                            },
 "search_mel":
 { Args: { "p_aircraft": string,"p_limit"?: number,"p_query": string }; Returns: {
@@ -265,6 +303,9 @@ export type Database = {
         isOneToOne: true
         isSetofReturn: false
       } },
+"submit_offline_signature":
+{ Args: { "p_payload": string,"p_signature": string }; Returns: Json
+                           },
 "work_order_for_engineer":
 { Args: { "p_allowed_status": (string)[],"p_wo": string }; Returns: Database["public"]['Tables']["work_order"]['Row']
                           SetofOptions: {
@@ -767,6 +808,38 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"device": {
+                  Row: {
+                    "blocked_at": string | null,"created_at": string,"created_by": string | null,"device_time": string | null,"enrolled_at": string | null,"enrolled_by": string | null,"id": string,"label": string,"last_seen_at": string | null,"reported_lost_at": string | null,"requested_at": string,"requested_by": string,"revoke_reason": string | null,"revoked_at": string | null,"revoked_by": string | null,"status": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "blocked_at"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"enrolled_at"?: string | null,"enrolled_by"?: string | null,"id"?: string,"label": string,"last_seen_at"?: string | null,"reported_lost_at"?: string | null,"requested_at"?: string,"requested_by": string,"revoke_reason"?: string | null,"revoked_at"?: string | null,"revoked_by"?: string | null,"status"?: string
+                  }
+                  Update: {
+                    "blocked_at"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"enrolled_at"?: string | null,"enrolled_by"?: string | null,"id"?: string,"label"?: string,"last_seen_at"?: string | null,"reported_lost_at"?: string | null,"requested_at"?: string,"requested_by"?: string,"revoke_reason"?: string | null,"revoked_at"?: string | null,"revoked_by"?: string | null,"status"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "device_enrolled_by_fkey"
+      columns: ["enrolled_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "device_requested_by_fkey"
+      columns: ["requested_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "device_revoked_by_fkey"
+      columns: ["revoked_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"engineering_section": {
                   Row: {
                     "code": string,"created_at": string,"created_by": string | null,"device_time": string | null,"name": string
@@ -916,6 +989,32 @@ isOneToOne: false
     },{
       foreignKeyName: "nadd_extension_requested_by_fkey"
       columns: ["requested_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"offline_signature": {
+                  Row: {
+                    "action": string,"args": NonNullable<Json>,"clock_kind": string | null,"created_at": string,"created_by": string | null,"device_id": string | null,"device_time": string | null,"id": string,"nonce": string,"payload": string,"person_id": string | null,"reason": string | null,"received_at": string,"record_id": string | null,"record_table": string | null,"result": string | null,"signature": string,"signed_at": string | null,"status": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "action": string,"args"?: NonNullable<Json>,"clock_kind"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_id"?: string | null,"device_time"?: string | null,"id"?: string,"nonce": string,"payload": string,"person_id"?: string | null,"reason"?: string | null,"received_at"?: string,"record_id"?: string | null,"record_table"?: string | null,"result"?: string | null,"signature": string,"signed_at"?: string | null,"status"?: string,"user_id": string
+                  }
+                  Update: {
+                    "action"?: string,"args"?: NonNullable<Json>,"clock_kind"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_id"?: string | null,"device_time"?: string | null,"id"?: string,"nonce"?: string,"payload"?: string,"person_id"?: string | null,"reason"?: string | null,"received_at"?: string,"record_id"?: string | null,"record_table"?: string | null,"result"?: string | null,"signature"?: string,"signed_at"?: string | null,"status"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "offline_signature_device_id_fkey"
+      columns: ["device_id"]
+isOneToOne: false
+      referencedRelation: "device"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "offline_signature_person_id_fkey"
+      columns: ["person_id"]
 isOneToOne: false
       referencedRelation: "person"
       referencedColumns: ["id"]
