@@ -26,7 +26,7 @@ const MENU: Record<string, Entry[]> = {
       { label: 'DDLS', to: '/section/ENG/ddls' },
       { label: 'NADDs', to: '/section/ENG/nadds' },
     ] },
-    { label: 'Work orders', to: '/section/ENG/work-orders' },
+    { label: 'Work orders', to: '/work-orders' },
     { group: 'Workshops', items: [
       { label: 'Tire Bay', to: '/section/ENG/tire-bay' },
       { label: 'Battery Workshop', to: '/section/ENG/battery-workshop' },
@@ -53,12 +53,12 @@ const MENU: Record<string, Entry[]> = {
     { label: 'Outside-MRO jobs', to: '/section/PRO/outside-mro' },
   ],
   QUA: [
-    { label: 'Approvals', to: '/section/QUA/approvals' },
+    { label: 'Approvals', to: '/approvals' },
     { label: 'MEL revisions', to: '/section/QUA/mel' },
     { label: 'Audit trail', to: '/section/QUA/audit' },
   ],
   CMD: [
-    { label: 'Approvals', to: '/section/CMD/approvals' },
+    { label: 'Approvals', to: '/approvals' },
     { label: 'Reports', to: '/section/CMD/reports' },
   ],
 };

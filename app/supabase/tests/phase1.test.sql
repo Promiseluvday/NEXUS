@@ -14,7 +14,7 @@
 
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(90);
+select plan(100);
 
 \set KDO '''20000000-0000-0000-0000-000000000005'''
 \set TMB '''20000000-0000-0000-0000-000000000006'''
@@ -43,15 +43,19 @@ grant execute on function pg_temp.act_as(uuid), pg_temp.admin() to authenticated
 -- PINs for the engineers who sign
 select pg_temp.act_as(:TMB); select app.set_my_pin('2468'); select pg_temp.admin();
 select pg_temp.act_as(:KDO); select app.set_my_pin('1357'); select pg_temp.admin();
+select pg_temp.act_as(:QAR); select app.set_my_pin('1111'); select pg_temp.admin();
+select pg_temp.act_as(:ABE); select app.set_my_pin('2222'); select pg_temp.admin();
 
 -- =============================================================== TAIL STATUS ===
 select pg_temp.act_as(:PLA);
-select throws_like($$ select app.set_tail_status('40000000-0000-0000-0000-000000000202', 'US', 'test') $$,
+select throws_like($$ select app.set_tail_status('40000000-0000-0000-0000-000000000202', 'US', 'test', '0000') $$,
   '%Only an engineer%', 'D-046: a pilot cannot set a tail status');
 select pg_temp.admin();
 
 select pg_temp.act_as(:KDO);
-select lives_ok($$ select app.set_tail_status('40000000-0000-0000-0000-000000000202', 'SVC', 'Daily inspection complete') $$,
+select throws_like($$ select app.set_tail_status('40000000-0000-0000-0000-000000000202', 'SVC', 'Daily inspection complete', '0000') $$,
+  '%PIN not accepted%', 'D-215: setting a tail status needs the PIN');
+select lives_ok($$ select app.set_tail_status('40000000-0000-0000-0000-000000000202', 'SVC', 'Daily inspection complete', '1357') $$,
   'D-046: an engineer sets a tail status');
 select pg_temp.admin();
 select is((select p.three_letter_code from public.aircraft_current_status c join public.person p on p.id = c.set_by
@@ -127,14 +131,26 @@ select matches((select number from public.work_order where id = :'wo1'), '^WO-[0
 select pg_temp.act_as(:KDO);
 select throws_like(format($$ select app.add_work_order_entry(%L, 'Started') $$, :'wo1'),
   '%locked until Quality and the CO approve%', 'D-063: no work can be recorded before approval');
-select throws_like(format($$ select app.decide_approval(%L, 'approve') $$, :'req1'),
+select throws_like(format($$ select app.decide_approval(%L, 'approve', '1357') $$, :'req1'),
   '%do not hold step%', 'D-063: an engineer cannot approve the Quality step');
 select pg_temp.admin();
 
+select pg_temp.act_as(:ABE);
+select is((select count(*)::integer from app.my_pending_approvals() where id = :'req1'), 0,
+  'Inbox: the CO does not see the request before Quality has approved');
+select pg_temp.admin();
 select pg_temp.act_as(:QAR);
-select lives_ok(format($$ select app.decide_approval(%L, 'approve') $$, :'req1'),
+select is((select step_name from app.my_pending_approvals() where id = :'req1'), 'Quality pre-approval',
+  'Inbox: Quality sees the request waiting at its step');
+select throws_like(format($$ select app.decide_approval(%L, 'approve', '9999') $$, :'req1'),
+  '%PIN not accepted%', 'D-094: approving needs the PIN');
+select is((select current_step from public.approval_request where id = :'req1'), 1,
+  'D-094: a wrong PIN leaves the request where it was');
+select lives_ok(format($$ select app.decide_approval(%L, 'approve', '1111') $$, :'req1'),
   'D-063: Quality pre-approves');
-select throws_like(format($$ select app.decide_approval(%L, 'approve') $$, :'req1'),
+select is((select count(*)::integer from app.my_pending_approvals() where id = :'req1'), 0,
+  'Inbox: once decided, it leaves Quality''s inbox');
+select throws_like(format($$ select app.decide_approval(%L, 'approve', '1111') $$, :'req1'),
   '%two steps%', 'D-146: the same person cannot approve both steps, even as acting CO');
 select pg_temp.admin();
 select is((select status from public.work_order where id = :'wo1'), 'pre_approved', 'D-063: the work order is pre-approved');
@@ -146,12 +162,23 @@ select is((select blocked_by || ' | ' || blocked_holder from app.fleet_board() w
 select pg_temp.admin();
 
 select pg_temp.act_as(:ABE);
-select throws_like(format($$ select app.decide_approval(%L, 'reject', '') $$, :'req1'),
+select is((select count(*)::integer from app.my_pending_approvals() where id = :'req1'), 1,
+  'Inbox: after Quality, the request reaches the CO');
+select throws_like(format($$ select app.decide_approval(%L, 'reject', '2222', '') $$, :'req1'),
   '%needs a reason%', 'D-079: a rejection needs a reason');
-select lives_ok(format($$ select app.decide_approval(%L, 'approve') $$, :'req1'),
+select lives_ok(format($$ select app.decide_approval(%L, 'approve', '2222') $$, :'req1'),
   'D-063: the CO gives final approval');
 select pg_temp.admin();
 select is((select status from public.work_order where id = :'wo1'), 'open', 'D-063: the work order is now open');
+select pg_temp.act_as(:TMB);
+select is((select count(*)::integer from public.approval_decision d
+             join public.approval_request r on r.id = d.request_id where r.id = :'req1'), 2,
+  'D-079: an engineer who can see the work order sees its approval trail');
+select pg_temp.admin();
+select pg_temp.act_as(:SBK);
+select is((select count(*)::integer from public.approval_request where id = :'req1'), 0,
+  'D-120: Supply cannot see work order approvals');
+select pg_temp.admin();
 
 select pg_temp.act_as(:KDO);
 select lives_ok(format($$ select app.add_work_order_entry(%L, 'Seal replaced, leak check good') $$, :'wo1'),
@@ -218,8 +245,11 @@ select pg_temp.admin();
 select id as snag4 from public.snag where description = '[TEST] Standby airspeed indicator erratic' \gset
 select pg_temp.act_as(:TMB);
 select app.attend_snag(:'snag4');
-select app.apply_mel(:'snag4', :'item_a', '2468', true, true, true);
+select app.apply_mel(:'snag4', :'item_a', '2468', true, true, true, null, null, null, null, true);
 select pg_temp.admin();
+select is((select c.status || ' ' || p.three_letter_code from public.aircraft_current_status c
+             join public.person p on p.id = c.set_by where c.aircraft_id = :NX201), 'SVC_MEL TMB',
+  'D-216: the engineer''s tick sets Serviceable · MEL in the same signed step');
 select id as ddls_a from public.ddls_entry where snag_id = :'snag4' \gset
 select id as ddls_c from public.ddls_entry where snag_id = :'snag3' \gset
 select ok((select due_at is null and limit_text like '10%flight hours%' from public.ddls_entry where id = :'ddls_a'),
@@ -235,7 +265,7 @@ select due_at as due_before from public.ddls_entry where id = :'ddls_c' \gset
 select approval_request_id as req2 from public.ddls_extension where ddls_entry_id = :'ddls_c' \gset
 
 select pg_temp.act_as(:QAR);
-select app.decide_approval(:'req2', 'approve');
+select app.decide_approval(:'req2', 'approve', '1111');
 select pg_temp.admin();
 select is((select due_at from public.ddls_entry where id = :'ddls_c'), :'due_before'::timestamptz + interval '5 days',
   'D-056: once approved, the due time moves by the extension');
@@ -298,7 +328,7 @@ select lives_ok(format($$ select app.request_nadd_extension(%L, 10, 'Part on ord
 select pg_temp.admin();
 select approval_request_id as req3 from public.nadd_extension where nadd_id = :'nadd1' \gset
 select pg_temp.act_as(:TMB);
-select throws_like(format($$ select app.decide_approval(%L, 'approve') $$, :'req3'),
+select throws_like(format($$ select app.decide_approval(%L, 'approve', '2468') $$, :'req3'),
   '%raised a request cannot approve%', 'D-075: whoever raised a request cannot approve it');
 select pg_temp.admin();
 
@@ -376,7 +406,7 @@ values ('00000000-0000-0000-0000-000000000000', '20000000-0000-0000-0000-0000000
 select pg_temp.act_as('20000000-0000-0000-0000-000000000099');
 select lives_ok($$ select app.request_account('[New technician]', 'newtech', 'NTC', 'ENG') $$,
   'D-206: a new person requests an account and a department');
-select throws_like($$ select app.set_tail_status('40000000-0000-0000-0000-000000000202', 'US', 'x') $$,
+select throws_like($$ select app.set_tail_status('40000000-0000-0000-0000-000000000202', 'US', 'x', '0000') $$,
   '%Only an engineer%', 'D-123: a pending account has no rights');
 select pg_temp.admin();
 select throws_ok($$ update public.user_account set username = 'newtech'

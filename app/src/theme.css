@@ -323,3 +323,40 @@ button.secondary:hover { background: var(--ground); }
 .filter-row { flex: 0 1 520px; }
 @media (max-width: 800px) { .filter-row { flex-direction: column; flex-basis: 100%; } }
 .card > h2:first-child, .card > form > h2:first-child { margin-top: 0; }
+
+/* ------------------------------------------------------------- slice 3 */
+.option-box { margin-top: 14px; padding: 10px 12px; border: 1px dashed var(--ink-soft); border-radius: var(--radius); }
+.approval-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.approval-head h2 { margin: 2px 0 8px; font-size: 18px; color: var(--ink); }
+.decision-row { flex: 0 0 auto; gap: 20px; }
+.decision-row .check { flex: 0 0 auto; }
+.upload-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+.upload-row select { flex: 0 1 200px; }
+.upload-row input[type=file] { flex: 1 1 220px; border: 1px dashed var(--line); }
+.open-list li.superseded { opacity: 0.6; text-decoration: line-through; }
+.badge-button { background: #fff; border-color: #fff; box-shadow: none; }
+.badge { background: var(--red); color: #fff; border-radius: 999px; padding: 0 8px; font-size: 13px; }
+@media (max-width: 800px) { .badge-button { padding: 0 10px; } }
+
+/* Date picker (DateField.tsx): always DD Mmm YYYY (D-204) */
+.date-field { position: relative; max-width: 280px; }
+.date-button { width: 100%; justify-content: space-between; background: #fff; border-color: #8aa6bf; box-shadow: none; font-weight: 400; }
+.date-button:hover { background: #fff; border-color: var(--ink); }
+.calendar {
+  position: absolute; z-index: 30; top: calc(100% + 4px); left: 0; width: 300px;
+  background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18); padding: 10px;
+}
+.calendar-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.calendar-head button { min-width: 44px; justify-content: center; }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.calendar-dow { text-align: center; font-size: 12px; color: var(--ink-soft); padding: 4px 0; }
+.calendar-day {
+  min-height: 38px; padding: 0; justify-content: center; background: #fff; border: 1px solid transparent;
+  box-shadow: none; font-weight: 400; font-family: var(--mono);
+}
+.calendar-day:hover { background: var(--ground); }
+.calendar-day.today { border-color: var(--ink-soft); }
+.calendar-day.chosen { background: var(--ink); color: #fff; }
+.calendar-day:disabled { color: #bbb; background: #fff; cursor: default; }
+.calendar-foot { display: flex; justify-content: space-between; margin-top: 6px; }

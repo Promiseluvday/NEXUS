@@ -228,6 +228,8 @@ Earlier sections are full, so the decisions agreed on 8 Oct 2026 are numbered fr
 | D-212 | **Colours** (P19): light blue, yellow, black and white replace navy and teal. Black header and text, white cards on a light-blue ground, light-blue buttons with black text, yellow for the Liebetag mark and highlights. Light blue is never used for text on white; links use a deeper blue. Status colours stay as D-091. Supersedes the colours in D-090. *(8 Oct 2026)* |
 | D-213 | **Snag numbers** run in one fleet-wide sequence (`SNAG-000001`), assigned by the server, never reused. Format is a setting. *(8 Oct 2026)* |
 | D-214 | **Phase 1 includes the core of work orders** (request, Quality and CO approval, completion scans, certify; D-063 to D-069), because "Rectify now" cannot finish without them. CRS and check packages stay in Phase 2. *(8 Oct 2026)* |
+| D-215 | **Setting a tail status is signed with the PIN.** An engineer's status (SVC, SVC · MEL, U/S, AOG, In check) is a signed statement, so it needs PIN re-entry like any signature (D-094). Refines D-046. *(9 Oct 2026)* |
+| D-216 | **Deferral can set "Serviceable · MEL" in the same signed step.** The MEL and DDLS deferral forms offer "Also set the tail to Serviceable · MEL". It is pre-ticked only when the tail is currently Serviceable; if it is U/S, AOG or In check the box starts unticked with a warning. It is the engineer's tick under the same PIN; deferral and status are recorded together or not at all. Nexus never sets a status on its own (D-020, D-046). *(9 Oct 2026)* |
 
 ## 14. Roadmap (part-time, learning while building)
 

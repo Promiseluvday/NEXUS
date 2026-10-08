@@ -187,7 +187,7 @@ export function SnagDetail() {
               <h2>Records</h2>
               <ul className="open-list">
                 {linked.workOrders.map((w) => (
-                  <li key={w.id}><span className="mono">{w.number}</span> Work order · {WO_STATE[w.status] ?? w.status}</li>
+                  <li key={w.id}><Link className="mono" to={`/work-orders/${w.id}`}>{w.number}</Link> Work order · {WO_STATE[w.status] ?? w.status}</li>
                 ))}
                 {linked.ddls.map((d) => (
                   <li key={d.id}>
@@ -210,7 +210,7 @@ export function SnagDetail() {
 
       {isEngineer && snag.status === 'attended' && snag.aircraft && (
         <Disposition
-          snag={{ ...snag, aircraft_type: snag.aircraft.aircraft_type_code }}
+          snag={{ ...snag, aircraft_type: snag.aircraft.aircraft_type_code, tail, tail_status: tailStatus }}
           canCertify={canCertify}
           onDone={done}
           onChoose={() => setMessage('')}

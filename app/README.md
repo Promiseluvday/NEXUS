@@ -8,6 +8,7 @@ This folder holds the application: the database with its rules and checks, and t
 - **Phase 1A, snag workflow backend:** snags, work orders with approvals, MEL, DDLS, NADD, attachments, technical queries, repeat defects, fleet board
 - **Phase 1B slice 1, first screens:** sign in with username, set PIN, home rail (departments and aircraft dropdown), fleet board, aircraft summary, report snag
 - **Phase 1B slice 2, snag workflow screens:** snag list, snag page (report, history, linked records, repeat-defect alert, similar defects), attend, the five dispositions with PIN signing (work order request, MEL with type-ahead, DDLS, NADD, no fault found), set tail status
+- **Phase 1B slice 3, approvals and work orders:** approvals inbox with "Approvals (n)" counter, work order list and page (approval trail, work entries, scan upload and viewing, required scans, work complete, certify), PIN on tail status and approvals, Serviceable · MEL option at deferral, DD Mmm YYYY date picker
 - **UX pass:** grouped rail dropdowns, ＋ New and user menus, tail search, online/offline pill, slimmer fleet board. Layout rules in `docs/ui-rules.md`
 
 One database per operator (agreed 9 Oct 2026): each customer, e.g. PAF, gets its own database on its own server.
@@ -27,8 +28,8 @@ app/
 │   ├── main.tsx, App.tsx   Start-up; which screen shows for which address
 │   ├── theme.css           Colours (D-212), status colours (D-091), fonts, 44 px touch targets
 │   ├── lib/                Connection to the database, sign-in state, date formats (D-204)
-│   ├── components/         Rail, dropdown menu, tail search, status chips, PIN field, MEL search, set tail status
-│   └── screens/            Sign in, set PIN, home frame, fleet board, report snag, snag list, snag page, dispositions
+│   ├── components/         Rail, menus, tail search, status chips, PIN field, MEL search, tail status, date picker, attachments
+│   └── screens/            Sign in, set PIN, home frame, fleet board, report snag, snags, dispositions, approvals, work orders
 └── supabase/
     ├── config.toml         Settings for running Supabase on your own machine
     ├── migrations/         The database, built up step by step (run in order)
@@ -52,11 +53,12 @@ app/
     │   ├── …0018_nadd.sql            NADDs and cabin items (never emergency equipment)
     │   ├── …0019_queries_and_repeat_defects.sql  Technical queries; repeat-defect alert
     │   ├── …0020_fleet_board.sql     One row per aircraft: status, snag chip, "Blocked by"
-    │   └── …0021_api_access.sql      Locks internal helpers; opens only the user actions
+    │   ├── …0021_api_access.sql      Locks internal helpers; opens only the user actions
+    │   └── …0022_signing_and_inbox.sql  PIN on tail status and approvals; SVC · MEL at deferral; approvals inbox
     ├── seed.sql            Fictional sample data (NX tails, invented people, sample MEL)
     └── tests/
         ├── foundations.test.sql      37 checks of the Phase 0 rules
-        └── phase1.test.sql           90 checks of the snag workflow rules
+        └── phase1.test.sql           100 checks of the snag workflow rules
 ```
 
 Each migration file starts with a plain-English explanation of what it does and which decisions (D-xxx) it implements.
@@ -102,6 +104,9 @@ Each migration file starts with a plain-English explanation of what it does and 
 | Technical queries never change the record; only the raiser closes one | D-207 | ✅ |
 | Repeat defect (3 in 30 days, same ATA sub-chapter) is an alert only | D-208, D-020 | ✅ |
 | Internal helper functions can't be called from outside | D-125 | ✅ |
+| Setting a tail status and approving or rejecting need the PIN | D-215, D-094 | ✅ |
+| Deferral can set Serviceable · MEL only when the engineer ticks it, in the same signed step | D-216 | ✅ |
+| "Waiting for me" shows only steps the user holds, not their own requests | D-146 | ✅ |
 
 Nothing here calculates airworthiness or next-due maintenance (D-020, D-021). Due times shown are the limits the engineer entered or the MEL states, counted as recorded.
 
@@ -119,7 +124,7 @@ Then, in PowerShell:
 cd C:\Users\USER\Downloads\NEXUS\app
 npm install          # downloads the tools (first time, and after a pull that adds tools)
 npm run db:start     # starts the database (first time downloads ~2 GB; later it's quick)
-npm run db:test      # runs all 127 database checks; should end with "Result: PASS"
+npm run db:test      # runs all 137 database checks; should end with "Result: PASS"
 ```
 
 ### Opening the screens
@@ -159,7 +164,7 @@ Other commands:
 
 ## Not built yet
 
-- Remaining Phase 1B screens: approvals, work orders and uploads (slice 3); DDLS/NADD lists, clearing and extensions, queries, cabin map and prints (slice 4)
+- Remaining Phase 1B screens (slice 4): DDLS and NADD lists, clearing and extensions, technical queries, cabin map, DDLS/NADDS prints
 - Account request and forgotten-password screens (D-206)
 - Offline store and sync queue on the device: Phase 1C
 - Parts, stores transactions, procurement (later phases)

@@ -8,6 +8,8 @@
 //     /report-snag            report a snag (?aircraft=… fills in the tail)
 //     /snags                  snag list (?view=…&aircraft=…)
 //     /snags/:id              one snag: attend, disposition, tail status
+//     /approvals              approvals waiting for me
+//     /work-orders            work order list; /work-orders/:id one work order
 //     /section/:dept/:page    subsections built in later slices
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router';
 import { useAuth } from './lib/auth';
@@ -18,6 +20,8 @@ import { AircraftSummary, FleetBoard } from './screens/FleetBoard';
 import { ReportSnag } from './screens/ReportSnag';
 import { SnagList } from './screens/SnagList';
 import { SnagDetail } from './screens/SnagDetail';
+import { Approvals } from './screens/Approvals';
+import { WorkOrderList, WorkOrderPage } from './screens/WorkOrders';
 
 const router = createBrowserRouter([
   {
@@ -29,6 +33,9 @@ const router = createBrowserRouter([
       { path: 'report-snag', element: <ReportSnag /> },
       { path: 'snags', element: <SnagList /> },
       { path: 'snags/:id', element: <SnagDetail /> },
+      { path: 'approvals', element: <Approvals /> },
+      { path: 'work-orders', element: <WorkOrderList /> },
+      { path: 'work-orders/:id', element: <WorkOrderPage /> },
       { path: 'section/:dept/:page', element: <ComingSoon /> },
       { path: '*', element: <Navigate to="/" replace /> },
     ],

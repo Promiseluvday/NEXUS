@@ -10,6 +10,7 @@ import { useAuth } from '../lib/auth';
 import { Rail } from '../components/Rail';
 import { useAircraftList } from '../components/AircraftPicker';
 import { Menu, MenuItem } from '../components/Menu';
+import { usePendingApprovals } from './Approvals';
 
 // "Online" / "Offline" is always visible (D-094). Until Phase 1C adds the
 // offline queue, actions need a connection, and the pill says so.
@@ -58,6 +59,17 @@ function NewMenu() {
   );
 }
 
+// "Approvals (2)": shown only when something is waiting for this person.
+function ApprovalsBadge() {
+  const { items, load } = usePendingApprovals();
+  useEffect(() => {
+    window.addEventListener('nexus:approvals', load);
+    return () => window.removeEventListener('nexus:approvals', load);
+  }, [load]);
+  if (!items?.length) return null;
+  return <Link to="/approvals" className="button badge-button">Approvals <span className="badge">{items.length}</span></Link>;
+}
+
 function UserMenu() {
   const { me, signOut } = useAuth();
   return (
@@ -98,6 +110,7 @@ export function Home() {
         </Link>
         <span className="spacer" />
         <OnlinePill />
+        <ApprovalsBadge />
         <NewMenu />
         <UserMenu />
       </header>

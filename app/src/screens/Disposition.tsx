@@ -12,10 +12,16 @@
 // D-094). The DATABASE checks all of this again; the screen only guides.
 // The limits shown are the ones the MEL or the engineer state. Nexus never
 // decides airworthiness (D-020).
+//
+// MEL and DDLS deferrals offer "also set the tail to Serviceable · MEL"
+// (D-216). It is the engineer's own tick, signed with the same PIN, and both
+// are recorded together or not at all. It starts ticked only when the tail
+// is currently Serviceable; otherwise the engineer must decide.
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import { actions, db, errorText } from '../lib/supabase';
 import { PinField } from '../components/PinField';
 import { MelSearch, melInterval, type MelItem } from '../components/MelSearch';
+import { TAIL_STATUS } from '../components/StatusChip';
 
 export type SnagForDisposition = {
   id: string;
@@ -25,6 +31,8 @@ export type SnagForDisposition = {
   tlb_book: string | null;
   tlb_page: string | null;
   tlb_item: string | null;
+  tail: string;
+  tail_status: string | null; // the engineer-set status now (D-046)
 };
 
 type Kind = 'rectify_now' | 'mel' | 'ddls' | 'nadd' | 'nff';
@@ -138,7 +146,35 @@ function Check({ checked, onChange, children }: { checked: boolean; onChange: (v
 }
 
 // Deferring never changes the tail status by itself (D-046).
-const STATUS_HINT = ' The tail status is unchanged: set it below if it should change (e.g. Serviceable · MEL).';
+const STATUS_HINT = ' The tail status is unchanged: set it below if it should change.';
+const statusMessage = (set: boolean, tail: string) =>
+  set ? ` ${tail} is now Serviceable · MEL, signed by you.` : STATUS_HINT;
+
+// "Also set the tail to Serviceable · MEL" (D-216).
+function useSvcMel(snag: SnagForDisposition) {
+  const [v, setV] = useState(snag.tail_status === 'SVC');
+  // The tail status may arrive a moment after the form opens.
+  useEffect(() => setV(snag.tail_status === 'SVC'), [snag.tail_status]);
+  return [v, setV] as const;
+}
+function SvcMelOption({ snag, checked, onChange }: { snag: SnagForDisposition; checked: boolean; onChange: (v: boolean) => void }) {
+  const now = snag.tail_status ? TAIL_STATUS[snag.tail_status]?.long ?? snag.tail_status : 'no status recorded';
+  const warn = snag.tail_status === 'US' || snag.tail_status === 'AOG' || snag.tail_status === 'IN_CHECK';
+  return (
+    <div className="option-box">
+      <Check checked={checked} onChange={onChange}>
+        Also set <span className="mono">{snag.tail}</span> to <strong>Serviceable · MEL</strong> (now: {now})
+      </Check>
+      {warn && (
+        <div className="small">
+          The tail is currently {now}. Tick only if, with this deferral, you are releasing it as serviceable.
+          Other open items still stand.
+        </div>
+      )}
+      {snag.tail_status === 'SVC_MEL' && <div className="small muted">Already Serviceable · MEL; no need to set it again.</div>}
+    </div>
+  );
+}
 
 const pinOk = (pin: string) => (/^[0-9]{4,8}$/.test(pin) ? null : 'Enter your PIN (4 to 8 digits) to sign.');
 
@@ -181,6 +217,7 @@ function MelForm({ snag, onDone }: FormProps) {
   const [placard, setPlacard] = useState(false);
   const [remarks, setRemarks] = useState('');
   const [pin, setPin] = useState('');
+  const [svcMel, setSvcMel] = useSvcMel(snag);
   const { tlb, change, args } = useTlb(snag);
   const { error, busy, run } = useSubmit(onDone);
 
@@ -198,11 +235,11 @@ function MelForm({ snag, onDone }: FormProps) {
         const { data, error: err } = await actions.rpc('apply_mel', {
           p_snag: snag.id, p_mel_item: item!.id, p_pin: pin,
           p_m_done: mDone, p_o_passed: oPassed, p_placard_fitted: placard,
-          p_remarks: remarks.trim() || undefined, ...args,
+          p_remarks: remarks.trim() || undefined, ...args, p_set_svc_mel: svcMel,
         });
         if (err) return { error: err };
         const { data: d } = await db.from('ddls_entry').select('page_no, entry_no').eq('id', data as string).maybeSingle();
-        return { error: null, message: `Deferred under MEL ${item!.item_number}. Logged on the DDLS${d ? `, page ${d.page_no} entry ${d.entry_no}` : ''}.${STATUS_HINT}` };
+        return { error: null, message: `Deferred under MEL ${item!.item_number}. Logged on the DDLS${d ? `, page ${d.page_no} entry ${d.entry_no}` : ''}.${statusMessage(svcMel, snag.tail)}` };
       },
     );
   }
@@ -219,6 +256,7 @@ function MelForm({ snag, onDone }: FormProps) {
           <label htmlFor="mel-remarks">Remarks <span className="hint">(optional)</span></label>
           <input id="mel-remarks" value={remarks} onChange={(e) => setRemarks(e.target.value)} />
           <TlbFields book={tlb.book} page={tlb.page} item={tlb.item} onChange={change} />
+          <SvcMelOption snag={snag} checked={svcMel} onChange={setSvcMel} />
           <PinField value={pin} onChange={setPin} />
           <Submit busy={busy} error={error} label="Sign and defer under MEL" />
         </>
@@ -234,6 +272,7 @@ function DdlsForm({ snag, onDone }: FormProps) {
   const [oReq, setOReq] = useState(false);
   const [remarks, setRemarks] = useState('');
   const [pin, setPin] = useState('');
+  const [svcMel, setSvcMel] = useSvcMel(snag);
   const { tlb, change, args } = useTlb(snag);
   const { error, busy, run } = useSubmit(onDone);
 
@@ -249,10 +288,11 @@ function DdlsForm({ snag, onDone }: FormProps) {
         const { data, error: err } = await actions.rpc('defer_on_ddls', {
           p_snag: snag.id, p_days_allowed: Number(days), p_manual_reference: ref.trim(), p_pin: pin,
           p_m_required: mReq, p_o_required: oReq, p_remarks: remarks.trim() || undefined, ...args,
+          p_set_svc_mel: svcMel,
         });
         if (err) return { error: err };
         const { data: d } = await db.from('ddls_entry').select('page_no, entry_no').eq('id', data as string).maybeSingle();
-        return { error: null, message: `Deferred on the DDLS${d ? `, page ${d.page_no} entry ${d.entry_no}` : ''}.${STATUS_HINT}` };
+        return { error: null, message: `Deferred on the DDLS${d ? `, page ${d.page_no} entry ${d.entry_no}` : ''}.${statusMessage(svcMel, snag.tail)}` };
       },
     );
   }
@@ -274,6 +314,7 @@ function DdlsForm({ snag, onDone }: FormProps) {
       <label htmlFor="ddls-remarks">Remarks <span className="hint">(optional)</span></label>
       <input id="ddls-remarks" value={remarks} onChange={(e) => setRemarks(e.target.value)} />
       <TlbFields book={tlb.book} page={tlb.page} item={tlb.item} onChange={change} />
+      <SvcMelOption snag={snag} checked={svcMel} onChange={setSvcMel} />
       <PinField value={pin} onChange={setPin} />
       <Submit busy={busy} error={error} label="Sign and defer on DDLS" />
     </form>

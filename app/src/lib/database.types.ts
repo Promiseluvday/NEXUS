@@ -49,6 +49,9 @@ export type Database = {
 { Args: { "p_entry": string,"p_wo": string }; Returns: string
                            },
 "apply_mel":
+{ Args: { "p_m_done": boolean,"p_mel_item": string,"p_o_passed": boolean,"p_pin": string,"p_placard_fitted": boolean,"p_remarks"?: string,"p_set_svc_mel"?: boolean,"p_snag": string,"p_tlb_book"?: string,"p_tlb_item"?: string,"p_tlb_page"?: string }; Returns: string
+                           },
+"apply_mel_core":
 { Args: { "p_m_done": boolean,"p_mel_item": string,"p_o_passed": boolean,"p_pin": string,"p_placard_fitted": boolean,"p_remarks"?: string,"p_snag": string,"p_tlb_book"?: string,"p_tlb_item"?: string,"p_tlb_page"?: string }; Returns: string
                            },
 "apply_standard_rules":
@@ -100,12 +103,18 @@ export type Database = {
 { Args: Record<PropertyKey, never>; Returns: string
                            },
 "decide_approval":
+{ Args: { "p_decision": string,"p_pin": string,"p_reason"?: string,"p_request": string }; Returns: string
+                           },
+"decide_approval_core":
 { Args: { "p_decision": string,"p_reason"?: string,"p_request": string }; Returns: string
                            },
 "defer_as_nadd":
 { Args: { "p_declaration": boolean,"p_limit_days"?: number,"p_location"?: string,"p_pin": string,"p_snag": string,"p_zone"?: string }; Returns: string
                            },
 "defer_on_ddls":
+{ Args: { "p_days_allowed": number,"p_m_required"?: boolean,"p_manual_reference": string,"p_o_required"?: boolean,"p_pin": string,"p_remarks"?: string,"p_set_svc_mel"?: boolean,"p_snag": string,"p_tlb_book"?: string,"p_tlb_item"?: string,"p_tlb_page"?: string }; Returns: string
+                           },
+"defer_on_ddls_core":
 { Args: { "p_days_allowed": number,"p_m_required"?: boolean,"p_manual_reference": string,"p_o_required"?: boolean,"p_pin": string,"p_remarks"?: string,"p_snag": string,"p_tlb_book"?: string,"p_tlb_item"?: string,"p_tlb_page"?: string }; Returns: string
                            },
 "due_from_days":
@@ -151,6 +160,11 @@ export type Database = {
         isOneToOne: false
         isSetofReturn: true
       } },
+"my_pending_approvals":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "action_type": string,"chain_name": string,"id": string,"raised_at": string,"raised_by": string,"record_id": string,"record_table": string,"step_name": string,"step_no": number,"summary": string,"waiting_since": string
+            }[]
+                           },
 "my_pin_is_set":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
@@ -185,6 +199,9 @@ export type Database = {
                            },
 "reclassify_nadd_as_snag":
 { Args: { "p_nadd": string,"p_note": string }; Returns: string
+                           },
+"record_svc_mel":
+{ Args: { "p_reason": string,"p_snag": string }; Returns: undefined
                            },
 "rectify_nadd":
 { Args: { "p_action_taken": string,"p_nadd": string,"p_pin": string,"p_rect_tlb_book"?: string,"p_rect_tlb_page"?: string }; Returns: undefined
@@ -227,6 +244,9 @@ export type Database = {
 { Args: { "p_pin": string }; Returns: undefined
                            },
 "set_tail_status":
+{ Args: { "p_aircraft": string,"p_expected_rts"?: string,"p_pin": string,"p_reason": string,"p_status": string }; Returns: string
+                           },
+"set_tail_status_core":
 { Args: { "p_aircraft": string,"p_expected_rts"?: string,"p_reason": string,"p_status": string }; Returns: string
                            },
 "setting":
