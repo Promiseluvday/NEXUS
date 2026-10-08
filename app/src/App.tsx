@@ -13,6 +13,9 @@
 //     /ddls, /nadds           DDLS sheet and NADD list per tail (?aircraft=…)
 //     /cabin-item             report a cabin item on the cabin map
 //     /queries                technical queries I am involved in
+//     /device                 this tablet, offline signing, change PIN (D-217)
+//     /sync                   send queue on this tablet
+//     /offline-signatures     Quality review of offline signatures
 //     /print/ddls/:id, /print/nadds/:id   printable sheets (no app frame)
 //     /section/:dept/:page    subsections built in later slices
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router';
@@ -31,6 +34,9 @@ import { NaddList } from './screens/Nadds';
 import { CabinItem } from './screens/CabinItem';
 import { QueryList } from './screens/QueryList';
 import { DdlsPrint, NaddsPrint } from './screens/Prints';
+import { DevicePage } from './screens/Device';
+import { SyncQueue } from './screens/SyncQueue';
+import { OfflineReview } from './screens/OfflineReview';
 
 const router = createBrowserRouter([
   {
@@ -49,6 +55,9 @@ const router = createBrowserRouter([
       { path: 'nadds', element: <NaddList /> },
       { path: 'cabin-item', element: <CabinItem /> },
       { path: 'queries', element: <QueryList /> },
+      { path: 'device', element: <DevicePage /> },
+      { path: 'sync', element: <SyncQueue /> },
+      { path: 'offline-signatures', element: <OfflineReview /> },
       { path: 'section/:dept/:page', element: <ComingSoon /> },
       { path: '*', element: <Navigate to="/" replace /> },
     ],

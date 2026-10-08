@@ -20,6 +20,9 @@ import { SetTailStatus } from '../components/SetTailStatus';
 import type { AircraftOption } from '../components/AircraftPicker';
 import { Disposition } from './Disposition';
 import { Queries } from '../components/Queries';
+import { cached } from '../lib/offline/cache';
+import { usePendingFor } from '../lib/offline/hooks';
+import { perform, queuedText } from '../lib/perform';
 
 type Person = { three_letter_code: string; full_name?: string } | null;
 type Snag = {
@@ -56,12 +59,15 @@ export function SnagDetail() {
   const [canCertify, setCanCertify] = useState(false);
   const [tailStatus, setTailStatus] = useState<string | null>(null);
   const [message, setMessage] = useState('');
+  const [offlineView, setOfflineView] = useState(false);
   const [params] = useSearchParams();
+  const pending = usePendingFor(`/snags/${id}`);
 
   const isEngineer = Boolean(me?.departments.some((d) => d.code === 'ENG'));
 
+  // Each read is saved on the tablet, so the page still opens offline (D-102).
   const load = useCallback(async () => {
-    const { data } = await db.from('snag')
+    const { data, fromCache: offline } = await cached(`snag:${id}`, () => db.from('snag')
       .select(`id, number, status, disposition, description, ata, is_soft_observation, reporter_kind,
                tlb_book, tlb_page, tlb_item, created_at, attended_at, assessment, dispositioned_at,
                closed_at, closure_note, aircraft_id,
@@ -71,16 +77,17 @@ export function SnagDetail() {
                dispositioner:dispositioned_by (three_letter_code),
                closer:closed_by (three_letter_code)`)
       .eq('id', id!)
-      .maybeSingle();
+      .maybeSingle());
     const s = data as unknown as Snag | null;
     setSnag(s);
+    setOfflineView(offline);
     if (!s) return;
     const [wo, dd, na, rep, st] = await Promise.all([
-      db.from('work_order').select('id, number, status').eq('snag_id', s.id),
-      db.from('ddls_entry').select('id, page_no, entry_no, kind, mel_ref, due_at, limit_text, status').eq('snag_id', s.id),
-      db.from('nadd').select('id, number, status, due_at').eq('snag_id', s.id),
-      actions.rpc('repeat_defect', { p_snag: s.id }),
-      db.from('aircraft_current_status').select('status').eq('aircraft_id', s.aircraft_id).maybeSingle(),
+      cached(`snag:${s.id}:wo`, () => db.from('work_order').select('id, number, status').eq('snag_id', s.id)),
+      cached(`snag:${s.id}:ddls`, () => db.from('ddls_entry').select('id, page_no, entry_no, kind, mel_ref, due_at, limit_text, status').eq('snag_id', s.id)),
+      cached(`snag:${s.id}:nadd`, () => db.from('nadd').select('id, number, status, due_at').eq('snag_id', s.id)),
+      cached(`snag:${s.id}:repeat`, () => actions.rpc('repeat_defect', { p_snag: s.id })),
+      cached(`status:${s.aircraft_id}`, () => db.from('aircraft_current_status').select('status').eq('aircraft_id', s.aircraft_id).maybeSingle()),
     ]);
     setLinked({
       workOrders: (wo.data ?? []) as Linked['workOrders'],
@@ -90,9 +97,10 @@ export function SnagDetail() {
     setRepeat(((rep.data ?? []) as unknown as Repeat[])[0] ?? null);
     setTailStatus((st.data as { status: string } | null)?.status ?? null);
     if (me && s.aircraft) {
-      const { data: c } = await actions.rpc('is_certifying', {
-        p_person: me.personId, p_aircraft_type: s.aircraft.aircraft_type_code,
-      });
+      const type = s.aircraft.aircraft_type_code;
+      const { data: c } = await cached(`certifying:${me.personId}:${type}`, () => actions.rpc('is_certifying', {
+        p_person: me.personId, p_aircraft_type: type,
+      }));
       setCanCertify(c === true);
     }
   }, [id, me]);
@@ -111,6 +119,10 @@ export function SnagDetail() {
   const who = (p: Person) => <span className="mono">{p?.three_letter_code ?? '—'}</span>;
   const done = (m: string) => { setMessage(m); load(); };
   const fleetEntry = aircraft.find((a) => a.id === snag.aircraft_id);
+  // What this tablet has done to the snag but not yet sent (D-102, D-217).
+  const waitingAttend = pending.some((p) => p.action === 'attend_snag');
+  const waitingDisposition = pending.find((p) => p.kind === 'signed' || p.action === 'request_work_order');
+  const status = waitingDisposition ? 'waiting' : snag.status === 'reported' && waitingAttend ? 'attended' : snag.status;
 
   return (
     <div className="page">
@@ -129,7 +141,19 @@ export function SnagDetail() {
         </div>
       </div>
 
-      {message && <div className="success" role="status">{message}</div>}
+      {message && <div className={/provisional|queued/.test(message) ? 'offline-banner' : 'success'} role="status">{message}</div>}
+      {offlineView && <div className="offline-banner" role="status">Offline · showing this snag as last saved on this tablet.</div>}
+      {pending.length > 0 && (
+        <div className="offline-banner" role="status">
+          <strong>Waiting on this tablet, provisional:</strong>
+          <ul style={{ margin: '4px 0 0' }}>
+            {pending.map((p) => (
+              <li key={p.id}>{p.label}{p.kind === 'signed' && ' · signed offline'}{p.status === 'failed' && <> · <span style={{ color: 'var(--red)' }}>refused: {p.error}</span></>}</li>
+            ))}
+          </ul>
+          <Link to="/sync">Send queue</Link>
+        </div>
+      )}
 
       {repeat?.is_repeat && (
         <div className="notice">
@@ -208,11 +232,11 @@ export function SnagDetail() {
         </section>
       </div>
 
-      {isEngineer && snag.status === 'reported' && <AttendForm snagId={snag.id} onDone={done} />}
+      {isEngineer && status === 'reported' && <AttendForm snagId={snag.id} snagNumber={snag.number} aircraftId={snag.aircraft_id} onDone={done} />}
 
-      {isEngineer && snag.status === 'attended' && snag.aircraft && (
+      {isEngineer && status === 'attended' && snag.aircraft && (
         <Disposition
-          snag={{ ...snag, aircraft_type: snag.aircraft.aircraft_type_code, tail, tail_status: tailStatus }}
+          snag={{ ...snag, aircraft_type: snag.aircraft.aircraft_type_code, tail, tail_status: tailStatus ?? fleetEntry?.status ?? null }}
           canCertify={canCertify}
           onDone={done}
           onChoose={() => setMessage('')}
@@ -225,7 +249,7 @@ export function SnagDetail() {
           <p className="small muted">
             The status is the engineer's decision (D-046). Reporting or deferring a snag does not change it.
           </p>
-          <SetTailStatus aircraftId={snag.aircraft_id} tail={tail} current={tailStatus} onDone={() => done(`Status of ${tail} recorded.`)} />
+          <SetTailStatus aircraftId={snag.aircraft_id} tail={tail} current={tailStatus} onDone={(m) => done(m ?? `Status of ${tail} recorded.`)} />
         </div>
       )}
 
@@ -238,7 +262,9 @@ export function SnagDetail() {
   );
 }
 
-function AttendForm({ snagId, onDone }: { snagId: string; onDone: (m: string) => void }) {
+function AttendForm({ snagId, snagNumber, aircraftId, onDone }: {
+  snagId: string; snagNumber: string; aircraftId: string; onDone: (m: string) => void;
+}) {
   const [note, setNote] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -246,9 +272,11 @@ function AttendForm({ snagId, onDone }: { snagId: string; onDone: (m: string) =>
     e.preventDefault();
     setBusy(true);
     setError('');
-    const { error: err } = await actions.rpc('attend_snag', { p_snag: snagId, p_note: note.trim() || undefined });
+    const o = await perform('attend_snag', { p_snag: snagId, p_note: note.trim() || undefined },
+      { label: `Attend ${snagNumber}`, recordPath: `/snags/${snagId}`, aircraftId });
     setBusy(false);
-    if (err) return setError(errorText(err));
+    if (o.error) return setError(errorText(o.error));
+    if (o.queued) return onDone(queuedText(o, `Attend ${snagNumber}`) + ' You can choose the disposition now.');
     onDone('Snag attended. The tail now shows amber "Snag attended" (D-200). Choose a disposition below.');
   }
   return (

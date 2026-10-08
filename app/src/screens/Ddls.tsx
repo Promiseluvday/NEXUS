@@ -16,6 +16,8 @@ import { Fragment, useCallback, useEffect, useMemo, useState, type FormEvent } f
 import { Link, useOutletContext, useSearchParams } from 'react-router';
 import { useAuth } from '../lib/auth';
 import { actions, db, errorText } from '../lib/supabase';
+import { perform, queuedText } from '../lib/perform';
+import { cached } from '../lib/offline/cache';
 import { formatDateTime } from '../lib/format';
 import { AircraftPicker, type AircraftOption } from '../components/AircraftPicker';
 import { PinField } from '../components/PinField';
@@ -80,7 +82,7 @@ export function DdlsSheet() {
     if (!tailId) return;
     let q = db.from('ddls_entry').select(DDLS_SELECT).eq('aircraft_id', tailId).order('page_no').order('entry_no');
     if (!showCleared) q = q.eq('status', 'open');
-    const { data } = await q;
+    const { data } = await cached(`ddls:${tailId}:${showCleared}`, () => q);
     setEntries((data ?? []) as unknown as DdlsEntry[]);
   }, [tailId, showCleared]);
 
@@ -115,7 +117,7 @@ export function DdlsSheet() {
           {tailId && <Link className="button secondary" to={`/print/ddls/${tailId}`} target="_blank">Print DDLS</Link>}
         </div>
       </div>
-      {message && <div className="success" role="status">{message}</div>}
+      {message && <div className={/provisional|queued/.test(message) ? 'offline-banner' : 'success'} role="status">{message}</div>}
       {entries && entries.length === 0 && (
         <div className="card"><p className="muted">No {showCleared ? '' : 'open '}DDLS entries on {tail?.tail ?? 'this tail'}.</p></div>
       )}
@@ -215,12 +217,14 @@ function ClearForm({ entry, onDone }: { entry: DdlsEntry; onDone: (m: string) =>
     if (!text.trim()) return setError('Describe the rectification actions.');
     if (!/^[0-9]{4,8}$/.test(pin)) return setError('Enter your PIN (4 to 8 digits) to sign.');
     setBusy(true);
-    const { error: err } = await actions.rpc('clear_ddls_entry', {
+    const label = `Clear DDLS ${entry.page_no}/${entry.entry_no} (${entry.snag?.number ?? 'snag'})`;
+    const o = await perform('clear_ddls_entry', {
       p_entry: entry.id, p_rectification: text.trim(), p_pin: pin,
       p_rect_tlb_book: book || undefined, p_rect_tlb_page: page || undefined,
-    });
+    }, { label, recordPath: `/snags/${entry.snag_id}` });
     setBusy(false);
-    if (err) return setError(errorText(err));
+    if (o.error) return setError(errorText(o.error));
+    if (o.queued) return onDone(queuedText(o, label));
     onDone(`DDLS page ${entry.page_no} entry ${entry.entry_no} cleared; ${entry.snag?.number ?? 'the snag'} closed. The tail status is unchanged until an engineer sets it (D-046).`);
   }
   return (

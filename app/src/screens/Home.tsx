@@ -11,24 +11,25 @@ import { Rail } from '../components/Rail';
 import { useAircraftList } from '../components/AircraftPicker';
 import { Menu, MenuItem } from '../components/Menu';
 import { usePendingApprovals } from './Approvals';
+import { useOnline, useOutbox } from '../lib/offline/hooks';
+import { startAutoSync } from '../lib/offline/outbox';
+import { getCurrentUser } from '../lib/perform';
+import { prefetchForOffline } from '../lib/offline/prefetch';
 
-// "Online" / "Offline" is always visible (D-094). Until Phase 1C adds the
-// offline queue, actions need a connection, and the pill says so.
-function OnlinePill() {
-  const [online, setOnline] = useState(navigator.onLine);
-  useEffect(() => {
-    const up = () => setOnline(true);
-    const down = () => setOnline(false);
-    window.addEventListener('online', up);
-    window.addEventListener('offline', down);
-    return () => {
-      window.removeEventListener('online', up);
-      window.removeEventListener('offline', down);
-    };
-  }, []);
-  return online
-    ? <span className="pill pill-online" title="Connected to the Nexus server">Online</span>
-    : <span className="pill pill-offline" role="status" title="Actions cannot be sent until the connection returns">Offline · actions not sent</span>;
+// "Online" / "Offline" is always visible (D-094), with how many actions are
+// waiting to be sent and how many the server refused. Tap it for the queue.
+function SyncPill() {
+  const online = useOnline();
+  const items = useOutbox();
+  const waiting = items.filter((i) => i.status === 'queued' || i.status === 'sending').length;
+  const failed = items.filter((i) => i.status === 'failed').length;
+  const text = `${online ? 'Online' : 'Offline'}${waiting ? ` · ${waiting} waiting` : ''}${failed ? ` · ${failed} refused` : ''}`;
+  return (
+    <Link to="/sync" className={`pill ${online && !failed ? 'pill-online' : 'pill-offline'}${waiting || failed ? ' pill-busy' : ''}`}
+      role="status" title={online ? 'Connected to the Nexus server' : 'No connection: actions wait on this tablet'}>
+      {text}
+    </Link>
+  );
 }
 
 // Every "create something" action in one menu. Shows only what this user may
@@ -84,16 +85,18 @@ function ApprovalsBadge() {
 
 function UserMenu() {
   const { me, signOut } = useAuth();
+  const navigate = useNavigate();
   return (
     <Menu label={<span className="mono">{me?.tlc}</span>} ariaLabel="Account" align="right" className="plain">
-      {() => (
+      {(close) => (
         <>
           <div className="menu-head">
             <strong>{me?.fullName}</strong> <span className="mono">{me?.tlc}</span>
             <div className="small muted">{me?.departments.map((d) => d.name).join(' · ')}</div>
           </div>
-          <MenuItem soon>Change PIN</MenuItem>
-          <MenuItem soon>My account</MenuItem>
+          <MenuItem onSelect={() => { close(); navigate('/device#pin'); }}>Change PIN</MenuItem>
+          <MenuItem onSelect={() => { close(); navigate('/device'); }}>This tablet and offline signing</MenuItem>
+          <MenuItem onSelect={() => { close(); navigate('/sync'); }}>Send queue</MenuItem>
           <MenuItem onSelect={signOut}>Sign out</MenuItem>
         </>
       )}
@@ -104,6 +107,10 @@ function UserMenu() {
 export function Home() {
   const aircraft = useAircraftList();
   const [railOpen, setRailOpen] = useState(false);
+  // Send waiting actions whenever the connection allows (D-102).
+  useEffect(() => startAutoSync(getCurrentUser), []);
+  // Save the MEL and cabin zones for offline use (D-102, D-217).
+  useEffect(() => { prefetchForOffline(aircraft.map((a) => a.type)); }, [aircraft]);
 
   return (
     <div className="shell">
@@ -121,7 +128,7 @@ export function Home() {
           <span className="brand-mark">N</span> <span className="brand-name">Nexus MRO</span>
         </Link>
         <span className="spacer" />
-        <OnlinePill />
+        <SyncPill />
         <ApprovalsBadge />
         <NewMenu />
         <UserMenu />

@@ -19,6 +19,8 @@
 // is currently Serviceable; otherwise the engineer must decide.
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import { actions, db, errorText } from '../lib/supabase';
+import { perform, queuedText } from '../lib/perform';
+import { cached } from '../lib/offline/cache';
 import { PinField } from '../components/PinField';
 import { MelSearch, melInterval, type MelItem } from '../components/MelSearch';
 import { TAIL_STATUS } from '../components/StatusChip';
@@ -232,12 +234,14 @@ function MelForm({ snag, onDone }: FormProps) {
         return pinOk(pin);
       },
       async () => {
-        const { data, error: err } = await actions.rpc('apply_mel', {
+        const label = `Defer ${snag.number} under MEL ${item!.item_number}`;
+        const { data, error: err, queued } = await perform('apply_mel', {
           p_snag: snag.id, p_mel_item: item!.id, p_pin: pin,
           p_m_done: mDone, p_o_passed: oPassed, p_placard_fitted: placard,
           p_remarks: remarks.trim() || undefined, ...args, p_set_svc_mel: svcMel,
-        });
+        }, { label: label, recordPath: `/snags/${snag.id}`, aircraftId: snag.aircraft_id });
         if (err) return { error: err };
+        if (queued) return { error: null, message: queuedText({ queued }, label) };
         const { data: d } = await db.from('ddls_entry').select('page_no, entry_no').eq('id', data as string).maybeSingle();
         return { error: null, message: `Deferred under MEL ${item!.item_number}. Logged on the DDLS${d ? `, page ${d.page_no} entry ${d.entry_no}` : ''}.${statusMessage(svcMel, snag.tail)}` };
       },
@@ -246,7 +250,7 @@ function MelForm({ snag, onDone }: FormProps) {
   return (
     <form onSubmit={submit}>
       <label htmlFor="mel-search">MEL item</label>
-      <MelSearch aircraftId={snag.aircraft_id} value={item} onChange={(i) => { setItem(i); setMDone(false); setOPassed(false); }} />
+      <MelSearch aircraftId={snag.aircraft_id} aircraftType={snag.aircraft_type} value={item} onChange={(i) => { setItem(i); setMDone(false); setOPassed(false); }} />
       {item && (
         <>
           <p className="small">Limit as stated in the MEL: <strong>{melInterval(item)}</strong>, category {item.category}.</p>
@@ -285,12 +289,14 @@ function DdlsForm({ snag, onDone }: FormProps) {
         return pinOk(pin);
       },
       async () => {
-        const { data, error: err } = await actions.rpc('defer_on_ddls', {
+        const label = `Defer ${snag.number} on the DDLS (${days} days)`;
+        const { data, error: err, queued } = await perform('defer_on_ddls', {
           p_snag: snag.id, p_days_allowed: Number(days), p_manual_reference: ref.trim(), p_pin: pin,
           p_m_required: mReq, p_o_required: oReq, p_remarks: remarks.trim() || undefined, ...args,
           p_set_svc_mel: svcMel,
-        });
+        }, { label: label, recordPath: `/snags/${snag.id}`, aircraftId: snag.aircraft_id });
         if (err) return { error: err };
+        if (queued) return { error: null, message: queuedText({ queued }, label) };
         const { data: d } = await db.from('ddls_entry').select('page_no, entry_no').eq('id', data as string).maybeSingle();
         return { error: null, message: `Deferred on the DDLS${d ? `, page ${d.page_no} entry ${d.entry_no}` : ''}.${statusMessage(svcMel, snag.tail)}` };
       },
@@ -333,8 +339,8 @@ function NaddForm({ snag, onDone }: FormProps) {
   const { error, busy, run } = useSubmit(onDone);
 
   useEffect(() => {
-    db.from('cabin_zone').select('code, name, is_emergency_equipment')
-      .eq('aircraft_type_code', snag.aircraft_type).order('code')
+    cached(`zones:${snag.aircraft_type}`, () => db.from('cabin_zone').select('code, name, is_emergency_equipment')
+      .eq('aircraft_type_code', snag.aircraft_type).order('code'))
       .then(({ data }) => setZones((data ?? []) as Zone[]));
   }, [snag.aircraft_type]);
 
@@ -347,12 +353,14 @@ function NaddForm({ snag, onDone }: FormProps) {
         return pinOk(pin);
       },
       async () => {
-        const { data, error: err } = await actions.rpc('defer_as_nadd', {
+        const label = `Defer ${snag.number} as a NADD`;
+        const { data, error: err, queued } = await perform('defer_as_nadd', {
           p_snag: snag.id, p_pin: pin, p_declaration: declared,
           p_zone: zone || undefined, p_location: location.trim() || undefined,
           p_limit_days: limit ? Number(limit) : undefined,
-        });
+        }, { label: label, recordPath: `/snags/${snag.id}`, aircraftId: snag.aircraft_id });
         if (err) return { error: err };
+        if (queued) return { error: null, message: queuedText({ queued }, label) };
         const { data: n } = await db.from('nadd').select('number').eq('id', data as string).maybeSingle();
         return { error: null, message: `Deferred as ${n?.number ?? 'a NADD'}.` };
       },
@@ -393,10 +401,12 @@ function NffForm({ snag, onDone }: FormProps) {
     run(
       () => (findings.trim() ? pinOk(pin) : 'Record what was checked before closing as no fault found.'),
       async () => {
-        const { error: err } = await actions.rpc('close_snag_no_fault_found', {
+        const label = `Close ${snag.number}: no fault found`;
+        const { error: err, queued } = await perform('close_snag_no_fault_found', {
           p_snag: snag.id, p_findings: findings.trim(), p_pin: pin,
           p_tlb_book: tlb.book || undefined, p_tlb_page: tlb.page || undefined,
-        });
+        }, { label: label, recordPath: `/snags/${snag.id}`, aircraftId: snag.aircraft_id });
+        if (queued) return { error: null, message: queuedText({ queued }, label) };
         return err ? { error: err } : { error: null, message: `${snag.number} closed: no fault found.` };
       },
     );

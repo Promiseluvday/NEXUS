@@ -13,6 +13,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../lib/auth';
 import { db, errorText } from '../lib/supabase';
 import { formatDateTime } from '../lib/format';
+import { enqueue } from '../lib/offline/outbox';
+import { isNetworkError, isOnline } from '../lib/offline/net';
 
 export const KIND_LABEL: Record<string, string> = {
   sign_off_card: 'Sign-off card',
@@ -61,6 +63,7 @@ export function Attachments({ recordTable, recordId, kinds, canUpload, onChange 
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [inputKey, setInputKey] = useState(0);
+  const [queuedNote, setQueuedNote] = useState('');
 
   const load = useCallback(async () => {
     const { data } = await db.from('attachment')
@@ -80,17 +83,33 @@ export function Attachments({ recordTable, recordId, kinds, canUpload, onChange 
     setBusy(true);
     const safeName = file.name.replace(/[^A-Za-z0-9._-]+/g, '_').slice(-80);
     const path = `${recordTable}/${recordId}/${newId()}-${safeName}`;
-    const { error: upErr } = await db.storage.from('attachments').upload(path, file, { contentType: file.type });
-    if (upErr) {
-      setBusy(false);
-      return setError(errorText(upErr));
-    }
-    const { error: rowErr } = await db.from('attachment').insert({
+    const row = {
       record_table: recordTable, record_id: recordId, kind, file_name: file.name,
       mime_type: file.type, size_bytes: file.size, storage_path: path,
       uploaded_by: me?.personId ?? '', // the database sets this to you regardless (D-024)
       device_time: new Date().toISOString(),
-    });
+    };
+    // No connection: keep the file on the tablet and send it later (D-103).
+    const queueIt = async () => {
+      await enqueue({
+        userId: me!.userId, kind: 'upload', action: 'upload', args: row, file,
+        label: `${KIND_LABEL[kind] ?? kind}: ${file.name}`,
+        recordPath: `/${recordTable === 'work_order' ? 'work-orders' : 'snags'}/${recordId}`,
+      });
+      setBusy(false);
+      setFile(null);
+      setInputKey((k) => k + 1);
+      setError('');
+      setQueuedNote(`${file.name}: kept on this tablet, sent when the connection returns.`);
+    };
+    if (!isOnline()) return queueIt();
+    const { error: upErr } = await db.storage.from('attachments').upload(path, file, { contentType: file.type });
+    if (upErr && isNetworkError(upErr)) return queueIt();
+    if (upErr) {
+      setBusy(false);
+      return setError(errorText(upErr));
+    }
+    const { error: rowErr } = await db.from('attachment').insert(row);
     setBusy(false);
     if (rowErr) return setError(errorText(rowErr));
     setFile(null);
@@ -143,6 +162,7 @@ export function Attachments({ recordTable, recordId, kinds, canUpload, onChange 
           <button type="button" onClick={upload} disabled={busy}>{busy ? 'Uploading…' : 'Attach'}</button>
         </div>
       )}
+      {queuedNote && <div className="offline-banner" role="status">{queuedNote}</div>}
       {error && <div className="error" role="alert">{error}</div>}
     </div>
   );

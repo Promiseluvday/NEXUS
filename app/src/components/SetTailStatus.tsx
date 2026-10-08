@@ -3,12 +3,13 @@
 // their name and the server time. Nothing here works it out (D-020).
 // Expected return to service is optional (D-047).
 import { useState, type FormEvent } from 'react';
-import { actions, errorText } from '../lib/supabase';
+import { errorText } from '../lib/supabase';
+import { perform, queuedText } from '../lib/perform';
 import { TAIL_STATUS } from './StatusChip';
 import { DateField } from './DateField';
 import { PinField } from './PinField';
 
-type Props = { aircraftId: string; tail: string; current: string | null; onDone: () => void };
+type Props = { aircraftId: string; tail: string; current: string | null; onDone: (message?: string) => void };
 
 export function SetTailStatus({ aircraftId, tail, current, onDone }: Props) {
   const [open, setOpen] = useState(false);
@@ -26,17 +27,18 @@ export function SetTailStatus({ aircraftId, tail, current, onDone }: Props) {
     if (!reason.trim()) return setError('Give the reason for the status.');
     if (!/^[0-9]{4,8}$/.test(pin)) return setError('Enter your PIN (4 to 8 digits) to sign.');
     setBusy(true);
-    const { error: err } = await actions.rpc('set_tail_status', {
+    // Offline on an enrolled tablet this is signed offline, provisional (D-217).
+    const o = await perform('set_tail_status', {
       p_aircraft: aircraftId, p_status: status, p_reason: reason.trim(), p_pin: pin,
       p_expected_rts: rts || undefined,
-    });
+    }, { label: `Set ${tail} to ${TAIL_STATUS[status]?.long ?? status}`, aircraftId });
     setBusy(false);
-    if (err) return setError(errorText(err));
+    setPin('');
+    if (o.error) return setError(errorText(o.error));
     setOpen(false);
     setReason('');
     setRts('');
-    setPin('');
-    onDone();
+    onDone(o.queued ? queuedText(o, `Set ${tail} to ${TAIL_STATUS[status]?.long ?? status}`) : undefined);
   }
 
   if (!open) {

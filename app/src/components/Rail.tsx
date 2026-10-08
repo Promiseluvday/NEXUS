@@ -56,6 +56,7 @@ const MENU: Record<string, Entry[]> = {
   QUA: [
     { label: 'Approvals', to: '/approvals' },
     { label: 'MEL revisions', to: '/section/QUA/mel' },
+    { label: 'Offline signatures', to: '/offline-signatures' },
     { label: 'Audit trail', to: '/section/QUA/audit' },
   ],
   CMD: [

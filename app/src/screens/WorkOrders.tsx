@@ -12,6 +12,9 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useOutletContext, useParams, useSearchParams } from 'react-router';
 import { useAuth } from '../lib/auth';
 import { actions, db, errorText } from '../lib/supabase';
+import { perform, queuedText } from '../lib/perform';
+import { cached } from '../lib/offline/cache';
+import { usePendingFor } from '../lib/offline/hooks';
 import { formatDateTime } from '../lib/format';
 import { AircraftPicker, type AircraftOption } from '../components/AircraftPicker';
 import { TailStatusChip } from '../components/StatusChip';
@@ -161,13 +164,13 @@ export function WorkOrderPage() {
   }, [id]);
 
   const load = useCallback(async () => {
-    const { data } = await db.from('work_order')
+    const { data } = await cached(`wo:${id}`, () => db.from('work_order')
       .select(`id, number, status, scope, est_man_hours, created_at, work_completed_at, certified_at,
                certification_note, approval_request_id, aircraft_id,
                aircraft:aircraft_id (tail, aircraft_type_code), snag:snag_id (id, number, description),
                requester:requested_by (three_letter_code), completer:work_completed_by (three_letter_code),
                certifier:certified_by (three_letter_code)`)
-      .eq('id', id!).maybeSingle();
+      .eq('id', id!).maybeSingle());
     const w = data as unknown as WO | null;
     setWo(w);
     if (!w) return;
@@ -218,7 +221,8 @@ export function WorkOrderPage() {
           </div>
         </div>
       </div>
-      {message && <div className="success" role="status">{message}</div>}
+      {message && <div className={/provisional|queued/.test(message) ? 'offline-banner' : 'success'} role="status">{message}</div>}
+      <PendingOnTablet path={`/work-orders/${wo.id}`} />
 
       <div className="detail-grid">
         <section className="card">
@@ -293,13 +297,29 @@ export function WorkOrderPage() {
           {isEngineer && (
             <>
               <p className="small muted">The snag is closed. The tail status is unchanged until you set it (D-046).</p>
-              <SetTailStatus aircraftId={wo.aircraft_id} tail={tail} current={tailStatus} onDone={() => done(`Status of ${tail} recorded.`)} />
+              <SetTailStatus aircraftId={wo.aircraft_id} tail={tail} current={tailStatus} onDone={(m) => done(m ?? `Status of ${tail} recorded.`)} />
             </>
           )}
         </section>
       )}
 
       <Queries recordTable="work_order" recordId={wo.id} startOpen={params.get('query') === 'new'} />
+    </div>
+  );
+}
+
+// What this tablet has done here but not yet sent (D-102, D-217).
+function PendingOnTablet({ path }: { path: string }) {
+  const pending = usePendingFor(path);
+  if (pending.length === 0) return null;
+  return (
+    <div className="offline-banner" role="status">
+      <strong>Waiting on this tablet, provisional:</strong>
+      <ul style={{ margin: '4px 0 0' }}>
+        {pending.map((p) => <li key={p.id}>{p.label}{p.kind === 'signed' && ' · signed offline'}
+          {p.status === 'failed' && <> · <span style={{ color: 'var(--red)' }}>refused: {p.error}</span></>}</li>)}
+      </ul>
+      <Link to="/sync">Send queue</Link>
     </div>
   );
 }
@@ -312,12 +332,13 @@ function EntryForm({ woId, onDone }: { woId: string; onDone: (m: string) => void
     e.preventDefault();
     if (!text.trim()) return setError('Write what was done.');
     setBusy(true);
-    const { error: err } = await actions.rpc('add_work_order_entry', { p_wo: woId, p_entry: text.trim() });
+    const o = await perform('add_work_order_entry', { p_wo: woId, p_entry: text.trim() },
+      { label: `Work entry: ${text.trim().slice(0, 60)}`, recordPath: `/work-orders/${woId}` });
     setBusy(false);
-    if (err) return setError(errorText(err));
+    if (o.error) return setError(errorText(o.error));
     setText('');
     setError('');
-    onDone('Entry recorded.');
+    onDone(o.queued ? queuedText(o, 'Work entry') : 'Entry recorded.');
   }
   return (
     <form onSubmit={submit}>
@@ -366,9 +387,12 @@ function CertifyForm({ wo, missing, canCertify, onDone }: {
     if (!note.trim()) return setError('Write the certification statement.');
     if (!/^[0-9]{4,8}$/.test(pin)) return setError('Enter your PIN (4 to 8 digits) to sign.');
     setBusy(true);
-    const { error: err } = await actions.rpc('certify_work_order', { p_wo: wo.id, p_pin: pin, p_note: note.trim() });
+    const label = `Certify ${wo.number}`;
+    const o = await perform('certify_work_order', { p_wo: wo.id, p_pin: pin, p_note: note.trim() },
+      { label, recordPath: `/work-orders/${wo.id}`, aircraftId: wo.aircraft_id });
     setBusy(false);
-    if (err) return setError(errorText(err));
+    if (o.error) return setError(errorText(o.error));
+    if (o.queued) return onDone(queuedText(o, label));
     onDone(`${wo.number} certified. ${wo.snag?.number ?? 'The snag'} is closed. Set the tail status below if it changes.`);
   }
   return (

@@ -289,7 +289,7 @@ table.board { width: 100%; border-collapse: collapse; background: #fff; border: 
 
 @media (max-width: 800px) {
   .brand-name { display: none; }
-  .pill-online { display: none; }   /* phones: show only when offline, to save space */
+  .pill-online:not(.pill-busy) { display: none; }   /* phones: show only when offline or busy */
 }
 
 /* ------------------------------------------------- snag pages (slice 2) */
@@ -414,3 +414,13 @@ table.board { width: 100%; border-collapse: collapse; background: #fff; border: 
   body, .print-page { background: #fff; padding: 0; }
   .print-sheet:last-child { page-break-after: auto; break-after: auto; }
 }
+
+/* ------------------------------------------------------------- Phase 1C */
+a.pill { text-decoration: none; }
+.pill-busy { background: var(--mark); color: #000; border-color: var(--mark); }
+.pill-busy::before { color: #000; }
+.offline-banner {
+  background: var(--amber-bg); border: 1px solid var(--amber); border-radius: var(--radius);
+  padding: 8px 12px; margin-bottom: 12px; font-size: 14px;
+}
+.provisional { border-style: dashed; }

@@ -12,6 +12,10 @@ import type { Session } from '@supabase/supabase-js';
 import { actions, db, errorText } from './supabase';
 import { defaultDisplay, type DisplaySettings } from './format';
 import { signInEmail } from './username';
+import { readCache, writeCache } from './offline/cache';
+import { isNetworkError, isOnline } from './offline/net';
+import { setCurrentUser } from './perform';
+import { loadDevice, loadLastKnownProblem } from './offline/device';
 
 export type Department = { code: string; name: string; kind: 'department' | 'oversight' };
 
@@ -61,11 +65,12 @@ async function loadDisplay(): Promise<DisplaySettings> {
 }
 
 async function loadMe(userId: string): Promise<Me | null> {
-  const { data: account } = await db
+  const { data: account, error } = await db
     .from('user_account')
     .select('status, username, person_id, person:person_id (full_name, three_letter_code)')
     .eq('id', userId)
     .maybeSingle();
+  if (isNetworkError(error)) throw new Error('offline');
   if (!account) return null;
 
   const { data: depts } = await db.from('department').select('code, name, kind').order('code');
@@ -100,6 +105,26 @@ async function loadMe(userId: string): Promise<Me | null> {
   };
 }
 
+// Offline (D-102): use what this tablet last knew about the person and the
+// display settings. Every action is still checked by the server when sent.
+async function loadMeOrCached(userId: string): Promise<Me | null> {
+  try {
+    const m = await loadMe(userId);
+    if (m) await writeCache(`me:${userId}`, m);
+    return m;
+  } catch {
+    return (await readCache<Me>(`me:${userId}`)) ?? null;
+  }
+}
+
+async function loadDisplayOrCached(): Promise<DisplaySettings> {
+  const cachedDisplay = await readCache<DisplaySettings>('display');
+  if (!isOnline() && cachedDisplay) return cachedDisplay;
+  const d = await loadDisplay().catch(() => cachedDisplay ?? defaultDisplay);
+  await writeCache('display', d);
+  return d;
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState<Session | null>(null);
@@ -109,12 +134,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const load = useCallback(async (s: Session | null) => {
     setSession(s);
     if (!s) {
+      setCurrentUser(undefined);
       setMe(null);
       setLoading(false);
       return;
     }
     setLoading(true);
-    const [m, d] = await Promise.all([loadMe(s.user.id), loadDisplay()]);
+    const [m, d] = await Promise.all([loadMeOrCached(s.user.id), loadDisplayOrCached()]);
+    setCurrentUser(m ? s.user.id : undefined);
+    await loadDevice();
+    await loadLastKnownProblem();
     setMe(m);
     setDisplay(d);
     setLoading(false);
@@ -140,8 +169,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return error ? errorText(error) : null;
   }, []);
 
+  // Offline, sign out on this tablet only (the server is told next time).
   const signOut = useCallback(async () => {
-    await db.auth.signOut();
+    await db.auth.signOut(isOnline() ? undefined : { scope: 'local' });
   }, []);
 
   const reload = useCallback(async () => {

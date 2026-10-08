@@ -9,7 +9,8 @@
 // recognises it and does not create a second snag.
 import { useState, type FormEvent } from 'react';
 import { Link, useOutletContext, useSearchParams } from 'react-router';
-import { actions, db, errorText } from '../lib/supabase';
+import { db, errorText } from '../lib/supabase';
+import { perform, queuedText } from '../lib/perform';
 import { AircraftPicker, type AircraftOption } from '../components/AircraftPicker';
 
 // crypto.randomUUID only works on https or localhost; a phone testing over
@@ -33,7 +34,7 @@ export function ReportSnag() {
   const [clientRef, setClientRef] = useState(newRef);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState<{ id: string; number: string; tail: string; aircraftId: string } | null>(null);
+  const [done, setDone] = useState<{ id: string; number: string; tail: string; aircraftId: string; queued?: string } | null>(null);
 
   const set = (k: keyof typeof empty) => (e: { target: { value: string } }) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
@@ -46,7 +47,9 @@ export function ReportSnag() {
     if (!aircraftId) return setError('Choose the aircraft.');
     if (!form.description.trim()) return setError('Describe the defect.');
     setBusy(true);
-    const { data: id, error: err } = await actions.rpc('report_snag', {
+    // Offline, the report waits on the tablet; its one-off reference stops a
+    // re-send creating a second snag (D-103).
+    const { data: id, error: err, queued } = await perform('report_snag', {
       p_aircraft: aircraftId,
       p_description: form.description.trim(),
       p_soft_observation: form.soft,
@@ -56,7 +59,11 @@ export function ReportSnag() {
       p_tlb_item: form.item.trim() || undefined,
       p_client_ref: clientRef,
       p_device_time: new Date().toISOString(),
-    });
+    }, { label: `Report snag on ${tail}: ${form.description.trim().slice(0, 60)}`, aircraftId });
+    if (queued) {
+      setBusy(false);
+      return setDone({ id: '', number: '', tail, aircraftId, queued: queuedText({ queued }, `Snag on ${tail}`) });
+    }
     if (err) {
       setBusy(false);
       return setError(errorText(err));
@@ -76,10 +83,14 @@ export function ReportSnag() {
     return (
       <div className="page">
         <div className="card narrow">
-          <div className="success" role="status">
-            <Link className="mono" to={`/snags/${done.id}`}>{done.number}</Link> reported on <span className="mono">{done.tail}</span>.
-          </div>
-          <p>The tail now shows <strong>Snag open</strong> until an engineer attends it. Its status is unchanged.</p>
+          {done.queued ? (
+            <div className="offline-banner" role="status">{done.queued} The snag number is given by the server when it arrives.</div>
+          ) : (
+            <div className="success" role="status">
+              <Link className="mono" to={`/snags/${done.id}`}>{done.number}</Link> reported on <span className="mono">{done.tail}</span>.
+            </div>
+          )}
+          {!done.queued && <p>The tail now shows <strong>Snag open</strong> until an engineer attends it. Its status is unchanged.</p>}
           <p className="row">
             <Link className="button" to={`/aircraft/${done.aircraftId}`}>Back to {done.tail}</Link>
             <button type="button" onClick={another}>Report another</button>

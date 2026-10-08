@@ -10,6 +10,7 @@ This folder holds the application: the database with its rules and checks, and t
 - **Phase 1B slice 2, snag workflow screens:** snag list, snag page (report, history, linked records, repeat-defect alert, similar defects), attend, the five dispositions with PIN signing (work order request, MEL with type-ahead, DDLS, NADD, no fault found), set tail status
 - **Phase 1B slice 3, approvals and work orders:** approvals inbox with "Approvals (n)" counter, work order list and page (approval trail, work entries, scan upload and viewing, required scans, work complete, certify), PIN on tail status and approvals, Serviceable · MEL option at deferral, DD Mmm YYYY date picker
 - **Phase 1B slice 4, deferrals and queries:** DDLS sheet per tail (clear, extension with approval, Cat A never extendable), NADD list (confirm, reject with reason, reclassify, rectify, extend), cabin item report on a cabin map (emergency zones go to snag), technical queries on snags and work orders plus "Technical queries" list, printable DDLS and NADDS (A4 landscape)
+- **Phase 1C, offline:** offline copies of the board, snags, DDLS, NADDs, MEL and cabin zones; a send queue (reports, attends, work entries, photos and scans); provisional offline signing on enrolled line tablets (D-217); "This tablet", "Send queue" and Quality's "Offline signatures" screens; installable app that opens with no signal
 - **UX pass:** grouped rail dropdowns, ＋ New and user menus, tail search, online/offline pill, slimmer fleet board. Layout rules in `docs/ui-rules.md`
 
 One database per operator (agreed 9 Oct 2026): each customer, e.g. PAF, gets its own database on its own server.
@@ -28,7 +29,8 @@ app/
 ├── src/                    The screens
 │   ├── main.tsx, App.tsx   Start-up; which screen shows for which address
 │   ├── theme.css           Colours (D-212), status colours (D-091), fonts, 44 px touch targets
-│   ├── lib/                Connection to the database, sign-in state, date formats (D-204)
+│   ├── lib/                Connection, sign-in, date formats (D-204), perform.ts (online or offline)
+│   │   └── offline/        Tablet storage (Dexie), queue, offline signing, clock, cached reads
 │   ├── components/         Rail, menus, tail search, status chips, PIN field, MEL search, tail status, date picker, attachments
 │   └── screens/            Sign in, PIN, home, fleet board, snags, dispositions, approvals, work orders, DDLS, NADDs, cabin item, queries, prints
 └── supabase/
@@ -55,11 +57,13 @@ app/
     │   ├── …0019_queries_and_repeat_defects.sql  Technical queries; repeat-defect alert
     │   ├── …0020_fleet_board.sql     One row per aircraft: status, snag chip, "Blocked by"
     │   ├── …0021_api_access.sql      Locks internal helpers; opens only the user actions
-    │   └── …0022_signing_and_inbox.sql  PIN on tail status and approvals; SVC · MEL at deferral; approvals inbox
+    │   ├── …0022_signing_and_inbox.sql  PIN on tail status and approvals; SVC · MEL at deferral; approvals inbox
+    │   └── …0023_offline_signing.sql    Tablets, offline keys, checking offline signatures (D-217)
     ├── seed.sql            Fictional sample data (NX tails, invented people, sample MEL)
     └── tests/
         ├── foundations.test.sql      37 checks of the Phase 0 rules
-        └── phase1.test.sql           100 checks of the snag workflow rules
+        ├── phase1.test.sql           100 checks of the snag workflow rules
+        └── offline.test.sql          23 checks of offline signing
 ```
 
 Each migration file starts with a plain-English explanation of what it does and which decisions (D-xxx) it implements.
@@ -125,8 +129,24 @@ Then, in PowerShell:
 cd C:\Users\USER\Downloads\NEXUS\app
 npm install          # downloads the tools (first time, and after a pull that adds tools)
 npm run db:start     # starts the database (first time downloads ~2 GB; later it's quick)
-npm run db:test      # runs all 137 database checks; should end with "Result: PASS"
+npm run db:test      # runs all 160 database checks; should end with "Result: PASS"
 ```
+
+### Trying offline (Phase 1C)
+
+`npm run dev` is for building screens; the offline app shell only works in a **built** copy:
+```
+npm run build
+npm run preview      # opens on http://localhost:4173
+```
+1. Sign in as `tmb`. Account menu ▸ **This tablet** ▸ register it. Change your PIN to 6 digits there.
+2. Sign in as `abe` (another browser window) ▸ This tablet ▸ **Enrol** it.
+3. Back as `tmb`: **Switch on offline signing** with the 6-digit PIN.
+4. Open the board and a snag (so they are saved), then turn off Wi-Fi (or Chrome DevTools ▸ Network ▸ Offline).
+5. Attend, defer under the MEL, set a tail status: each shows **provisional**; the top bar shows "Offline · 3 waiting".
+6. Reconnect: the queue sends itself. Quality (`qar`) sees them under **Quality ▸ Offline signatures**.
+
+**On real tablets** offline signing needs the secure **https** address of the Nexus server (browsers only allow the signing maths on https or localhost).
 
 ### Opening the screens
 
@@ -165,7 +185,6 @@ Other commands:
 
 ## Not built yet
 
-- Offline signing (D-217, `workflows/offline-signing.md`) and the offline queue: Phase 1C
 - Operator crest on prints, print templates per operator, daily serviceability print (D-203)
 - Account request and forgotten-password screens (D-206)
 - Offline store and sync queue on the device: Phase 1C

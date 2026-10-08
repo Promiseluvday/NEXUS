@@ -48,7 +48,7 @@ export function Approvals() {
           <div className="small muted">Oldest first. Each decision is signed with your PIN.</div>
         </div>
       </div>
-      {message && <div className="success" role="status">{message}</div>}
+      {message && <div className={/provisional|queued/.test(message) ? 'offline-banner' : 'success'} role="status">{message}</div>}
       {items === null && <p className="muted">Loading…</p>}
       {items?.length === 0 && <div className="card"><p className="muted">Nothing is waiting for you.</p></div>}
       {items?.map((p) => (

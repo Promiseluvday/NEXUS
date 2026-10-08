@@ -15,7 +15,9 @@ import { Link, useNavigate, useParams } from 'react-router';
 import { useAuth } from '../lib/auth';
 import { actions, db, errorText } from '../lib/supabase';
 import { formatDateTime, formatPlainDate, formatTime, heldFor, type DisplaySettings } from '../lib/format';
-import { SnagChip, TailStatusChip } from '../components/StatusChip';
+import { SnagChip, TAIL_STATUS, TailStatusChip } from '../components/StatusChip';
+import { cached } from '../lib/offline/cache';
+import { useOutbox } from '../lib/offline/hooks';
 import { SetTailStatus } from '../components/SetTailStatus';
 
 export type FleetRow = {
@@ -43,15 +45,20 @@ function useFleetBoard() {
   const [error, setError] = useState('');
   const [loadedAt, setLoadedAt] = useState<Date | null>(null);
 
+  const [fromCache, setFromCache] = useState(false);
+
+  // Offline: the last saved board, "as at" the time it was saved (data
+  // contract §5). Counts are never adjusted on the tablet.
   const load = useCallback(async () => {
-    const { data, error: err } = await actions.rpc('fleet_board');
-    if (err) {
-      setError(errorText(err));
+    const r = await cached('fleet_board', () => actions.rpc('fleet_board'));
+    if (r.error) {
+      setError(errorText(r.error));
       return;
     }
     setError('');
-    setRows((data ?? []) as unknown as FleetRow[]);
-    setLoadedAt(new Date());
+    setRows((r.data ?? []) as unknown as FleetRow[]);
+    setFromCache(r.fromCache);
+    setLoadedAt(r.savedAt ? new Date(r.savedAt) : new Date());
   }, []);
 
   useEffect(() => {
@@ -60,7 +67,18 @@ function useFleetBoard() {
     return () => clearInterval(timer);
   }, [load]);
 
-  return { rows, error, loadedAt, load };
+  return { rows, error, loadedAt, load, fromCache };
+}
+
+// Tail statuses signed offline on this tablet and not yet accepted (Q-OS3).
+function useProvisional(): Record<string, string> {
+  const items = useOutbox();
+  const out: Record<string, string> = {};
+  items.filter((i) => i.status !== 'sent' && i.aircraftId).forEach((i) => {
+    if (i.action === 'set_tail_status') out[i.aircraftId!] = String(i.args.p_status);
+    else if (i.args.p_set_svc_mel) out[i.aircraftId!] = 'SVC_MEL';
+  });
+  return out;
 }
 
 // Filters: each counts AIRCRAFT.
@@ -103,10 +121,15 @@ function OpenItems({ row, display, compact = false }: { row: FleetRow; display: 
   );
 }
 
-function StatusCell({ row, display, short = false }: { row: FleetRow; display: DisplaySettings; short?: boolean }) {
+function StatusCell({ row, display, short = false, provisional }: {
+  row: FleetRow; display: DisplaySettings; short?: boolean; provisional?: string;
+}) {
   return (
     <>
       <TailStatusChip status={row.status} short={short} />
+      {provisional && (
+        <div className="small"><span className="chip tone-amber provisional">→ {TAIL_STATUS[provisional]?.short ?? provisional} (provisional)</span></div>
+      )}
       {row.status_set_by && (
         <div className="small muted">
           by <span className="mono">{row.status_set_by}</span> · {formatDateTime(row.status_set_at, display)}
@@ -154,7 +177,8 @@ function OpenSnags({ aircraftId, display }: { aircraftId: string; display: Displ
 export function FleetBoard() {
   const { display } = useAuth();
   const navigate = useNavigate();
-  const { rows, error, loadedAt, load } = useFleetBoard();
+  const { rows, error, loadedAt, load, fromCache } = useFleetBoard();
+  const provisional = useProvisional();
   const [filter, setFilter] = useState('all');
   const [expanded, setExpanded] = useState<string | null>(null);
   const now = loadedAt ?? new Date();
@@ -184,6 +208,11 @@ export function FleetBoard() {
       </div>
 
       {error && <div className="error" role="alert">{error}</div>}
+      {fromCache && loadedAt && (
+        <div className="offline-banner" role="status">
+          Offline · showing data as at {formatDateTime(loadedAt, display)}. Held times are as at that moment.
+        </div>
+      )}
 
       {/* Desktop and tablet: one slim row of count chips */}
       <div className="filters" role="group" aria-label="Filter aircraft">
@@ -220,7 +249,7 @@ export function FleetBoard() {
                   <div className="tail">{r.tail}</div>
                   <div className="small muted">{r.aircraft_type}</div>
                 </td>
-                <td><StatusCell row={r} display={display} /></td>
+                <td><StatusCell row={r} display={display} provisional={provisional[r.aircraft_id]} /></td>
                 <td><OpenItems row={r} display={display} /></td>
                 <td><Blocked row={r} now={now} /></td>
               </tr>
@@ -243,6 +272,7 @@ export function FleetBoard() {
               <span className="tail">{r.tail}</span>
               <TailStatusChip status={r.status} short />
             </div>
+            {provisional[r.aircraft_id] && <span className="chip tone-amber provisional">→ {TAIL_STATUS[provisional[r.aircraft_id]]?.short} (provisional)</span>}
             <div className="small muted">
               {r.aircraft_type}
               {r.status_set_by && <> · by <span className="mono">{r.status_set_by}</span> {formatDateTime(r.status_set_at, display)}</>}

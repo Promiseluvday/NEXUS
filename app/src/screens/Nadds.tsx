@@ -15,6 +15,8 @@ import { Fragment, useCallback, useEffect, useMemo, useState, type FormEvent, ty
 import { Link, useNavigate, useOutletContext } from 'react-router';
 import { useAuth } from '../lib/auth';
 import { actions, db, errorText } from '../lib/supabase';
+import { perform, queuedText, type Outcome } from '../lib/perform';
+import { cached } from '../lib/offline/cache';
 import { formatDateTime } from '../lib/format';
 import { AircraftPicker, type AircraftOption } from '../components/AircraftPicker';
 import { PinField } from '../components/PinField';
@@ -66,8 +68,8 @@ export function NaddList() {
 
   const load = useCallback(async () => {
     if (!tailId) return;
-    const { data } = await db.from('nadd').select(NADD_SELECT)
-      .eq('aircraft_id', tailId).in('status', VIEWS[view]).order('reported_at');
+    const { data } = await cached(`nadds:${tailId}:${view}`, () => db.from('nadd').select(NADD_SELECT)
+      .eq('aircraft_id', tailId).in('status', VIEWS[view]).order('reported_at'));
     setRows((data ?? []) as unknown as Nadd[]);
   }, [tailId, view]);
   useEffect(() => { load(); }, [load]);
@@ -92,7 +94,7 @@ export function NaddList() {
           {tailId && <Link className="button secondary" to={`/print/nadds/${tailId}`} target="_blank">Print NADDS</Link>}
         </div>
       </div>
-      {message && <div className="success" role="status">{message}</div>}
+      {message && <div className={/provisional|queued/.test(message) ? 'offline-banner' : 'success'} role="status">{message}</div>}
       {rows?.length === 0 && <div className="card"><p className="muted">No NADDs to show on {tail?.tail ?? 'this tail'}.</p></div>}
       {rows && rows.length > 0 && (
         <table className="board sheet-table">
@@ -171,14 +173,15 @@ function NaddActions({ nadd, hasPendingExtension, onDone }: { nadd: Nadd; hasPen
 function useAction(onDone: (m: string) => void) {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
-  async function run(problem: string | null, call: () => PromiseLike<{ error: { message?: string } | null }>, message: string) {
+  async function run(problem: string | null,
+    call: () => PromiseLike<{ error?: { message?: string } | null; queued?: Outcome['queued'] }>, message: string) {
     setError('');
     if (problem) return setError(problem);
     setBusy(true);
-    const { error: err } = await call();
+    const res = await call();
     setBusy(false);
-    if (err) return setError(errorText(err));
-    onDone(message);
+    if (res.error) return setError(errorText(res.error));
+    onDone(res.queued ? queuedText(res, message) : message);
   }
   return { error, busy, run };
 }
@@ -206,7 +209,8 @@ function ConfirmForm({ nadd, onDone }: { nadd: Nadd; onDone: (m: string) => void
   function submit(e: FormEvent) {
     e.preventDefault();
     run(!declared ? 'Confirm the item is not covered by the MEL and has no airworthiness effect (D-160).' : pinProblem(pin),
-      () => actions.rpc('confirm_nadd', { p_nadd: nadd.id, p_pin: pin, p_declaration: declared, p_limit_days: limit ? Number(limit) : undefined }),
+      () => perform('confirm_nadd', { p_nadd: nadd.id, p_pin: pin, p_declaration: declared, p_limit_days: limit ? Number(limit) : undefined },
+        { label: `Confirm ${nadd.number} as NADD` }),
       `${nadd.number} confirmed. Its countdown runs from the report date (D-160).`);
   }
   return (
@@ -275,8 +279,8 @@ function RectifyForm({ nadd, onDone }: { nadd: Nadd; onDone: (m: string) => void
   function submit(e: FormEvent) {
     e.preventDefault();
     run(!text.trim() ? 'Describe the action taken.' : pinProblem(pin),
-      () => actions.rpc('rectify_nadd', { p_nadd: nadd.id, p_action_taken: text.trim(), p_pin: pin,
-        p_rect_tlb_book: book || undefined, p_rect_tlb_page: page || undefined }),
+      () => perform('rectify_nadd', { p_nadd: nadd.id, p_action_taken: text.trim(), p_pin: pin,
+        p_rect_tlb_book: book || undefined, p_rect_tlb_page: page || undefined }, { label: `Rectify ${nadd.number}` }),
       `${nadd.number} rectified.`);
   }
   return (

@@ -5,6 +5,8 @@
 // category, interval, (M) and (O) procedures. It decides nothing (D-020).
 import { useEffect, useState } from 'react';
 import { actions } from '../lib/supabase';
+import { isNetworkError } from '../lib/offline/net';
+import { searchMelOffline } from '../lib/offline/prefetch';
 
 export type MelItem = {
   id: string;
@@ -28,9 +30,9 @@ export function melInterval(i: MelItem): string {
   return `${i.interval_value} ${UNIT[i.interval_unit] ?? i.interval_unit}`;
 }
 
-type Props = { aircraftId: string; value: MelItem | null; onChange: (item: MelItem | null) => void };
+type Props = { aircraftId: string; aircraftType?: string; value: MelItem | null; onChange: (item: MelItem | null) => void };
 
-export function MelSearch({ aircraftId, value, onChange }: Props) {
+export function MelSearch({ aircraftId, aircraftType, value, onChange }: Props) {
   const [text, setText] = useState('');
   const [results, setResults] = useState<MelItem[]>([]);
   const [searched, setSearched] = useState(false);
@@ -43,12 +45,14 @@ export function MelSearch({ aircraftId, value, onChange }: Props) {
       return;
     }
     const t = setTimeout(async () => {
-      const { data } = await actions.rpc('search_mel', { p_aircraft: aircraftId, p_query: text, p_limit: 12 });
-      setResults((data ?? []) as unknown as MelItem[]);
+      const { data, error } = await actions.rpc('search_mel', { p_aircraft: aircraftId, p_query: text, p_limit: 12 });
+      // Offline: search the copy of the active MEL saved on this tablet.
+      if (isNetworkError(error) && aircraftType) setResults(await searchMelOffline(aircraftType, text));
+      else setResults((data ?? []) as unknown as MelItem[]);
       setSearched(true);
     }, 250);
     return () => clearTimeout(t);
-  }, [text, aircraftId]);
+  }, [text, aircraftId, aircraftType]);
 
   if (value) {
     return (

@@ -8,6 +8,7 @@
 //   visible even inside the list.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { actions } from '../lib/supabase';
+import { cached } from '../lib/offline/cache';
 import { SnagChip, TailStatusChip } from './StatusChip';
 
 export type AircraftOption = {
@@ -22,7 +23,7 @@ export function useAircraftList(): AircraftOption[] {
   const [list, setList] = useState<AircraftOption[]>([]);
   useEffect(() => {
     const load = () =>
-      actions.rpc('fleet_board').then(({ data }) =>
+      cached('fleet_board', () => actions.rpc('fleet_board')).then(({ data }) =>
         setList(
           ((data ?? []) as unknown as Record<string, string | null>[]).map((r) => ({
             id: r.aircraft_id as string,

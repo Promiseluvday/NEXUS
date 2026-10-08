@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useOutletContext, useSearchParams } from 'react-router';
 import { useAuth } from '../lib/auth';
 import { db, errorText } from '../lib/supabase';
+import { cached } from '../lib/offline/cache';
 import { formatDateTime, heldFor } from '../lib/format';
 import { AircraftPicker, type AircraftOption } from '../components/AircraftPicker';
 import { SnagStateChip } from '../components/StatusChip';
@@ -45,7 +46,7 @@ export function SnagList() {
     const statuses = VIEWS[view]?.statuses;
     if (statuses) q = q.in('status', statuses);
     if (tail) q = q.eq('aircraft_id', tail);
-    q.then(({ data, error: err }) => {
+    cached(`snags:${view}:${tail}`, () => q).then(({ data, error: err }) => {
       if (err) setError(errorText(err));
       setRows((data ?? []) as unknown as Row[]);
     });

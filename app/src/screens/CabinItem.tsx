@@ -6,7 +6,9 @@
 // The zones come from the operator's set-up for each aircraft type.
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link, useOutletContext, useSearchParams } from 'react-router';
-import { actions, db, errorText } from '../lib/supabase';
+import { db, errorText } from '../lib/supabase';
+import { perform, queuedText } from '../lib/perform';
+import { cached } from '../lib/offline/cache';
 import { AircraftPicker, type AircraftOption } from '../components/AircraftPicker';
 
 type Zone = { code: string; name: string; is_emergency_equipment: boolean };
@@ -38,7 +40,7 @@ export function CabinItem() {
   useEffect(() => {
     setZone(null);
     if (!type) return setZones([]);
-    db.from('cabin_zone').select('code, name, is_emergency_equipment').eq('aircraft_type_code', type).order('code')
+    cached(`zones:${type}`, () => db.from('cabin_zone').select('code, name, is_emergency_equipment').eq('aircraft_type_code', type).order('code'))
       .then(({ data }) => setZones((data ?? []) as Zone[]));
   }, [type]);
 
@@ -48,11 +50,12 @@ export function CabinItem() {
     if (!zone) return setError('Tap the zone on the cabin map.');
     if (!description.trim()) return setError('Describe the item.');
     setBusy(true);
-    const { data, error: err } = await actions.rpc('propose_nadd', {
+    const { data, error: err, queued } = await perform('propose_nadd', {
       p_aircraft: aircraftId, p_description: description.trim(), p_zone: zone.code,
       p_location: location.trim() || undefined, p_client_ref: clientRef, p_device_time: new Date().toISOString(),
-    });
+    }, { label: `Cabin item on ${tail}: ${zone.name}, ${description.trim().slice(0, 50)}`, aircraftId });
     setBusy(false);
+    if (queued) return setDone(queuedText({ queued }, `Cabin item on ${tail}`));
     if (err) return setError(errorText(err));
     const { data: n } = await db.from('nadd').select('number').eq('id', data as string).maybeSingle();
     setDone(`${n?.number ?? 'Cabin item'} reported on ${tail}. An engineer will confirm it as a NADD, reject it with a reason, or raise it as a snag.`);

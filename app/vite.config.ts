@@ -13,8 +13,11 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icon.svg'],
-      workbox: { globPatterns: ['**/*.{js,css,html,svg,woff2}'] }, // fonts too, for no-signal use
+      includeAssets: ['icon.svg', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png'],
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,svg,png,woff2}'], // fonts too, for no-signal use
+        navigateFallback: 'index.html',                   // any screen address opens offline
+      },
       manifest: {
         name: 'Nexus MRO',
         short_name: 'Nexus',
@@ -22,7 +25,12 @@ export default defineConfig({
         theme_color: '#000000',
         background_color: '#dcecf8',
         display: 'standalone',
-        icons: [{ src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }],
+        icons: [
+          { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
+          { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: 'icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
       },
     }),
   ],
