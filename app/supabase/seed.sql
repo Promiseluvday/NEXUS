@@ -200,7 +200,10 @@ insert into public.operator_setting (key, value, reason) values
   ('technical_query.number_format', '"TQ-{000000}"',       'Initial set-up (D-207)'),
   ('auth.username_email_domain',    '"users.nexus.local"', 'Initial set-up (D-206)'),
   ('display.date_format',           '"DD Mmm YYYY"',       'Initial set-up (D-204)'),
-  ('display.time_format',           '"HH:MM"',             'Initial set-up (D-204)');
+  ('display.time_format',           '"HH:MM"',             'Initial set-up (D-204)'),
+  ('print.nadds_remarks',
+   '["Convenience items only.", "Rectify before the A-check and not later than 4 months after entry."]',
+   'Initial set-up (D-161, D-166)');
 
 -- --------------------------------------------------- MEL (fictional items) -----
 insert into public.mel_revision (id, aircraft_type_code, revision, approval_date, approval_reference, loaded_by) values

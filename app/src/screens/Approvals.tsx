@@ -95,10 +95,11 @@ function ApprovalCard({ p, now, onDone }: { p: Pending; now: Date; onDone: (m: s
     });
     setBusy(false);
     if (err) return setError(errorText(err));
-    const outcome = data === 'approved' ? 'approved: work can start'
+    const finalText = p.action_type === 'work_order' ? 'approved: work can start' : 'approved: the new limit applies';
+    const outcome = data === 'approved' ? finalText
       : data === 'rejected' ? 'rejected; the requester sees your reason'
       : 'approved at your step; it moves to the next approver';
-    onDone(`${wo?.number ?? p.summary.split(' · ')[0]} ${outcome}.`);
+    onDone(`${wo?.number ?? p.summary} ${outcome}.`);
   }
 
   return (

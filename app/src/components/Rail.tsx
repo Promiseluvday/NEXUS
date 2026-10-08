@@ -23,8 +23,8 @@ const MENU: Record<string, Entry[]> = {
   ENG: [
     { group: 'Snags & deferrals', items: [
       { label: 'Snags', to: '/snags' },
-      { label: 'DDLS', to: '/section/ENG/ddls' },
-      { label: 'NADDs', to: '/section/ENG/nadds' },
+      { label: 'DDLS', to: '/ddls' },
+      { label: 'NADDs', to: '/nadds' },
     ] },
     { label: 'Work orders', to: '/work-orders' },
     { group: 'Workshops', items: [
@@ -35,6 +35,7 @@ const MENU: Record<string, Entry[]> = {
   ],
   OPS: [
     { label: 'Aircraft availability', to: '/' },
+    { label: 'NADDs (cabin items)', to: '/nadds' },
     { group: 'Scheduling', items: [
       { label: 'Flight scheduling', to: '/section/OPS/flight-scheduling' },
       { label: 'Crew scheduling', to: '/section/OPS/crew-scheduling' },
@@ -134,6 +135,9 @@ export function Rail({ aircraft, open, onNavigate }: Props) {
     <nav className={`rail${open ? ' open' : ''}`} aria-label="Main">
       <NavLink to="/" end className="rail-link" onClick={onNavigate}>
         All aircraft
+      </NavLink>
+      <NavLink to="/queries" className="rail-link" onClick={onNavigate}>
+        Technical queries
       </NavLink>
       <TailSearch
         aircraft={aircraft}

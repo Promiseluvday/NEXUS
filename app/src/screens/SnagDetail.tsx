@@ -11,7 +11,7 @@
 //   Any time      → set the tail status (D-046)
 // Everyone else (pilots, Quality, Command) reads only.
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
-import { Link, useOutletContext, useParams } from 'react-router';
+import { Link, useOutletContext, useParams, useSearchParams } from 'react-router';
 import { useAuth } from '../lib/auth';
 import { actions, db, errorText } from '../lib/supabase';
 import { formatDateTime } from '../lib/format';
@@ -19,6 +19,7 @@ import { SnagStateChip, TailStatusChip } from '../components/StatusChip';
 import { SetTailStatus } from '../components/SetTailStatus';
 import type { AircraftOption } from '../components/AircraftPicker';
 import { Disposition } from './Disposition';
+import { Queries } from '../components/Queries';
 
 type Person = { three_letter_code: string; full_name?: string } | null;
 type Snag = {
@@ -55,6 +56,7 @@ export function SnagDetail() {
   const [canCertify, setCanCertify] = useState(false);
   const [tailStatus, setTailStatus] = useState<string | null>(null);
   const [message, setMessage] = useState('');
+  const [params] = useSearchParams();
 
   const isEngineer = Boolean(me?.departments.some((d) => d.code === 'ENG'));
 
@@ -226,6 +228,8 @@ export function SnagDetail() {
           <SetTailStatus aircraftId={snag.aircraft_id} tail={tail} current={tailStatus} onDone={() => done(`Status of ${tail} recorded.`)} />
         </div>
       )}
+
+      <Queries recordTable="snag" recordId={snag.id} startOpen={params.get('query') === 'new'} />
 
       {!isEngineer && snag.status !== 'closed' && (
         <p className="small muted">An engineer assesses and dispositions this snag. A pilot cannot close an entry (D-042).</p>

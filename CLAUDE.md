@@ -76,5 +76,6 @@ You are the BUILDER. You own app/ and Git.
 - 8 Oct (later): UX pass done. Rule: group navigation and actions in dropdowns, never hide status, max two levels (`docs/ui-rules.md`).
 - 8 Oct (later): Slice 2 done: snag list and page, attend, five dispositions with PIN, set tail status.
 - 9 Oct: Slice 3 done: approvals inbox, work orders (entries, scans, certify), migration 0022. D-215 (tail status needs PIN), D-216 (SVC · MEL tick at deferral) logged. Offline signing proposed as D-217, awaiting Promise.
-- Next: Phase 1B slice 4 (DDLS/NADD lists, clearing, extensions, queries, cabin map, prints), then 1C offline. Promise runs Prompts 9 and 10 in Claude Design. Open: O-1 to O-7 (O-5 urgent), O-14, O-15, O-20.
+- 9 Oct (later): D-217 logged (Option A: provisional offline signing on enrolled devices; design `workflows/offline-signing.md`). Slice 4 done: DDLS sheet, NADDs, cabin map, technical queries, DDLS/NADDS prints. Phase 1B complete.
+- Next: Phase 1C (offline store and queue with Dexie, provisional offline signing per D-217, installable app). Answer Q-OS1 to Q-OS3. Promise runs Prompts 9 and 10 in Claude Design. Open: O-1 to O-7 (O-5 urgent), O-14, O-15, O-20.
 - Six-month target: Phase 0 (foundations) + Phase 1 (snag workflow end to end).

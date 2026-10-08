@@ -9,6 +9,7 @@ This folder holds the application: the database with its rules and checks, and t
 - **Phase 1B slice 1, first screens:** sign in with username, set PIN, home rail (departments and aircraft dropdown), fleet board, aircraft summary, report snag
 - **Phase 1B slice 2, snag workflow screens:** snag list, snag page (report, history, linked records, repeat-defect alert, similar defects), attend, the five dispositions with PIN signing (work order request, MEL with type-ahead, DDLS, NADD, no fault found), set tail status
 - **Phase 1B slice 3, approvals and work orders:** approvals inbox with "Approvals (n)" counter, work order list and page (approval trail, work entries, scan upload and viewing, required scans, work complete, certify), PIN on tail status and approvals, Serviceable · MEL option at deferral, DD Mmm YYYY date picker
+- **Phase 1B slice 4, deferrals and queries:** DDLS sheet per tail (clear, extension with approval, Cat A never extendable), NADD list (confirm, reject with reason, reclassify, rectify, extend), cabin item report on a cabin map (emergency zones go to snag), technical queries on snags and work orders plus "Technical queries" list, printable DDLS and NADDS (A4 landscape)
 - **UX pass:** grouped rail dropdowns, ＋ New and user menus, tail search, online/offline pill, slimmer fleet board. Layout rules in `docs/ui-rules.md`
 
 One database per operator (agreed 9 Oct 2026): each customer, e.g. PAF, gets its own database on its own server.
@@ -29,7 +30,7 @@ app/
 │   ├── theme.css           Colours (D-212), status colours (D-091), fonts, 44 px touch targets
 │   ├── lib/                Connection to the database, sign-in state, date formats (D-204)
 │   ├── components/         Rail, menus, tail search, status chips, PIN field, MEL search, tail status, date picker, attachments
-│   └── screens/            Sign in, set PIN, home frame, fleet board, report snag, snags, dispositions, approvals, work orders
+│   └── screens/            Sign in, PIN, home, fleet board, snags, dispositions, approvals, work orders, DDLS, NADDs, cabin item, queries, prints
 └── supabase/
     ├── config.toml         Settings for running Supabase on your own machine
     ├── migrations/         The database, built up step by step (run in order)
@@ -164,7 +165,8 @@ Other commands:
 
 ## Not built yet
 
-- Remaining Phase 1B screens (slice 4): DDLS and NADD lists, clearing and extensions, technical queries, cabin map, DDLS/NADDS prints
+- Offline signing (D-217, `workflows/offline-signing.md`) and the offline queue: Phase 1C
+- Operator crest on prints, print templates per operator, daily serviceability print (D-203)
 - Account request and forgotten-password screens (D-206)
 - Offline store and sync queue on the device: Phase 1C
 - Parts, stores transactions, procurement (later phases)

@@ -10,6 +10,10 @@
 //     /snags/:id              one snag: attend, disposition, tail status
 //     /approvals              approvals waiting for me
 //     /work-orders            work order list; /work-orders/:id one work order
+//     /ddls, /nadds           DDLS sheet and NADD list per tail (?aircraft=…)
+//     /cabin-item             report a cabin item on the cabin map
+//     /queries                technical queries I am involved in
+//     /print/ddls/:id, /print/nadds/:id   printable sheets (no app frame)
 //     /section/:dept/:page    subsections built in later slices
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router';
 import { useAuth } from './lib/auth';
@@ -22,6 +26,11 @@ import { SnagList } from './screens/SnagList';
 import { SnagDetail } from './screens/SnagDetail';
 import { Approvals } from './screens/Approvals';
 import { WorkOrderList, WorkOrderPage } from './screens/WorkOrders';
+import { DdlsSheet } from './screens/Ddls';
+import { NaddList } from './screens/Nadds';
+import { CabinItem } from './screens/CabinItem';
+import { QueryList } from './screens/QueryList';
+import { DdlsPrint, NaddsPrint } from './screens/Prints';
 
 const router = createBrowserRouter([
   {
@@ -36,10 +45,16 @@ const router = createBrowserRouter([
       { path: 'approvals', element: <Approvals /> },
       { path: 'work-orders', element: <WorkOrderList /> },
       { path: 'work-orders/:id', element: <WorkOrderPage /> },
+      { path: 'ddls', element: <DdlsSheet /> },
+      { path: 'nadds', element: <NaddList /> },
+      { path: 'cabin-item', element: <CabinItem /> },
+      { path: 'queries', element: <QueryList /> },
       { path: 'section/:dept/:page', element: <ComingSoon /> },
       { path: '*', element: <Navigate to="/" replace /> },
     ],
   },
+  { path: '/print/ddls/:id', element: <DdlsPrint /> },
+  { path: '/print/nadds/:id', element: <NaddsPrint /> },
 ]);
 
 export function App() {

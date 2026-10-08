@@ -38,6 +38,7 @@ function NewMenu() {
   const navigate = useNavigate();
   const location = useLocation();
   const tailId = location.pathname.startsWith('/aircraft/') ? location.pathname.split('/')[2] : '';
+  const onRecord = /^\/(snags|work-orders)\/[0-9a-f-]{36}$/.test(location.pathname);
   const eng = me?.departments.some((d) => d.code === 'ENG');
   const ops = me?.departments.some((d) => d.code === 'OPS');
   if (!eng && !ops && !me?.isOversight) return null;
@@ -50,9 +51,20 @@ function NewMenu() {
               Report snag
             </MenuItem>
           )}
-          {(eng || ops) && <MenuItem soon>Cabin item</MenuItem>}
+          {(eng || ops) && (
+            <MenuItem onSelect={() => { close(); navigate(`/cabin-item${tailId ? `?aircraft=${tailId}` : ''}`); }}>
+              Cabin item
+            </MenuItem>
+          )}
           {eng && <MenuItem soon>Request part</MenuItem>}
-          <MenuItem soon>Raise technical query</MenuItem>
+          <MenuItem onSelect={() => {
+            close();
+            // A query is always about a record: raise it on the snag or work order being viewed.
+            if (onRecord) navigate(`${location.pathname}?query=new#queries`);
+            else navigate('/queries');
+          }}>
+            Raise technical query
+          </MenuItem>
         </>
       )}
     </Menu>

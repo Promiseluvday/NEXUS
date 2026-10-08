@@ -18,6 +18,7 @@ import { TailStatusChip } from '../components/StatusChip';
 import { Attachments, KIND_LABEL } from '../components/Attachments';
 import { PinField } from '../components/PinField';
 import { SetTailStatus } from '../components/SetTailStatus';
+import { Queries } from '../components/Queries';
 
 const WO_STATE: Record<string, { label: string; tone: string }> = {
   requested:     { label: 'Awaiting Quality', tone: 'amber' },
@@ -151,6 +152,7 @@ export function WorkOrderPage() {
   const [tailStatus, setTailStatus] = useState<string | null>(null);
   const [canCertify, setCanCertify] = useState(false);
   const [message, setMessage] = useState('');
+  const [params] = useSearchParams();
   const isEngineer = Boolean(me?.departments.some((d) => d.code === 'ENG'));
 
   const checkMissing = useCallback(async () => {
@@ -296,6 +298,8 @@ export function WorkOrderPage() {
           )}
         </section>
       )}
+
+      <Queries recordTable="work_order" recordId={wo.id} startOpen={params.get('query') === 'new'} />
     </div>
   );
 }
