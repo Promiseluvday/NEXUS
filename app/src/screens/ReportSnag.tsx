@@ -33,7 +33,7 @@ export function ReportSnag() {
   const [clientRef, setClientRef] = useState(newRef);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState<{ number: string; tail: string; aircraftId: string } | null>(null);
+  const [done, setDone] = useState<{ id: string; number: string; tail: string; aircraftId: string } | null>(null);
 
   const set = (k: keyof typeof empty) => (e: { target: { value: string } }) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
@@ -63,7 +63,7 @@ export function ReportSnag() {
     }
     const { data: snag } = await db.from('snag').select('number').eq('id', id as string).maybeSingle();
     setBusy(false);
-    setDone({ number: snag?.number ?? 'Snag', tail, aircraftId });
+    setDone({ id: id as string, number: snag?.number ?? 'Snag', tail, aircraftId });
   }
 
   function another() {
@@ -77,7 +77,7 @@ export function ReportSnag() {
       <div className="page">
         <div className="card narrow">
           <div className="success" role="status">
-            <span className="mono">{done.number}</span> reported on <span className="mono">{done.tail}</span>.
+            <Link className="mono" to={`/snags/${done.id}`}>{done.number}</Link> reported on <span className="mono">{done.tail}</span>.
           </div>
           <p>The tail now shows <strong>Snag open</strong> until an engineer attends it. Its status is unchanged.</p>
           <p className="row">

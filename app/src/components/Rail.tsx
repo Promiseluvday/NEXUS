@@ -22,7 +22,7 @@ type Entry = Screen | { group: string; items: Screen[] };
 const MENU: Record<string, Entry[]> = {
   ENG: [
     { group: 'Snags & deferrals', items: [
-      { label: 'Snags', to: '/section/ENG/snags' },
+      { label: 'Snags', to: '/snags' },
       { label: 'DDLS', to: '/section/ENG/ddls' },
       { label: 'NADDs', to: '/section/ENG/nadds' },
     ] },

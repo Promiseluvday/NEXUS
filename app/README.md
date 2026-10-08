@@ -7,6 +7,7 @@ This folder holds the application: the database with its rules and checks, and t
 - **Phase 0, foundations:** people, departments, aircraft, stores, access, authorizations, audit
 - **Phase 1A, snag workflow backend:** snags, work orders with approvals, MEL, DDLS, NADD, attachments, technical queries, repeat defects, fleet board
 - **Phase 1B slice 1, first screens:** sign in with username, set PIN, home rail (departments and aircraft dropdown), fleet board, aircraft summary, report snag
+- **Phase 1B slice 2, snag workflow screens:** snag list, snag page (report, history, linked records, repeat-defect alert, similar defects), attend, the five dispositions with PIN signing (work order request, MEL with type-ahead, DDLS, NADD, no fault found), set tail status
 - **UX pass:** grouped rail dropdowns, ＋ New and user menus, tail search, online/offline pill, slimmer fleet board. Layout rules in `docs/ui-rules.md`
 
 One database per operator (agreed 9 Oct 2026): each customer, e.g. PAF, gets its own database on its own server.
@@ -26,8 +27,8 @@ app/
 │   ├── main.tsx, App.tsx   Start-up; which screen shows for which address
 │   ├── theme.css           Colours (D-212), status colours (D-091), fonts, 44 px touch targets
 │   ├── lib/                Connection to the database, sign-in state, date formats (D-204)
-│   ├── components/         Rail, dropdown menu, tail search, status chips
-│   └── screens/            Sign in, set PIN, home frame, fleet board, report snag
+│   ├── components/         Rail, dropdown menu, tail search, status chips, PIN field, MEL search, set tail status
+│   └── screens/            Sign in, set PIN, home frame, fleet board, report snag, snag list, snag page, dispositions
 └── supabase/
     ├── config.toml         Settings for running Supabase on your own machine
     ├── migrations/         The database, built up step by step (run in order)
@@ -158,7 +159,7 @@ Other commands:
 
 ## Not built yet
 
-- Remaining Phase 1B screens: snag detail and dispositions (slice 2), approvals, work orders and uploads (slice 3), queries, cabin map and prints (slice 4)
+- Remaining Phase 1B screens: approvals, work orders and uploads (slice 3); DDLS/NADD lists, clearing and extensions, queries, cabin map and prints (slice 4)
 - Account request and forgotten-password screens (D-206)
 - Offline store and sync queue on the device: Phase 1C
 - Parts, stores transactions, procurement (later phases)

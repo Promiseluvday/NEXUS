@@ -6,6 +6,8 @@
 //     /                       fleet board (All aircraft)
 //     /aircraft/:id           one aircraft
 //     /report-snag            report a snag (?aircraft=… fills in the tail)
+//     /snags                  snag list (?view=…&aircraft=…)
+//     /snags/:id              one snag: attend, disposition, tail status
 //     /section/:dept/:page    subsections built in later slices
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router';
 import { useAuth } from './lib/auth';
@@ -14,6 +16,8 @@ import { AccountNotActive, SetPin } from './screens/SetPin';
 import { ComingSoon, Home } from './screens/Home';
 import { AircraftSummary, FleetBoard } from './screens/FleetBoard';
 import { ReportSnag } from './screens/ReportSnag';
+import { SnagList } from './screens/SnagList';
+import { SnagDetail } from './screens/SnagDetail';
 
 const router = createBrowserRouter([
   {
@@ -23,6 +27,8 @@ const router = createBrowserRouter([
       { index: true, element: <FleetBoard /> },
       { path: 'aircraft/:id', element: <AircraftSummary /> },
       { path: 'report-snag', element: <ReportSnag /> },
+      { path: 'snags', element: <SnagList /> },
+      { path: 'snags/:id', element: <SnagDetail /> },
       { path: 'section/:dept/:page', element: <ComingSoon /> },
       { path: '*', element: <Navigate to="/" replace /> },
     ],

@@ -29,3 +29,20 @@ export function SnagChip({ display }: { display: string | null }) {
   if (display === 'snag_attended') return <span className="chip tone-amber">Snag attended</span>;
   return null;
 }
+
+// A snag's own state, for snag lists and the snag page.
+const DISPOSITION: Record<string, string> = {
+  rectify_now: 'work order', mel: 'MEL', ddls: 'DDLS', nadd: 'NADD', nff: 'no fault found',
+};
+
+export function SnagStateChip({ status, disposition }: { status: string; disposition?: string | null }) {
+  const d = disposition ? DISPOSITION[disposition] : '';
+  switch (status) {
+    case 'reported': return <span className="chip tone-blue">Snag open</span>;
+    case 'attended': return <span className="chip tone-amber">Snag attended</span>;
+    case 'in_work':  return <span className="chip tone-amber">In work{d && ` · ${d}`}</span>;
+    case 'deferred': return <span className="chip tone-amber">Deferred{d && ` · ${d}`}</span>;
+    case 'closed':   return <span className="chip tone-grey">Closed{d && ` · ${d}`}</span>;
+    default:         return <span className="chip tone-grey">{status}</span>;
+  }
+}

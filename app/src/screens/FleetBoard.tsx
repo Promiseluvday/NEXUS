@@ -16,6 +16,7 @@ import { useAuth } from '../lib/auth';
 import { actions, db, errorText } from '../lib/supabase';
 import { formatDateTime, formatPlainDate, formatTime, heldFor, type DisplaySettings } from '../lib/format';
 import { SnagChip, TailStatusChip } from '../components/StatusChip';
+import { SetTailStatus } from '../components/SetTailStatus';
 
 export type FleetRow = {
   aircraft_id: string;
@@ -138,7 +139,7 @@ function OpenSnags({ aircraftId, display }: { aircraftId: string; display: Displ
     <ul className="open-list">
       {snags.map((s) => (
         <li key={s.id}>
-          <span className="mono">{s.number}</span>
+          <Link className="mono" to={`/snags/${s.id}`} onClick={(e) => e.stopPropagation()}>{s.number}</Link>
           <span className={`chip tone-${s.status === 'reported' ? 'blue' : s.status === 'attended' ? 'amber' : 'grey'}`}>
             {SNAG_STATE[s.status] ?? s.status}
           </span>
@@ -265,8 +266,9 @@ export function FleetBoard() {
 // open snags. "Report snag" for this tail is in the ＋ New menu, tail filled in.
 export function AircraftSummary() {
   const { id } = useParams();
-  const { display } = useAuth();
-  const { rows, error, loadedAt } = useFleetBoard();
+  const { display, me } = useAuth();
+  const { rows, error, loadedAt, load } = useFleetBoard();
+  const isEngineer = Boolean(me?.departments.some((d) => d.code === 'ENG'));
   const r = rows.find((x) => x.aircraft_id === id);
   const now = loadedAt ?? new Date();
 
@@ -300,6 +302,12 @@ export function AircraftSummary() {
         </div>
         <h2>Open snags</h2>
         <OpenSnags aircraftId={r.aircraft_id} display={display} />
+        {isEngineer && (
+          <>
+            <h2>Tail status</h2>
+            <SetTailStatus aircraftId={r.aircraft_id} tail={r.tail} current={r.status} onDone={load} />
+          </>
+        )}
         <p className="small muted">The full aircraft dashboard (history, DDLS and NADD detail, calendar) comes in the next slice.</p>
       </div>
     </div>

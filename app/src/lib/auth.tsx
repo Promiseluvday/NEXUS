@@ -17,6 +17,7 @@ export type Department = { code: string; name: string; kind: 'department' | 'ove
 
 export type Me = {
   userId: string;
+  personId: string;            // the person record (used for 'may I certify?')
   status: 'pending' | 'active' | 'deactivated';
   username: string | null;
   fullName: string;
@@ -62,7 +63,7 @@ async function loadDisplay(): Promise<DisplaySettings> {
 async function loadMe(userId: string): Promise<Me | null> {
   const { data: account } = await db
     .from('user_account')
-    .select('status, username, person:person_id (full_name, three_letter_code)')
+    .select('status, username, person_id, person:person_id (full_name, three_letter_code)')
     .eq('id', userId)
     .maybeSingle();
   if (!account) return null;
@@ -85,6 +86,7 @@ async function loadMe(userId: string): Promise<Me | null> {
   const person = account.person as unknown as { full_name: string; three_letter_code: string } | null;
   return {
     userId,
+    personId: account.person_id,
     status: account.status as Me['status'],
     username: account.username,
     fullName: person?.full_name ?? '',
