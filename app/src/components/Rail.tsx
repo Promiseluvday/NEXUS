@@ -199,6 +199,13 @@ export function Rail({ aircraft, open, onNavigate, approvals }: Props) {
           onToggle={() => toggle(d.code)} onNavigate={onNavigate} />
       ))}
 
+      {(me?.adminDepartments?.length ?? 0) > 0 && (
+        <>
+          <div className="rail-heading">Administration</div>
+          <NavLink to="/admin/users" className="rail-link" onClick={onNavigate}>Users and roles</NavLink>
+        </>
+      )}
+
       <div className="rail-rule" />
       <NavLink to="/approvals" className="rail-link" onClick={onNavigate}>
         Approvals {approvals > 0 && <span className="rail-count" aria-label={`${approvals} waiting for you`}>{approvals}</span>}

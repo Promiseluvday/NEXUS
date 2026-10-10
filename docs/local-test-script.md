@@ -18,7 +18,7 @@
    npm run db:reset
    npm run db:test
    ```
-   `db:test` must end with **Result: PASS** (167 checks).
+   `db:test` must end with **Result: PASS** (194 checks).
 3. First time only (and after any `db:stop`/`db:start` that shows a new key): `npm run env:local`. It writes `app\.env.local` with the database address and key for you.
 4. Start the screens: `npm run dev`, then open **http://localhost:5173** in Chrome.
 
@@ -110,7 +110,19 @@ Open **http://localhost:4173**.
 | ☐ | Go back online | Queue sends itself; Send queue shows **Accepted** | |
 | ☐ | `qar`: Quality ▸ Offline signatures | Your offline signatures, accepted | |
 
-## 6. What to send back
+## 6. Users and roles (Super Admin)
+
+| ✓ | Step | Expected | Found |
+|---|---|---|---|
+| ☐ | `abe`: rail ▸ Administration ▸ Users and roles ▸ Create account; fill in, home Engineering, scope G550, reason, PIN | Account page shows a temporary password once | |
+| ☐ | Sign out; sign in as the new username with the temporary password | "Set your own password", then "Set your PIN" | |
+| ☐ | Sign-in page ▸ Request an account (department Operations) | "Account waiting for approval" | |
+| ☐ | `abe`: Users and roles | The Operations request is **not** listed (not his department) | |
+| ☐ | `zem`: open the request ▸ reason, PIN ▸ Approve | Active, home department Operations | |
+| ☐ | `abe`: open your own account | "Nobody can change their own account"; no Change buttons | |
+| ☐ | `zem`: give `qar` "View cost" | Refused: Quality never sees cost (D-127) | |
+
+## 7. What to send back
 
 - Any row where "Found" differs from "Expected" (a screenshot helps).
 - Anything confusing to an engineer on the line: wording, too many taps, hard to read.

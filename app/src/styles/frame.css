@@ -32,3 +32,11 @@
   .tail-tabs { flex-wrap: nowrap; overflow-x: auto; }
   .tail-tabs a { flex: 0 0 auto; }
 }
+
+/* Users and roles (screens/Admin.tsx) */
+.tick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0 16px; }
+.tick-grid .check { font-weight: 400; min-height: 40px; }
+.admin-form { display: flex; flex-direction: column; gap: 16px; }
+.admin-change { display: flex; flex-direction: column; gap: 6px; }
+.danger-button { color: var(--aog); border-color: var(--aog); }
+.login-card .link-button { margin-top: 12px; font-weight: 600; }

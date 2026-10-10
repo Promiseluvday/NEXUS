@@ -72,3 +72,47 @@ export function AccountNotActive() {
     </div>
   );
 }
+
+// After a Super Admin set a temporary password (new account or reset), the
+// person chooses their own before anything else (D-219).
+export function SetPassword() {
+  const { me, reload, signOut } = useAuth();
+  const [password, setPassword] = useState('');
+  const [again, setAgain] = useState('');
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  async function submit(e: FormEvent) {
+    e.preventDefault();
+    setError('');
+    if (password.length < 8) return setError('A password needs at least 8 characters.');
+    if (password !== again) return setError('The two passwords do not match.');
+    setBusy(true);
+    const { error: err } = await actions.rpc('set_my_password', { p_new_password: password });
+    setBusy(false);
+    if (err) return setError(errorText(err));
+    await reload();
+  }
+
+  return (
+    <div className="center">
+      <form className="card narrow" onSubmit={submit}>
+        <div className="brand"><span className="brand-name">Nexus<span> MRO</span></span> <span className="brand-by">by Liebetag</span></div>
+        <h1>Set your own password</h1>
+        <p className="muted">
+          Welcome, {me?.fullName} (<span className="mono">{me?.tlc}</span>). You signed in with a temporary password from your
+          Super Admin. Choose your own now; nobody else will know it.
+        </p>
+        <label htmlFor="new-password">New password <span className="hint">(at least 8 characters)</span></label>
+        <input id="new-password" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        <label htmlFor="new-password2">New password again</label>
+        <input id="new-password2" type="password" autoComplete="new-password" value={again} onChange={(e) => setAgain(e.target.value)} required />
+        {error && <div className="error" role="alert">{error}</div>}
+        <p className="row">
+          <button type="submit" disabled={busy}>{busy ? 'Saving…' : 'Save password'}</button>
+          <button type="button" className="plain" onClick={signOut}>Sign out</button>
+        </p>
+      </form>
+    </div>
+  );
+}

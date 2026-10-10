@@ -53,7 +53,10 @@ export type Database = {
             [_ in never]: never
           }
           Functions: {
-            "activate_mel_revision":
+            "access_summary":
+{ Args: { "p_category": string,"p_person": string }; Returns: string
+                           },
+"activate_mel_revision":
 { Args: { "p_revision": string }; Returns: undefined
                            },
 "add_mel_items":
@@ -61,6 +64,32 @@ export type Database = {
                            },
 "add_work_order_entry":
 { Args: { "p_entry": string,"p_wo": string }; Returns: string
+                           },
+"admin_check":
+{ Args: { "p_person": string,"p_pin": string,"p_reason": string }; Returns: string
+                           },
+"admin_create_account":
+{ Args: { "p_access": Json,"p_full_name": string,"p_pin": string,"p_rank_or_title": string,"p_reason": string,"p_temporary_password": string,"p_three_letter_code": string,"p_username": string }; Returns: string
+                           },
+"admin_options":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"admin_people":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "created_at": string,"departments": string,"full_name": string,"home_department": string,"must_change_password": boolean,"permissions": string,"person_id": string,"rank_or_title": string,"requested_department": string,"scope": string,"status": string,"three_letter_code": string,"username": string
+            }[]
+                           },
+"admin_reset_password":
+{ Args: { "p_person": string,"p_pin": string,"p_reason": string,"p_temporary_password": string }; Returns: undefined
+                           },
+"admin_set_access":
+{ Args: { "p_category": string,"p_person": string,"p_pin": string,"p_reason": string,"p_values": Json }; Returns: undefined
+                           },
+"admin_set_status":
+{ Args: { "p_person": string,"p_pin": string,"p_reason": string,"p_status": string }; Returns: undefined
+                           },
+"apply_access":
+{ Args: { "p_category": string,"p_person": string,"p_reason": string,"p_values": Json }; Returns: undefined
                            },
 "apply_mel":
 { Args: { "p_m_done": boolean,"p_mel_item": string,"p_o_passed": boolean,"p_pin": string,"p_placard_fitted": boolean,"p_remarks"?: string,"p_set_svc_mel"?: boolean,"p_snag": string,"p_tlb_book"?: string,"p_tlb_item"?: string,"p_tlb_page"?: string }; Returns: string
@@ -97,6 +126,9 @@ export type Database = {
                            },
 "check_my_pin":
 { Args: { "p_pin": string }; Returns: boolean
+                           },
+"check_new_password":
+{ Args: { "p_password": string }; Returns: undefined
                            },
 "clear_ddls_entry":
 { Args: { "p_entry": string,"p_pin": string,"p_rect_tlb_book"?: string,"p_rect_tlb_page"?: string,"p_rectification": string }; Returns: undefined
@@ -186,6 +218,12 @@ export type Database = {
         isOneToOne: false
         isSetofReturn: true
       } },
+"my_admin_departments":
+{ Args: Record<PropertyKey, never>; Returns: (string)[]
+                           },
+"my_must_change_password":
+{ Args: Record<PropertyKey, never>; Returns: boolean
+                           },
 "my_pending_approvals":
 { Args: Record<PropertyKey, never>; Returns: {
               "action_type": string,"chain_name": string,"id": string,"raised_at": string,"raised_by": string,"record_id": string,"record_table": string,"step_name": string,"step_no": number,"summary": string,"waiting_since": string
@@ -213,6 +251,9 @@ export type Database = {
                            },
 "open_mel_revision":
 { Args: { "p_aircraft_type": string,"p_approval_date": string,"p_approval_reference": string,"p_revision": string }; Returns: string
+                           },
+"person_admin_department":
+{ Args: { "p_person": string }; Returns: string
                            },
 "person_has_department":
 { Args: { "p_department": string,"p_person": string }; Returns: boolean
@@ -277,6 +318,9 @@ export type Database = {
 { Args: { "p_aircraft": string,"p_limit"?: number,"p_query": string }; Returns: {
               "category": string,"id": string,"interval_unit": string,"interval_value": number,"item_number": string,"m_procedure": boolean,"o_procedure": boolean,"remarks": string,"revision": string,"revision_id": string,"title": string
             }[]
+                           },
+"set_my_password":
+{ Args: { "p_new_password": string }; Returns: undefined
                            },
 "set_my_pin":
 { Args: { "p_pin": string }; Returns: undefined
@@ -392,6 +436,32 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "store"
       referencedColumns: ["code"]
+    }
+                  ]
+                },"account_event": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"device_time": string | null,"done_at": string,"done_by": string,"from_value": string | null,"id": string,"person_id": string,"reason": string,"to_value": string | null,"what": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"done_at"?: string,"done_by": string,"from_value"?: string | null,"id"?: string,"person_id": string,"reason": string,"to_value"?: string | null,"what": string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"done_at"?: string,"done_by"?: string,"from_value"?: string | null,"id"?: string,"person_id"?: string,"reason"?: string,"to_value"?: string | null,"what"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "account_event_done_by_fkey"
+      columns: ["done_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "account_event_person_id_fkey"
+      columns: ["person_id"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
     }
                   ]
                 },"aircraft": {
@@ -1250,14 +1320,14 @@ isOneToOne: false
                   ]
                 },"user_account": {
                   Row: {
-                    "activated_at": string | null,"activated_by": string | null,"created_at": string,"created_by": string | null,"deactivated_at": string | null,"deactivated_by": string | null,"deactivation_reason": string | null,"device_time": string | null,"id": string,"person_id": string,"requested_department": string | null,"status": string,"username": string | null
+                    "activated_at": string | null,"activated_by": string | null,"created_at": string,"created_by": string | null,"deactivated_at": string | null,"deactivated_by": string | null,"deactivation_reason": string | null,"device_time": string | null,"id": string,"must_change_password": boolean,"person_id": string,"requested_department": string | null,"status": string,"username": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "activated_at"?: string | null,"activated_by"?: string | null,"created_at"?: string,"created_by"?: string | null,"deactivated_at"?: string | null,"deactivated_by"?: string | null,"deactivation_reason"?: string | null,"device_time"?: string | null,"id": string,"person_id": string,"requested_department"?: string | null,"status"?: string,"username"?: string | null
+                    "activated_at"?: string | null,"activated_by"?: string | null,"created_at"?: string,"created_by"?: string | null,"deactivated_at"?: string | null,"deactivated_by"?: string | null,"deactivation_reason"?: string | null,"device_time"?: string | null,"id": string,"must_change_password"?: boolean,"person_id": string,"requested_department"?: string | null,"status"?: string,"username"?: string | null
                   }
                   Update: {
-                    "activated_at"?: string | null,"activated_by"?: string | null,"created_at"?: string,"created_by"?: string | null,"deactivated_at"?: string | null,"deactivated_by"?: string | null,"deactivation_reason"?: string | null,"device_time"?: string | null,"id"?: string,"person_id"?: string,"requested_department"?: string | null,"status"?: string,"username"?: string | null
+                    "activated_at"?: string | null,"activated_by"?: string | null,"created_at"?: string,"created_by"?: string | null,"deactivated_at"?: string | null,"deactivated_by"?: string | null,"deactivation_reason"?: string | null,"device_time"?: string | null,"id"?: string,"must_change_password"?: boolean,"person_id"?: string,"requested_department"?: string | null,"status"?: string,"username"?: string | null
                   }
                   Relationships: [
                     {

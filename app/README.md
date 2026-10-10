@@ -60,6 +60,7 @@ app/
     │   ├── …0022_signing_and_inbox.sql  PIN on tail status and approvals; SVC · MEL at deferral; approvals inbox
     │   └── …0023_offline_signing.sql    Tablets, offline keys, checking offline signatures (D-217)
     │   └── …0024_work_order_rule.sql    No work without an approved work order (D-218)
+    │   └── …0025_admin_accounts.sql     Users and roles: Super Admin account screens (D-219)
     ├── seed.sql            Fictional sample data (NX tails, invented people, sample MEL)
     └── tests/
         ├── foundations.test.sql      37 checks of the Phase 0 rules
@@ -130,7 +131,7 @@ Then, in PowerShell:
 cd C:\Users\USER\Downloads\NEXUS\app
 npm install          # downloads the tools (first time, and after a pull that adds tools)
 npm run db:start     # starts the database (first time downloads ~2 GB; later it's quick)
-npm run db:test      # runs all 167 database checks; should end with "Result: PASS"
+npm run db:test      # runs all 194 database checks; should end with "Result: PASS"
 ```
 
 ### Trying offline (Phase 1C)

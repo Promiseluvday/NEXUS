@@ -17,6 +17,7 @@
 //     /device                 this tablet, offline signing, change PIN (D-217)
 //     /sync                   send queue on this tablet
 //     /offline-signatures     Quality review of offline signatures
+//     /admin/users            Users and roles (Super Admins): list, /new, /:personId
 //     /notifications          things waiting on me, built from current records
 //     /print/ddls/:id, /print/nadds/:id   printable sheets (no app frame)
 //     /print/serviceability   daily serviceability state (?copy=ops: Operations copy, D-203)
@@ -24,7 +25,8 @@
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router';
 import { useAuth } from './lib/auth';
 import { SignIn } from './screens/SignIn';
-import { AccountNotActive, SetPin } from './screens/SetPin';
+import { AccountNotActive, SetPassword, SetPin } from './screens/SetPin';
+import { AdminAccount, AdminCreateAccount, AdminUsers } from './screens/Admin';
 import { ComingSoon, Home } from './screens/Home';
 import { FleetBoard } from './screens/FleetBoard';
 import { AircraftPage } from './screens/AircraftPage';
@@ -60,6 +62,9 @@ const router = createBrowserRouter([
       { path: 'work-orders/:id', element: <WorkOrderPage /> },
       { path: 'request-work-order', element: <RequestWorkOrder /> },
       { path: 'notifications', element: <Notifications /> },
+      { path: 'admin/users', element: <AdminUsers /> },
+      { path: 'admin/users/new', element: <AdminCreateAccount /> },
+      { path: 'admin/users/:personId', element: <AdminAccount /> },
       { path: 'ddls', element: <DdlsSheet /> },
       { path: 'nadds', element: <NaddList /> },
       { path: 'cabin-item', element: <CabinItem /> },
@@ -82,6 +87,7 @@ export function App() {
   if (loading) return <div className="center muted">Loading Nexus…</div>;
   if (!session) return <SignIn />;
   if (!me || me.status !== 'active') return <AccountNotActive />;
+  if (me.mustChangePassword) return <SetPassword />;
   if (!me.pinSet) return <SetPin />;
   return <RouterProvider router={router} />;
 }
