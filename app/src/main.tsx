@@ -9,6 +9,12 @@ import '@fontsource/ibm-plex-sans/latin-700.css';
 import '@fontsource/ibm-plex-mono/latin-400.css';
 import '@fontsource/ibm-plex-mono/latin-600.css';
 import './theme.css';
+// Phase C: shared page frame, then one stylesheet per group of screens.
+import './styles/frame.css';
+import './styles/c1-snags.css';
+import './styles/c2-workorders.css';
+import './styles/c3-deferrals.css';
+import './styles/c4-queries.css';
 import { AuthProvider } from './lib/auth';
 import { App } from './App';
 

@@ -1,0 +1,34 @@
+/* Shared page frame for Phase C screens (components/PageFrame.tsx).
+   Layout from the Claude Design wireframes; colours from theme.css. */
+.page { padding: 24px 28px; max-width: 1280px; display: flex; flex-direction: column; gap: 16px; }
+.page > * { margin-top: 0; margin-bottom: 0; }
+.crumbs .crumb a { font-weight: 600; }
+.tail-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 12px; }
+.tail-head-tail { font-family: var(--mono); font-size: 24px; font-weight: 500; }
+.tail-head-type { font-size: 13px; color: var(--ink-soft); }
+.tail-head-status { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; text-align: right; }
+.tail-tabs { display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid var(--line-strong); }
+.tail-tabs a {
+  display: inline-flex; align-items: center; min-height: var(--touch); padding: 0 12px;
+  color: var(--ink-mid); font-size: 14px; text-decoration: none; border-bottom: 3px solid transparent; margin-bottom: -1px;
+}
+.tail-tabs a:hover { color: var(--ink); background: #fff; }
+.tail-tabs a.active { color: var(--ink); font-weight: 600; border-bottom-color: var(--ink); }
+.page-head2 { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 12px; }
+.page-head2 h1 { margin: 0; font-size: 24px; font-weight: 600; }
+.page-sub { font-size: 13px; color: var(--ink-soft); margin-top: 4px; }
+.page-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.box { background: #fff; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.box-strong { border: 2px solid var(--ink); }
+.box-warn { border: 2px solid var(--aog); }
+.box-head { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: #f2f8fc; border-bottom: 1px solid var(--line-faint); min-height: 44px; }
+.box-head h2 { margin: 0; font-size: 15px; font-weight: 600; color: var(--ink); flex: 1; }
+.box-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.box-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.box-body > h2:first-child, .box-body > form > h2:first-child { margin-top: 0; }
+.action-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+@media (max-width: 800px) {
+  .page { padding: 16px 12px; }
+  .tail-tabs { flex-wrap: nowrap; overflow-x: auto; }
+  .tail-tabs a { flex: 0 0 auto; }
+}
