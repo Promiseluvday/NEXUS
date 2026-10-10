@@ -18,6 +18,7 @@
 //     /sync                   send queue on this tablet
 //     /offline-signatures     Quality review of offline signatures
 //     /admin/users            Users and roles (Super Admins): list, /new, /:personId
+//     /flights?aircraft=…     flight records per tail (&do=log, &do=baseline, &record=…, D-022, D-027)
 //     /notifications          things waiting on me, built from current records
 //     /print/ddls/:id, /print/nadds/:id   printable sheets (no app frame)
 //     /print/serviceability   daily serviceability state (?copy=ops: Operations copy, D-203)
@@ -32,6 +33,7 @@ import { FleetBoard } from './screens/FleetBoard';
 import { AircraftPage } from './screens/AircraftPage';
 import { RequestWorkOrder } from './screens/RequestWorkOrder';
 import { Notifications } from './screens/Notifications';
+import { Flights } from './screens/Flights';
 import { ServiceabilityPrint } from './screens/ServiceabilityPrint';
 import { ReportSnag } from './screens/ReportSnag';
 import { SnagList } from './screens/SnagList';
@@ -62,6 +64,7 @@ const router = createBrowserRouter([
       { path: 'work-orders/:id', element: <WorkOrderPage /> },
       { path: 'request-work-order', element: <RequestWorkOrder /> },
       { path: 'notifications', element: <Notifications /> },
+      { path: 'flights', element: <Flights /> },
       { path: 'admin/users', element: <AdminUsers /> },
       { path: 'admin/users/new', element: <AdminCreateAccount /> },
       { path: 'admin/users/:personId', element: <AdminAccount /> },

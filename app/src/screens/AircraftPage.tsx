@@ -2,9 +2,9 @@
 // (Home.dc.html, WF-B2, D-096): breadcrumb and back button, a row of count
 // tiles, then panels that open and close (Expand all / Collapse all, or tap a panel's bar):
 //   Aircraft record   tail, type, MSN, the status an engineer set, Set tail
-//                     status for engineers (PIN, D-215), and Totals and
-//                     Engines and APU (shown as "not recorded yet" until
-//                     flight and component records exist)
+//                     status for engineers (PIN, D-215), Totals (sum of
+//                     entered flight records, D-022) and Engines and APU
+//                     ("not recorded yet" until component records exist)
 //   ADs and SBs       not recorded yet
 //   Open items        Blocked by, then open snags, DDLS, NADDs, work orders
 //   Due items         the due times written at deferral, flagged
@@ -25,6 +25,7 @@ import { dueText } from '../components/NeedsAttention';
 import { useApproachingDays } from '../lib/settings';
 import { useFleetBoard } from './FleetBoard';
 import { WorkOrderChip } from './WorkOrders';
+import { TotalsFacts, useAircraftTotals } from './flights/totals';
 
 type Who = { three_letter_code: string } | null;
 type Snag = { id: string; number: string; description: string; status: string; disposition: string | null; created_at: string; reporter: Who };
@@ -159,6 +160,7 @@ export function AircraftPage() {
   const { rows, error, loadedAt, load: loadBoard } = useFleetBoard();
   const { d, load } = useAircraftDetail(id);
   const margin = useApproachingDays();
+  const { totals } = useAircraftTotals(id);
   const [open, setOpen] = useState<Record<PanelId, boolean>>(
     { record: true, open: true, adsb: false, due: true, activity: true, calendar: true });
   const toggle = (p: PanelId) => setOpen((o) => ({ ...o, [p]: !o[p] }));
@@ -267,13 +269,8 @@ export function AircraftPage() {
           <TailStatusChip status={r.status} />
           {r.status_set_by && <span className="small muted">Set by <span className="mono">{r.status_set_by}</span> · <span className="mono">{formatDateTime(r.status_set_at, display)}</span></span>}
         </div>
-        <h3 className="sub-head">Totals <span className="rail-tag">Soon</span></h3>
-        <div className="facts-grid">
-          <div><div className="k">Total hours</div><div className="v mono none">—</div></div>
-          <div><div className="k">Cycles</div><div className="v mono none">—</div></div>
-          <div><div className="k">Landings</div><div className="v mono none">—</div></div>
-        </div>
-        <p className="panel-note">The sum of entered flight records. Flight records are not built yet (D-017).</p>
+        <h3 className="sub-head">Totals</h3>
+        <TotalsFacts totals={totals} aircraftId={id} />
         <h3 className="sub-head">Engines and APU <span className="rail-tag">Soon</span></h3>
         <div className="table-scroll">
           <table className="ptable">
@@ -389,7 +386,7 @@ export function AircraftPage() {
         <Calendar events={calendar} display={display} />
       </Panel>
     </div>
-    <QuickBar aircraftId={id} isEngineer={isEngineer} />
+    <QuickBar aircraftId={id} isEngineer={isEngineer} canLog={isEngineer || Boolean(me?.departments.some((x) => x.code === 'OPS'))} />
     </div>
   );
 }
@@ -398,11 +395,11 @@ export function AircraftPage() {
 // actions for THIS tail, one tap each. Actions whose screens are not built
 // yet are shown greyed with "Soon" so people can see what is coming.
 // Phones use the bottom bar instead, so the Quick bar is hidden there.
-function QuickBar({ aircraftId, isEngineer }: { aircraftId: string; isEngineer: boolean }) {
+function QuickBar({ aircraftId, isEngineer, canLog }: { aircraftId: string; isEngineer: boolean; canLog: boolean }) {
   const items: { label: string; to?: string; soon?: string }[] = [
     { label: 'Report snag', to: `/report-snag?aircraft=${aircraftId}` },
     ...(isEngineer ? [{ label: 'Request WO', to: `/request-work-order?aircraft=${aircraftId}` }] : []),
-    { label: 'Log hours', soon: 'Flight records come in a later phase (D-017)' },
+    ...(canLog ? [{ label: 'Log hours', to: `/flights?aircraft=${aircraftId}&do=log` }] : []),
     { label: 'Request part', soon: 'Part requests come with stores in Phase 2' },
     { label: 'AD / SB entry', soon: 'ADs and SBs are not built yet' },
     { label: 'Sync queue', to: '/sync' },

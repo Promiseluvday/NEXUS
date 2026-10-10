@@ -16,6 +16,7 @@ import { actions, errorText } from '../lib/supabase';
 import { formatDate, formatDateTime, formatPlainDate, formatTime, heldFor, type DisplaySettings } from '../lib/format';
 import { NeedsAttention, dueText } from '../components/NeedsAttention';
 import { usePendingApprovals } from './Approvals';
+import { formatCount, formatHours, useFleetTotals, type AircraftTotals } from './flights/totals';
 import { SnagChip, TAIL_STATUS, TailStatusChip } from '../components/StatusChip';
 import { cached } from '../lib/offline/cache';
 import { useOutbox } from '../lib/offline/hooks';
@@ -95,9 +96,11 @@ const FILTERS: { key: string; label: string; match: (r: FleetRow) => boolean }[]
 // engineer set, what holds the aircraft and since when, the next DDLS due
 // time written at deferral, and counts. Nexus never decides serviceability
 // (D-020); "No blocking items" just means nothing is holding the tail.
-function TailCard({ r, now, display, provisional }: {
-  r: FleetRow; now: Date; display: DisplaySettings; provisional?: string;
+function TailCard({ r, now, display, provisional, totals }: {
+  r: FleetRow; now: Date; display: DisplaySettings; provisional?: string; totals?: AircraftTotals;
 }) {
+  // Hours and cycles: sums of entered flight records only (D-022).
+  const hasTotals = Boolean(totals && (totals.has_baseline || totals.flights > 0));
   const navigate = useNavigate();
   const open = () => navigate(`/aircraft/${r.aircraft_id}`);
   const snag = r.snag_display;
@@ -153,8 +156,11 @@ function TailCard({ r, now, display, provisional }: {
       {clear && !note && <div className="clear-line">No blocking items</div>}
 
       <div className="stats">
-        <div title="Flight hours arrive with flight records (later phase)"><div className="k">Hours</div><div className="v none">—</div></div>
-        <div title="Cycles arrive with flight records (later phase)"><div className="k">Cycles</div><div className="v none">—</div></div>
+        {hasTotals
+          ? <><div><div className="k">Hours</div><div className="v">{formatHours(totals!.hours)}</div></div>
+              <div><div className="k">Cycles</div><div className="v">{formatCount(totals!.cycles)}</div></div></>
+          : <><div title="No flight records entered yet"><div className="k">Hours</div><div className="v none">—</div></div>
+              <div title="No flight records entered yet"><div className="k">Cycles</div><div className="v none">—</div></div></>}
         <div><div className="k">Snags</div><div className="v">{r.open_snags}</div></div>
         <div><div className="k">DDLS</div><div className="v">{r.open_ddls}</div></div>
         <div><div className="k">NADD</div><div className="v">{r.open_nadds}</div></div>
@@ -171,6 +177,7 @@ export function FleetBoard() {
   const { rows, error, loadedAt, load, fromCache } = useFleetBoard();
   const provisional = useProvisional();
   const { items: pending } = usePendingApprovals();
+  const { byAircraft } = useFleetTotals();
   const [filter, setFilter] = useState('all');
   const now = loadedAt ?? new Date();
 
@@ -211,7 +218,7 @@ export function FleetBoard() {
       <div className="dash-body">
         <section className="tail-grid" aria-label="Aircraft">
           {shown.map((r) => (
-            <TailCard key={r.aircraft_id} r={r} now={now} display={display} provisional={provisional[r.aircraft_id]} />
+            <TailCard key={r.aircraft_id} r={r} now={now} display={display} provisional={provisional[r.aircraft_id]} totals={byAircraft[r.aircraft_id]} />
           ))}
           {rows.length > 0 && shown.length === 0 && <p className="muted">No aircraft match this filter.</p>}
           {loadedAt && rows.length === 0 && !error && (

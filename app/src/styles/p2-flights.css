@@ -1,0 +1,28 @@
+/* Phase 2 styles: flight records (screens/Flights.tsx, screens/flights/totals.tsx).
+   Layout from the Claude Design wireframes WF-C2, WF-H1 and WF-FR1; colours
+   from theme.css (never the wireframe greys). Imported by Flights.tsx. */
+
+.fr-page .page-actions select { width: auto; min-width: 160px; }
+
+/* Numbers line up on the right, in mono, like a logbook column */
+.fr-table th.num, .fr-table td.num { text-align: right; white-space: nowrap; }
+.fr-table td { vertical-align: top; }
+.fr-table tr.fr-base td { background: var(--grey-bg); }
+.fr-table tr.fr-void td { color: var(--ink-soft); }
+.fr-table tr.fr-void td.num { text-decoration: line-through; }
+.fr-chip { margin-left: 6px; }
+.fr-apu { margin: 6px 0 0; }
+
+/* Forms: big touch targets so a pilot can log on a phone (D-094) */
+.fr-form { display: flex; flex-direction: column; gap: 14px; max-width: 760px; }
+.fr-form input, .fr-form textarea { min-height: var(--touch); font-size: 16px; }
+.fr-grid { margin-top: 10px; }
+.fr-form .check { display: flex; gap: 8px; align-items: flex-start; font-weight: 500; }
+.fr-form .check input { min-height: auto; margin-top: 4px; }
+
+@media (max-width: 640px) {
+  .fr-form .field-grid { grid-template-columns: 1fr 1fr; }
+  .fr-form .field-grid > div:first-child:nth-last-child(3) { grid-column: 1 / -1; }
+  .fr-page .page-actions { width: 100%; }
+  .fr-page .page-actions .button, .fr-page .page-actions select { flex: 1 1 auto; }
+}
