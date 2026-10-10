@@ -83,7 +83,9 @@ export function TailTabs({ aircraftId }: { aircraftId: string }) {
 function isTabActive(to: string): boolean {
   if (typeof window === 'undefined') return false;
   const [path] = to.split('?');
-  return window.location.pathname === path;
+  const here = window.location.pathname;
+  // A record page (/snags/<id>) belongs to its list's tab (/snags).
+  return here === path || (path !== '/' && !path.startsWith('/aircraft/') && here.startsWith(`${path}/`));
 }
 
 export function PageHead({ title, sub, children }: { title: ReactNode; sub?: ReactNode; children?: ReactNode }) {

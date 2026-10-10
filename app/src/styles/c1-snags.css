@@ -1,1 +1,71 @@
-/* Phase C batch styles: c1-snags */
+/* Phase C batch styles: c1-snags
+   Snag list, snag detail (with its Assess and Disposition steps) and Report
+   snag (wireframes WF-D1 to WF-D7, WF-E4, WF-DD2). Layout only; every colour
+   comes from the theme variables in theme.css (D-212). */
+
+/* ---- page-head filters (WF-D1) */
+.snag-filters { display: flex; flex-wrap: wrap; gap: 10px; }
+.snag-filters > select { flex: 0 1 280px; width: auto; }
+.snag-page .page-actions button[disabled] { cursor: default; opacity: 1; color: var(--ink-soft); }
+
+/* ---- snag list table: the whole row opens the snag (D-098) */
+.snag-table .ptable tbody tr.click-row { cursor: pointer; }
+.snag-table .ptable tbody tr.click-row:hover { background: #f7fbfe; }
+.snag-table .ptable tbody tr:last-child td { border-bottom: 0; }
+.strong-link { font-weight: 600; }
+
+/* ---- phone cards (hidden on wider screens) */
+.snag-cards { display: none; flex-direction: column; gap: 10px; }
+.snag-card {
+  display: flex; flex-direction: column; gap: 6px; padding: 14px 16px;
+  background: #fff; border: 1px solid var(--line); border-radius: 12px;
+  color: var(--ink); text-decoration: none;
+}
+.snag-card:hover, .snag-card:focus-visible { color: var(--ink); border-color: var(--ink); }
+.snag-card-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.snag-card-text { font-size: 15px; }
+
+/* ---- snag detail */
+.snag-page .box-body > .chip-row { margin-top: 0; }
+.snag-page .box-body .open-list li { padding: 8px 0; }
+.repeat-line { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+.repeat-word { color: var(--aog); }
+.snag-page .timeline { padding-left: 20px; }
+.snag-page .action-row .rail-tag { margin-left: 4px; }
+.snag-page .action-row button[disabled] { cursor: default; opacity: 1; color: var(--ink-soft); }
+
+/* ---- disposition (WF-D4) and its forms (WF-E4, WF-DD2) */
+.disp-form { display: flex; flex-direction: column; gap: 16px; }
+.path-list { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; }
+.path-list > div { border: 1px solid var(--line-faint); border-radius: var(--radius); padding: 8px 10px; }
+.path-list > div.chosen { border-color: var(--ink); background: #f7fbfe; }
+.path-list dt { font-weight: 600; font-size: 14px; }
+.path-list dd { margin: 2px 0 0; font-size: 13px; color: var(--ink-soft); }
+.field-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.field-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.field-grid label { margin-top: 0; }
+.ro-facts { flex: none; }
+.ro-facts .wide { grid-column: 1 / -1; }
+.report-quote { border-left: 4px solid var(--line-strong); padding: 6px 10px; background: #f7fbfe; }
+.snag-page .box-body .option-box { margin-top: 0; }
+.snag-page .box-body .sign-box { margin-top: 0; }
+.snag-page .box-body .mel-chosen + * { margin-top: 0; }
+
+/* ---- report snag (WF-D7) */
+.report-form { max-width: 760px; }
+.type-choice { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0 24px; }
+.type-choice legend { margin: 0 0 4px; padding: 0; }
+.type-choice .check { margin: 0; }
+.type-choice .check input { width: 22px; }
+.report-form .box-body > label:not(.check) { margin: 4px 0 0; }
+
+@media (max-width: 800px) {
+  .snag-table { display: none; }
+  .snag-cards { display: flex; }
+  .snag-filters > select { flex: 1 1 100%; }
+  .field-grid.two { grid-template-columns: 1fr; }
+  .ro-facts { grid-template-columns: 1fr; }
+}
+
+/* Tick boxes inside the boxes: the box already spaces its rows. */
+.snag-page .box-body .check { margin: 0; }

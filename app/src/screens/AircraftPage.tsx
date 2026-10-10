@@ -167,6 +167,12 @@ export function AircraftPage() {
   const r = rows.find((x) => x.aircraft_id === id);
   const now = loadedAt ?? new Date();
 
+  // Links like /aircraft/<id>#panel-activity land on that panel.
+  useEffect(() => {
+    if (!loadedAt || !window.location.hash) return;
+    document.getElementById(window.location.hash.slice(1))?.scrollIntoView();
+  }, [loadedAt]);
+
   if (error) return <div className="page"><div className="error">{error}</div></div>;
   if (!loadedAt) return <div className="page muted">Loading…</div>;
   if (!r) return <div className="page"><p>This aircraft is not in your aircraft scope.</p></div>;
