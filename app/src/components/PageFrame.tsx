@@ -67,7 +67,7 @@ export function TailTabs({ aircraftId }: { aircraftId: string }) {
     { to: `/nadds${q}`, label: 'NADD' },
     { to: `/flights${q}`, label: 'Flight records' },
     ...(engOrOversight ? [{ to: `/ads-sbs${q}`, label: 'ADs and SBs' }] : []),
-    ...(engOrOversight ? [{ to: `/work-orders${q}`, label: 'Work orders' }] : []),
+    ...(engOrOversight ? [{ to: `/work-orders${q}`, label: 'Work orders' }, { to: `/part-requests${q}`, label: 'Part requests' }] : []),
   ];
   return (
     <nav aria-label="Aircraft sections" className="tail-tabs">

@@ -35,6 +35,10 @@ const MENU: Record<string, Entry[]> = {
     ] },
     { label: 'Work orders', to: '/work-orders' },
     { label: 'ADs and SBs', to: '/ads-sbs' },
+    { group: 'Parts', items: [
+      { label: 'Part requests', to: '/part-requests' },
+      { label: 'Stores search', to: '/stores' },
+    ] },
     { group: 'Workshops', items: [
       { label: 'Tire Bay', to: '/section/ENG/tire-bay', section: 'TIRE' },
       { label: 'Battery Workshop', to: '/section/ENG/battery-workshop', section: 'BATT' },
@@ -50,12 +54,17 @@ const MENU: Record<string, Entry[]> = {
     ] },
   ],
   SUP: [
-    { label: 'Stores search', to: '/section/SUP/stores-search' },
-    { group: 'Stores', items: [
-      { label: 'Main Store', to: '/section/SUP/main-store' },
-      { label: 'Forward Store', to: '/section/SUP/forward-store' },
+    { label: 'Supply board', to: '/supply' },
+    { label: 'Stores search', to: '/stores' },
+    { group: 'Stock movements', items: [
+      { label: 'Issue parts', to: '/stores/issue' },
+      { label: 'Receiving', to: '/stores/receiving' },
+      { label: 'Transfers', to: '/stores/transfers' },
     ] },
-    { label: 'Receiving', to: '/section/SUP/receiving' },
+    { group: 'Held stock', items: [
+      { label: 'Quarantine', to: '/stores/quarantine' },
+      { label: 'U/S returns', to: '/stores/us-returns' },
+    ] },
   ],
   PRO: [
     { label: 'Requisitions', to: '/section/PRO/requisitions' },

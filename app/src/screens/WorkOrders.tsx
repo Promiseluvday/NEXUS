@@ -21,6 +21,7 @@ import { usePendingFor } from '../lib/offline/hooks';
 import { formatDateTime, heldFor } from '../lib/format';
 import { AircraftPicker, type AircraftOption } from '../components/AircraftPicker';
 import { SnagStateChip } from '../components/StatusChip';
+import { PartRequestsForWorkOrder } from './Stores';
 import { Attachments, KIND_LABEL } from '../components/Attachments';
 import { PinField } from '../components/PinField';
 import { SetTailStatus } from '../components/SetTailStatus';
@@ -426,8 +427,8 @@ export function WorkOrderPage() {
         {isEngineer && wo.status === 'open' && <EntryForm woId={wo.id} onDone={done} />}
       </Section>
 
-      <Section title={<>Parts <span className="rail-tag">Soon</span></>}>
-        <p className="panel-note">Part requests for a work order (reserved before approval, issued after, D-068) come with stores in Phase 2.</p>
+      <Section title="Parts">
+        <PartRequestsForWorkOrder workOrderId={wo.id} aircraftId={wo.aircraft_id} status={wo.status} />
       </Section>
 
       <Section id="evidence" title="Completion evidence" tone={wo.status === 'work_complete' ? 'strong' : undefined}>

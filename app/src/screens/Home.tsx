@@ -65,7 +65,11 @@ function NewMenu() {
               Request work order
             </MenuItem>
           )}
-          {eng && <MenuItem soon>Request part</MenuItem>}
+          {eng && (
+            <MenuItem onSelect={() => { close(); navigate(`/part-requests/new${tailId ? `?aircraft=${tailId}` : ''}`); }}>
+              Request part
+            </MenuItem>
+          )}
           <MenuItem onSelect={() => {
             close();
             // A query is always about a record: raise it on the snag or work order being viewed.
@@ -159,7 +163,7 @@ export function Home() {
       <nav className="bottom-nav" aria-label="Main">
         <NavLink to="/" end onClick={() => setRailOpen(false)}>Fleet</NavLink>
         <NavLink to="/snags" onClick={() => setRailOpen(false)}>Snags</NavLink>
-        <NavLink to="/section/SUP/stores-search" onClick={() => setRailOpen(false)}>Parts</NavLink>
+        <NavLink to="/stores" onClick={() => setRailOpen(false)}>Parts</NavLink>
         <button type="button" aria-expanded={railOpen} onClick={() => setRailOpen((o) => !o)}>More</button>
       </nav>
     </div>

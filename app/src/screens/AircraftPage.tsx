@@ -27,6 +27,7 @@ import { useFleetBoard } from './FleetBoard';
 import { WorkOrderChip } from './WorkOrders';
 import { TotalsFacts, useAircraftTotals } from './flights/totals';
 import { useAdSbSummary } from './adsb/data';
+import { usePartRequestSummary } from './Stores';
 import { AdSbPanelBody } from './adsb/parts';
 
 type Who = { three_letter_code: string } | null;
@@ -164,6 +165,7 @@ export function AircraftPage() {
   const margin = useApproachingDays();
   const { totals } = useAircraftTotals(id);
   const adsb = useAdSbSummary(id);
+  const parts = usePartRequestSummary(id);
   const [open, setOpen] = useState<Record<PanelId, boolean>>(
     { record: true, open: true, adsb: true, due: true, activity: true, calendar: true });
   const toggle = (p: PanelId) => setOpen((o) => ({ ...o, [p]: !o[p] }));
@@ -253,7 +255,7 @@ export function AircraftPage() {
         <Tile n={d?.wos.length ?? '…'} label="Work orders open" to={`/work-orders?aircraft=${id}`} />
         <Tile n={due.filter((x) => flag(x.due)).length + adsb.flagged} label="Due items flagged" to={`/aircraft/${id}#panel-due`}
           tone={due.some((x) => flag(x.due)) || adsb.flagged > 0 ? 'warn' : undefined} />
-        <Tile n="—" label="Part requests" tone="none" />
+        <Tile n={parts.open ?? '…'} label="Part requests" to={`/part-requests?aircraft=${id}`} />
         <Tile n={adsb.loading ? '…' : adsb.adsRecurring} label="ADs recurring" to={`/ads-sbs?aircraft=${id}&status=recurring&type=AD`} />
         <Tile n={adsb.loading ? '…' : adsb.sbsOpen} label="SBs open" to={`/ads-sbs?aircraft=${id}&status=open&type=SB`} />
       </div>
@@ -413,7 +415,7 @@ function QuickBar({ aircraftId, isEngineer, canLog }: { aircraftId: string; isEn
     { label: 'Report snag', to: `/report-snag?aircraft=${aircraftId}` },
     ...(isEngineer ? [{ label: 'Request WO', to: `/request-work-order?aircraft=${aircraftId}` }] : []),
     ...(canLog ? [{ label: 'Log hours', to: `/flights?aircraft=${aircraftId}&do=log` }] : []),
-    { label: 'Request part', soon: 'Part requests come with stores in Phase 2' },
+    ...(isEngineer ? [{ label: 'Request part', to: `/part-requests/new?aircraft=${aircraftId}` }] : []),
     ...(isEngineer ? [{ label: 'AD / SB entry', to: `/ads-sbs?aircraft=${aircraftId}&do=new` }] : []),
     { label: 'Sync queue', to: '/sync' },
   ];

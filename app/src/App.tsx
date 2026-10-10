@@ -21,6 +21,8 @@
 //     /flights?aircraft=…     flight records per tail (&do=log, &do=baseline, &record=…, D-022, D-027)
 //     /people, /people/:id(/qualifications|/authorizations)  people, licences, certifying authorizations (D-032, D-080)
 //     /ads-sbs                ADs and SBs register and compliance (?aircraft=…, ?view=register, D-016)
+//     /supply, /stores/…      Supply board, stores search, issue, receiving, quarantine, U/S returns, transfers (D-070, D-141 to D-153)
+//     /part-requests          part requests (?aircraft=…, /new, /:id; D-068, D-143, D-145)
 //     /notifications          things waiting on me, built from current records
 //     /print/ddls/:id, /print/nadds/:id   printable sheets (no app frame)
 //     /print/serviceability   daily serviceability state (?copy=ops: Operations copy, D-203)
@@ -37,6 +39,10 @@ import { RequestWorkOrder } from './screens/RequestWorkOrder';
 import { Notifications } from './screens/Notifications';
 import { Flights } from './screens/Flights';
 import { AdsSbs } from './screens/AdsSbs';
+import {
+  IssueParts, PartDetail, PartRequestForm, PartRequestList, PartRequestPage, Quarantine, ReceiptPage, Receiving,
+  StoresSearch, SupplyBoard, Transfers, UsReturns,
+} from './screens/Stores';
 import { PeopleList, PersonAuthorizationsPage, PersonQualificationsPage, PersonRecordPage } from './screens/People';
 import { ServiceabilityPrint } from './screens/ServiceabilityPrint';
 import { ReportSnag } from './screens/ReportSnag';
@@ -70,6 +76,18 @@ const router = createBrowserRouter([
       { path: 'notifications', element: <Notifications /> },
       { path: 'flights', element: <Flights /> },
       { path: 'ads-sbs', element: <AdsSbs /> },
+      { path: 'supply', element: <SupplyBoard /> },
+      { path: 'stores', element: <StoresSearch /> },
+      { path: 'stores/parts/:id', element: <PartDetail /> },
+      { path: 'stores/issue', element: <IssueParts /> },
+      { path: 'stores/receiving', element: <Receiving /> },
+      { path: 'stores/receiving/:id', element: <ReceiptPage /> },
+      { path: 'stores/quarantine', element: <Quarantine /> },
+      { path: 'stores/us-returns', element: <UsReturns /> },
+      { path: 'stores/transfers', element: <Transfers /> },
+      { path: 'part-requests', element: <PartRequestList /> },
+      { path: 'part-requests/new', element: <PartRequestForm /> },
+      { path: 'part-requests/:id', element: <PartRequestPage /> },
       { path: 'people', element: <PeopleList /> },
       { path: 'people/:personId', element: <PersonRecordPage /> },
       { path: 'people/:personId/qualifications', element: <PersonQualificationsPage /> },
