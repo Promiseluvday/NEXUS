@@ -714,3 +714,22 @@ a.tile:hover, a.tile:focus-visible { outline: 3px solid var(--link); outline-off
 .disposition-choice select { flex: 1 1 240px; width: auto; }
 .disposition-choice button.chosen { outline: 3px solid var(--ink); outline-offset: 1px; }
 .panel-body > .facts-grid { flex: none; }
+
+/* Quick bar on the one-aircraft page (canvas Home.dc.html) */
+.ac-layout { display: flex; align-items: stretch; min-height: 100%; }
+.ac-layout > .ac-page { flex: 1 1 auto; min-width: 0; }
+.quick-bar {
+  flex: 0 0 64px; background: var(--ink); padding: 12px 10px; display: flex; flex-direction: column;
+  align-items: center; gap: 8px; position: sticky; top: 0; align-self: flex-start; min-height: 100vh;
+}
+.quick-title { font-size: 10px; font-weight: 600; color: #b8bec6; letter-spacing: 0.08em; }
+.qa {
+  display: flex; align-items: center; justify-content: center; width: 44px; min-height: 120px; padding: 12px 0;
+  border-radius: 8px; background: var(--mark); color: var(--ink); text-decoration: none; font-size: 13px; font-weight: 600;
+  writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap;
+}
+.qa:hover { color: var(--ink); background: #fde047; outline: 3px solid #fff; outline-offset: 1px; }
+.qa-soon { background: #3a3a3a; color: #b8bec6; cursor: not-allowed; }
+.qa-soon:hover { background: #3a3a3a; color: #b8bec6; outline: none; }
+@media (max-width: 800px) { .quick-bar { display: none; } }
+@media print { .quick-bar { display: none !important; } }

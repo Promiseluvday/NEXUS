@@ -95,7 +95,7 @@ function Panel({ id, title, link, open, onToggle, children }: {
           ? <span className="panel-link soon">{link.label} <span className="rail-tag">Soon</span></span>
           : <Link className="panel-link" to={link.to} onClick={(e) => e.stopPropagation()}>{link.label}</Link>)}
         <button type="button" className="outline-button panel-toggle" aria-expanded={open} aria-controls={`b-${id}`}>
-          {open ? 'Hide' : 'Show'}
+          {open ? 'Collapse' : 'Expand'}
         </button>
       </div>
       {open && <div id={`b-${id}`} className="panel-body">{children}</div>}
@@ -222,6 +222,7 @@ export function AircraftPage() {
   const reload = () => { loadBoard(); load(); };
 
   return (
+    <div className="ac-layout">
     <div className="dash ac-page">
       <nav aria-label="Breadcrumb" className="crumbs"><Link to="/">All aircraft</Link> <span aria-hidden>›</span> <span aria-current="page" className="mono">{r.tail}</span></nav>
       <Link to="/" className="button outline-button back-button">← Back to All aircraft</Link>
@@ -388,5 +389,30 @@ export function AircraftPage() {
         <Calendar events={calendar} display={display} />
       </Panel>
     </div>
+    <QuickBar aircraftId={id} isEngineer={isEngineer} />
+    </div>
+  );
+}
+
+// The black "Quick" bar on the right (canvas Home.dc.html): the most-used
+// actions for THIS tail, one tap each. Actions whose screens are not built
+// yet are shown greyed with "Soon" so people can see what is coming.
+// Phones use the bottom bar instead, so the Quick bar is hidden there.
+function QuickBar({ aircraftId, isEngineer }: { aircraftId: string; isEngineer: boolean }) {
+  const items: { label: string; to?: string; soon?: string }[] = [
+    { label: 'Report snag', to: `/report-snag?aircraft=${aircraftId}` },
+    ...(isEngineer ? [{ label: 'Request WO', to: `/request-work-order?aircraft=${aircraftId}` }] : []),
+    { label: 'Log hours', soon: 'Flight records come in a later phase (D-017)' },
+    { label: 'Request part', soon: 'Part requests come with stores in Phase 2' },
+    { label: 'AD / SB entry', soon: 'ADs and SBs are not built yet' },
+    { label: 'Sync queue', to: '/sync' },
+  ];
+  return (
+    <nav className="quick-bar" aria-label="Quick actions">
+      <span className="quick-title">QUICK</span>
+      {items.map((q) => q.to
+        ? <Link key={q.label} className="qa" to={q.to}>{q.label}</Link>
+        : <span key={q.label} className="qa qa-soon" title={q.soon} aria-disabled="true">{q.label} · Soon</span>)}
+    </nav>
   );
 }
