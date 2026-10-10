@@ -66,6 +66,7 @@ export function TailTabs({ aircraftId }: { aircraftId: string }) {
     { to: `/ddls${q}`, label: 'DDLS (MEL)' },
     { to: `/nadds${q}`, label: 'NADD' },
     { to: `/flights${q}`, label: 'Flight records' },
+    ...(engOrOversight ? [{ to: `/ads-sbs${q}`, label: 'ADs and SBs' }] : []),
     ...(engOrOversight ? [{ to: `/work-orders${q}`, label: 'Work orders' }] : []),
   ];
   return (

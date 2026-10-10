@@ -34,6 +34,7 @@ const MENU: Record<string, Entry[]> = {
       { label: 'Cabin items to review', to: '/nadds?review=1' },
     ] },
     { label: 'Work orders', to: '/work-orders' },
+    { label: 'ADs and SBs', to: '/ads-sbs' },
     { group: 'Workshops', items: [
       { label: 'Tire Bay', to: '/section/ENG/tire-bay', section: 'TIRE' },
       { label: 'Battery Workshop', to: '/section/ENG/battery-workshop', section: 'BATT' },
@@ -63,6 +64,7 @@ const MENU: Record<string, Entry[]> = {
   ],
   QUA: [
     { label: 'Offline signatures', to: '/offline-signatures' },
+    { label: 'ADs and SBs to verify', to: '/ads-sbs?status=awaiting' },
     { label: 'MEL revisions', to: '/section/QUA/mel' },
     { label: 'Audit trail', to: '/section/QUA/audit' },
   ],

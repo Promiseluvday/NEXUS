@@ -5,7 +5,7 @@
 //                     status for engineers (PIN, D-215), Totals (sum of
 //                     entered flight records, D-022) and Engines and APU
 //                     ("not recorded yet" until component records exist)
-//   ADs and SBs       not recorded yet
+//   ADs and SBs       engineer-entered compliance, Quality verified (D-016)
 //   Open items        Blocked by, then open snags, DDLS, NADDs, work orders
 //   Due items         the due times written at deferral, flagged
 //                     "Approaching" / "Reached" against an operator margin
@@ -26,6 +26,8 @@ import { useApproachingDays } from '../lib/settings';
 import { useFleetBoard } from './FleetBoard';
 import { WorkOrderChip } from './WorkOrders';
 import { TotalsFacts, useAircraftTotals } from './flights/totals';
+import { useAdSbSummary } from './adsb/data';
+import { AdSbPanelBody } from './adsb/parts';
 
 type Who = { three_letter_code: string } | null;
 type Snag = { id: string; number: string; description: string; status: string; disposition: string | null; created_at: string; reporter: Who };
@@ -161,8 +163,9 @@ export function AircraftPage() {
   const { d, load } = useAircraftDetail(id);
   const margin = useApproachingDays();
   const { totals } = useAircraftTotals(id);
+  const adsb = useAdSbSummary(id);
   const [open, setOpen] = useState<Record<PanelId, boolean>>(
-    { record: true, open: true, adsb: false, due: true, activity: true, calendar: true });
+    { record: true, open: true, adsb: true, due: true, activity: true, calendar: true });
   const toggle = (p: PanelId) => setOpen((o) => ({ ...o, [p]: !o[p] }));
   const setAll = (v: boolean) => setOpen(Object.fromEntries(PANELS.map((p) => [p, v])) as Record<PanelId, boolean>);
   const isEngineer = Boolean(me?.departments.some((x) => x.code === 'ENG'));
@@ -248,10 +251,11 @@ export function AircraftPage() {
         <Tile n={r.open_snags} label="Open snags" to={`/snags?aircraft=${id}`} />
         <Tile n={mel} label="MEL deferrals" to={`/ddls?aircraft=${id}`} />
         <Tile n={d?.wos.length ?? '…'} label="Work orders open" to={`/work-orders?aircraft=${id}`} />
-        <Tile n={due.filter((x) => flag(x.due)).length} label="Due items flagged" to={`/aircraft/${id}#p-due`}
-          tone={due.some((x) => flag(x.due)) ? 'warn' : undefined} />
+        <Tile n={due.filter((x) => flag(x.due)).length + adsb.flagged} label="Due items flagged" to={`/aircraft/${id}#panel-due`}
+          tone={due.some((x) => flag(x.due)) || adsb.flagged > 0 ? 'warn' : undefined} />
         <Tile n="—" label="Part requests" tone="none" />
-        <Tile n="—" label="ADs and SBs" tone="none" />
+        <Tile n={adsb.loading ? '…' : adsb.adsRecurring} label="ADs recurring" to={`/ads-sbs?aircraft=${id}&status=recurring&type=AD`} />
+        <Tile n={adsb.loading ? '…' : adsb.sbsOpen} label="SBs open" to={`/ads-sbs?aircraft=${id}&status=open&type=SB`} />
       </div>
 
       <Panel id="record" title="Aircraft record" open={open.record} onToggle={() => toggle('record')}>
@@ -343,8 +347,8 @@ export function AircraftPage() {
         </div>
       </Panel>
 
-      <Panel id="adsb" title="ADs and SBs" link={{ to: '', label: 'All ADs and SBs', soon: true }} open={open.adsb} onToggle={() => toggle('adsb')}>
-        <p className="panel-note">Every AD and SB entry, including applicability and next due, will be made by an engineer. Nothing is imported or calculated. Not built yet.</p>
+      <Panel id="adsb" title="ADs and SBs" link={{ to: `/ads-sbs?aircraft=${id}`, label: 'All ADs and SBs' }} open={open.adsb} onToggle={() => toggle('adsb')}>
+        <AdSbPanelBody aircraftId={id} />
       </Panel>
 
       <Panel id="due" title="Due items, entered by engineers" link={{ to: `/ddls?aircraft=${id}`, label: 'DDLS sheet' }} open={open.due} onToggle={() => toggle('due')}>
@@ -360,7 +364,16 @@ export function AircraftPage() {
                   <td>{flag(x.due) ?? '—'}</td>
                 </tr>
               ))}
-              {due.length === 0 && <tr><td colSpan={4} className="muted">No due items recorded.</td></tr>}
+              {adsb.dueItems.map((x) => (
+                <tr key={x.key}>
+                  <td><Link to={x.to}>{x.item}</Link></td>
+                  <td className="mono">{x.due}</td>
+                  <td>{x.by}</td>
+                  <td>{x.flag === 'reached' ? <span className="chip tone-red">Reached</span>
+                    : x.flag === 'approaching' ? <span className="chip tone-amber">Approaching</span> : '—'}</td>
+                </tr>
+              ))}
+              {due.length === 0 && adsb.dueItems.length === 0 && <tr><td colSpan={4} className="muted">No due items recorded.</td></tr>}
             </tbody>
           </table>
         </div>
@@ -401,7 +414,7 @@ function QuickBar({ aircraftId, isEngineer, canLog }: { aircraftId: string; isEn
     ...(isEngineer ? [{ label: 'Request WO', to: `/request-work-order?aircraft=${aircraftId}` }] : []),
     ...(canLog ? [{ label: 'Log hours', to: `/flights?aircraft=${aircraftId}&do=log` }] : []),
     { label: 'Request part', soon: 'Part requests come with stores in Phase 2' },
-    { label: 'AD / SB entry', soon: 'ADs and SBs are not built yet' },
+    ...(isEngineer ? [{ label: 'AD / SB entry', to: `/ads-sbs?aircraft=${aircraftId}&do=new` }] : []),
     { label: 'Sync queue', to: '/sync' },
   ];
   return (
