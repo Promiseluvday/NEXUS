@@ -51,6 +51,7 @@ const GROUPS: { title: string; types: string[] }[] = [
   { title: 'Work orders', types: ['work_order'] },
   { title: 'DDLS and MEL extensions', types: ['ddls_extension'] },
   { title: 'NADD extensions', types: ['nadd_extension'] },
+  { title: 'Certifying authorizations', types: ['certifying_authorization'] },
 ];
 
 type WoBrief = { id: string; number: string; scope: string; aircraft: { tail: string } | null; snag: { number: string } | null };
@@ -149,7 +150,7 @@ function Inbox({ items }: { items: Pending[] | null }) {
       )}
 
       <p className="panel-note">
-        Requisitions, authorizations and approval-chain changes join this inbox when they are built <span className="rail-tag">Soon</span>
+        Requisitions and approval-chain changes join this inbox when they are built <span className="rail-tag">Soon</span>
       </p>
     </div>
   );
@@ -239,6 +240,8 @@ function DecisionPage({ requestId, items, onDecided }: { requestId: string; item
   }
 
   const isWo = p.record_table === 'work_order';
+  // Certifying authorizations (D-032): approval makes the authorization active.
+  const isAuth = p.action_type === 'certifying_authorization';
   const last = steps.length > 0 && p.step_no === steps[steps.length - 1].step_no;
   const next = steps.find((s) => s.step_no === p.step_no + 1);
   const iDecidedBefore = Boolean(me && decisions.some((d) => d.decided_by === me.personId));
@@ -254,7 +257,7 @@ function DecisionPage({ requestId, items, onDecided }: { requestId: string; item
     });
     setBusy('');
     if (err) return setError(errorText(err));
-    const finalText = isWo ? 'approved: work can start' : 'approved: the new limit applies';
+    const finalText = isWo ? 'approved: work can start' : isAuth ? 'approved: the authorization is now active' : 'approved: the new limit applies';
     const outcome = data === 'approved' ? finalText
       : data === 'rejected' ? 'rejected; the requester sees your reason'
       : 'approved at your step; it moves to the next approver';
@@ -337,7 +340,7 @@ function DecisionPage({ requestId, items, onDecided }: { requestId: string; item
             </button>
           </div>
           <p className="panel-note">
-            After approval: {last ? (isWo ? 'the work order opens and work can start (D-063).' : 'the new limit applies.') : `${next?.name ?? 'the next step'}.`}
+            After approval: {last ? (isWo ? 'the work order opens and work can start (D-063).' : isAuth ? 'the certifying authorization becomes active (D-032).' : 'the new limit applies.') : `${next?.name ?? 'the next step'}.`}
           </p>
         </Section>
       </form>

@@ -205,6 +205,12 @@ export function Rail({ aircraft, open, onNavigate, approvals }: Props) {
           <NavLink to="/admin/users" className="rail-link" onClick={onNavigate}>Users and roles</NavLink>
         </>
       )}
+      {/* People, licences and certifying authorizations (D-032, D-080).
+          Quality, Command, Super Admins and the CO/ECO see everyone; others
+          see their own record (the database decides, D-122). */}
+      <NavLink to="/people" end className="rail-link" onClick={onNavigate}>
+        {me?.isOversight || (me?.adminDepartments?.length ?? 0) > 0 ? 'People and authorizations' : 'My record'}
+      </NavLink>
 
       <div className="rail-rule" />
       <NavLink to="/approvals" className="rail-link" onClick={onNavigate}>

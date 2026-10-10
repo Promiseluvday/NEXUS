@@ -1,0 +1,66 @@
+/* Phase 2 · area A: People list (WF-PL1), Person record (WF-O1), Licences,
+   ratings, medicals (WF-O2), Certifying authorizations (WF-O3).
+   Layout from the wireframes; colours from theme.css. Imported by
+   screens/People.tsx. Everything is prefixed "pp-" so it never clashes. */
+
+.pp-page .tail-tabs { margin-top: -4px; }
+.pp-tlc { font-size: 16px; font-weight: 500; color: var(--ink-soft); margin-left: 6px; }
+.pp-tlc-big { font-size: 18px; font-weight: 600; }
+.pp-count {
+  display: inline-block; min-width: 22px; padding: 0 6px; margin-left: 6px; border-radius: 11px;
+  background: var(--blue-bg); color: var(--blue); font-size: 12px; text-align: center;
+}
+
+/* list filters */
+.pp-filters { display: grid; grid-template-columns: minmax(0, 320px) minmax(0, 220px) minmax(0, 260px); gap: 10px; }
+.pp-flag-line { margin-top: 4px; }
+.pp-table td { vertical-align: top; }
+.pp-old td { color: var(--ink-soft); }
+
+/* waiting authorizations banner */
+.pp-waiting { list-style: none; margin: 0; padding: 0; }
+.pp-waiting li { padding: 8px 0; border-bottom: 1px solid var(--line-faint); }
+.pp-waiting li:last-child { border-bottom: 0; }
+.pp-waiting a { font-weight: 600; }
+
+/* person record facts */
+.pp-facts { margin: 0; }
+.pp-facts dt .hint { font-size: 12px; }
+
+/* summary tiles: the whole tile is the link (D-098) */
+.pp-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.pp-tile {
+  display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; min-height: 96px;
+  background: #fff; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); text-decoration: none;
+}
+.pp-tile:hover { border-color: var(--line-strong); background: #fbfdff; }
+.pp-tile-title { font-size: 15px; font-weight: 600; color: var(--link); }
+.pp-tile-body { font-size: 14px; }
+.pp-tile-flags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.pp-tile-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+
+/* row actions and inline sign forms */
+.pp-row-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+td.pp-row-actions { margin-top: 0; white-space: nowrap; }
+.pp-row-actions button { min-height: 36px; padding: 0 12px; font-size: 13px; }
+.pp-inline-row td { background: #f7fbfe; }
+.pp-inline-form { display: flex; flex-direction: column; gap: 6px; max-width: 560px; }
+.pp-inline-form label { margin-top: 4px; }
+
+/* forms */
+.pp-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 16px; }
+.pp-grid label { margin-top: 10px; }
+
+@media (max-width: 800px) {
+  .pp-filters { grid-template-columns: 1fr; }
+  .pp-tiles { grid-template-columns: 1fr; }
+  .pp-grid { grid-template-columns: 1fr; }
+  .pp-hide-sm { display: none; }
+  td.pp-row-actions { white-space: normal; }
+}
+
+/* screen-reader-only text (e.g. the empty "Actions" column heading) */
+.pp-page .sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}

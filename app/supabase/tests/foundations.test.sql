@@ -175,25 +175,28 @@ select is(app.is_certifying('10000000-0000-0000-0000-000000000005', 'A330-200'),
   'D-043: an expired authorization does not count');
 
 select pg_temp.act_as(:KDO);
-select throws_like(
+select throws_ok(
   $$ insert into public.certifying_authorization (person_id, reference, aircraft_type_code, valid_from, expires_on, issued_by)
      values ('10000000-0000-0000-0000-000000000007', 'QA/AUTH/TEST-1', 'G550', current_date, current_date + 365,
              '10000000-0000-0000-0000-000000000005') $$,
-  '%Only Quality%',
-  'D-032: only Quality can issue a certifying authorization');
+  '42501', null,
+  'D-032: an engineer cannot write an authorization');
 select pg_temp.act_as_admin();
 
+-- Since migration 0026 even Quality and the CO issue and approve only through
+-- the PIN-signed functions (tested in people.test.sql), never directly.
 select pg_temp.act_as(:QAR);
-select lives_ok(
+select throws_ok(
   $$ insert into public.certifying_authorization (person_id, reference, aircraft_type_code, valid_from, expires_on, issued_by)
      values ('10000000-0000-0000-0000-000000000005', 'QA/AUTH/TEST-2', 'G550', current_date, current_date + 365,
              '10000000-0000-0000-0000-000000000004') $$,
-  'D-032: Quality can issue an authorization');
-select throws_like(
+  '42501', null,
+  'D-032, D-094: Quality cannot issue directly; only the signed function (PIN) issues');
+select throws_ok(
   $$ update public.certifying_authorization set approved_by = '10000000-0000-0000-0000-000000000004', approved_at = now()
       where reference = 'QA/AUTH/TEST-2' $$,
-  '%Only the CO or ECO%',
-  'D-032: Quality cannot also approve it; the CO or ECO approves');
+  '42501', null,
+  'D-032: nobody approves by editing the table; the CO or ECO approves through the inbox');
 select pg_temp.act_as_admin();
 
 -- --------------------------------------------- D-162: 3LC and D-094: PIN ---
