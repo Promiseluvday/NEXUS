@@ -31,6 +31,7 @@ const MENU: Record<string, Entry[]> = {
       { label: 'Snags', to: '/snags' },
       { label: 'MEL / DDLS', to: '/ddls' },
       { label: 'NADDs', to: '/nadds' },
+      { label: 'Cabin items to review', to: '/nadds?review=1' },
     ] },
     { label: 'Work orders', to: '/work-orders' },
     { group: 'Workshops', items: [
