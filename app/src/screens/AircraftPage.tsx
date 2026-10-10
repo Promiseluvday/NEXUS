@@ -1,11 +1,11 @@
 // One aircraft's overview, laid out as the Claude Design canvas
 // (Home.dc.html, WF-B2, D-096): breadcrumb and back button, a row of count
-// tiles, then panels that open and close (Expand all / Collapse all):
-//   Aircraft record   tail, type, MSN, the status an engineer set, and
-//                     Set tail status for engineers (PIN, D-215)
-//   Totals, Engines and APU, ADs and SBs
-//                     shown as "not recorded yet": flight records and
-//                     component records come in later phases
+// tiles, then panels that open and close (Expand all / Collapse all, or tap a panel's bar):
+//   Aircraft record   tail, type, MSN, the status an engineer set, Set tail
+//                     status for engineers (PIN, D-215), and Totals and
+//                     Engines and APU (shown as "not recorded yet" until
+//                     flight and component records exist)
+//   ADs and SBs       not recorded yet
 //   Open items        Blocked by, then open snags, DDLS, NADDs, work orders
 //   Due items         the due times written at deferral, flagged
 //                     "Approaching" / "Reached" against an operator margin
@@ -82,18 +82,19 @@ function useAircraftDetail(id: string) {
   return { d, load };
 }
 
+// A panel opens and closes from anywhere on its bar, not only the button.
 function Panel({ id, title, link, open, onToggle, children }: {
   id: string; title: string; link?: { to: string; label: string; soon?: boolean };
   open: boolean; onToggle: () => void; children: ReactNode;
 }) {
   return (
-    <section className="panel" aria-labelledby={`p-${id}`}>
-      <div className="panel-head">
+    <section className="panel" aria-labelledby={`p-${id}`} id={`panel-${id}`}>
+      <div className="panel-head" onClick={onToggle}>
         <h2 id={`p-${id}`}>{title}</h2>
         {link && (link.soon
           ? <span className="panel-link soon">{link.label} <span className="rail-tag">Soon</span></span>
-          : <Link className="panel-link" to={link.to}>{link.label}</Link>)}
-        <button type="button" className="outline-button panel-toggle" aria-expanded={open} aria-controls={`b-${id}`} onClick={onToggle}>
+          : <Link className="panel-link" to={link.to} onClick={(e) => e.stopPropagation()}>{link.label}</Link>)}
+        <button type="button" className="outline-button panel-toggle" aria-expanded={open} aria-controls={`b-${id}`}>
           {open ? 'Hide' : 'Show'}
         </button>
       </div>
@@ -149,7 +150,7 @@ function Calendar({ events, display }: { events: { at: string; text: string; to:
   );
 }
 
-const PANELS = ['record', 'totals', 'engines', 'open', 'adsb', 'due', 'activity', 'calendar'] as const;
+const PANELS = ['record', 'open', 'adsb', 'due', 'activity', 'calendar'] as const;
 type PanelId = (typeof PANELS)[number];
 
 export function AircraftPage() {
@@ -159,7 +160,7 @@ export function AircraftPage() {
   const { d, load } = useAircraftDetail(id);
   const margin = useApproachingDays();
   const [open, setOpen] = useState<Record<PanelId, boolean>>(
-    { record: true, totals: false, engines: false, open: true, adsb: false, due: true, activity: true, calendar: true });
+    { record: true, open: true, adsb: false, due: true, activity: true, calendar: true });
   const toggle = (p: PanelId) => setOpen((o) => ({ ...o, [p]: !o[p] }));
   const setAll = (v: boolean) => setOpen(Object.fromEntries(PANELS.map((p) => [p, v])) as Record<PanelId, boolean>);
   const isEngineer = Boolean(me?.departments.some((x) => x.code === 'ENG'));
@@ -224,6 +225,7 @@ export function AircraftPage() {
           <p className="dash-sub">{weekday} {formatDate(now, display)} · {r.aircraft_type}</p>
         </div>
         <div className="row" style={{ flex: '0 0 auto' }}>
+          {isEngineer && <Link className="button" to={`/request-work-order?aircraft=${id}`}>Request work order</Link>}
           <button type="button" className="outline-button" onClick={() => setAll(true)}>Expand all</button>
           <button type="button" className="outline-button" onClick={() => setAll(false)}>Collapse all</button>
         </div>
@@ -258,6 +260,25 @@ export function AircraftPage() {
           <TailStatusChip status={r.status} />
           {r.status_set_by && <span className="small muted">Set by <span className="mono">{r.status_set_by}</span> · <span className="mono">{formatDateTime(r.status_set_at, display)}</span></span>}
         </div>
+        <h3 className="sub-head">Totals <span className="rail-tag">Soon</span></h3>
+        <div className="facts-grid">
+          <div><div className="k">Total hours</div><div className="v mono none">—</div></div>
+          <div><div className="k">Cycles</div><div className="v mono none">—</div></div>
+          <div><div className="k">Landings</div><div className="v mono none">—</div></div>
+        </div>
+        <p className="panel-note">The sum of entered flight records. Flight records are not built yet (D-017).</p>
+        <h3 className="sub-head">Engines and APU <span className="rail-tag">Soon</span></h3>
+        <div className="table-scroll">
+          <table className="ptable">
+            <thead><tr><th>Position</th><th>Model</th><th>Serial</th><th>Hours since new</th><th>Cycles since new</th></tr></thead>
+            <tbody>
+              {['Engine 1', 'Engine 2', 'APU'].map((pos) => (
+                <tr key={pos}><td>{pos}</td><td className="muted">—</td><td className="muted">—</td><td className="muted">—</td><td className="muted">—</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="panel-note">Engine and APU records come with component records in Phase 2.</p>
         {isEngineer && (
           <details className="set-status">
             <summary className="outline-button button">Set tail status</summary>
@@ -266,20 +287,7 @@ export function AircraftPage() {
         )}
       </Panel>
 
-      <Panel id="totals" title="Totals" link={{ to: '', label: 'Flight records', soon: true }} open={open.totals} onToggle={() => toggle('totals')}>
-        <div className="facts-grid">
-          <div><div className="k">Total hours</div><div className="v mono none">—</div></div>
-          <div><div className="k">Cycles</div><div className="v mono none">—</div></div>
-          <div><div className="k">Landings</div><div className="v mono none">—</div></div>
-        </div>
-        <p className="panel-note">Totals will be the sum of entered flight records. Flight records are not built yet (D-017).</p>
-      </Panel>
-
-      <Panel id="engines" title="Engines and APU" link={{ to: '', label: 'All components', soon: true }} open={open.engines} onToggle={() => toggle('engines')}>
-        <p className="panel-note">Engine and APU records (model, serial, hours and cycles since new) come with component records in Phase 2.</p>
-      </Panel>
-
-      <Panel id="open" title="Open items" link={{ to: `/snags?aircraft=${id}`, label: 'All snags' }} open={open.open} onToggle={() => toggle('open')}>
+      <Panel id="open" title="Open items" link={isEngineer ? { to: `/request-work-order?aircraft=${id}`, label: 'Request work order' } : { to: `/snags?aircraft=${id}`, label: 'All snags' }} open={open.open} onToggle={() => toggle('open')}>
         {r.blocked_by && (
           <div className={`block${down ? ' down' : ''}`}>
             <div className="block-label">Blocked by</div>

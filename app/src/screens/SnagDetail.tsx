@@ -7,7 +7,8 @@
 //
 // Engineers act here:
 //   Snag open     → "Attend this snag" (turns the tail chip amber, D-200)
-//   Snag attended → choose one of five dispositions (Disposition.tsx)
+//   Snag attended → request a work order or defer (Disposition.tsx, D-218)
+//   Snag deferred → request a work order to rectify it later (D-218)
 //   Any time      → set the tail status (D-046)
 // Everyone else (pilots, Quality, Command) reads only.
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
@@ -18,7 +19,7 @@ import { formatDateTime } from '../lib/format';
 import { SnagStateChip, TailStatusChip } from '../components/StatusChip';
 import { SetTailStatus } from '../components/SetTailStatus';
 import type { AircraftOption } from '../components/AircraftPicker';
-import { Disposition } from './Disposition';
+import { Disposition, WorkOrderForm } from './Disposition';
 import { Queries } from '../components/Queries';
 import { cached } from '../lib/offline/cache';
 import { usePendingFor } from '../lib/offline/hooks';
@@ -242,6 +243,21 @@ export function SnagDetail() {
           onChoose={() => setMessage('')}
         />
       )}
+
+      {/* A deferred snag is rectified (or found serviceable) only under an
+          approved work order (D-218). */}
+      {isEngineer && snag.status === 'deferred' && (() => {
+        const active = linked.workOrders.find((w) => ['requested', 'pre_approved', 'open', 'work_complete'].includes(w.status));
+        return (
+          <div className="card" id="work-order">
+            <h2>Rectify this deferred snag</h2>
+            {active
+              ? <p>Work order <Link className="mono" to={`/work-orders/${active.id}`}>{active.number}</Link> · {WO_STATE[active.status] ?? active.status}.
+                  Certifying it clears the deferral and closes the snag.</p>
+              : <WorkOrderForm snag={snag} deferred onDone={done} />}
+          </div>
+        );
+      })()}
 
       {isEngineer && (
         <div className="card">

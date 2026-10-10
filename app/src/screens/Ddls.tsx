@@ -8,7 +8,8 @@
 // (D-020, D-057).
 //
 // Engineers can:
-//   Clear an entry   → rectification, TLB reference, PIN; closes the snag
+//   Clear an entry   → request a work order; certifying it clears the entry
+//                       and closes the snag (D-218)
 //   Request extension → a separate approval (D-056); never for categories the
 //                       operator excludes (PAF: Cat A, D-163): the button
 //                       does not exist for them.
@@ -16,11 +17,10 @@ import { Fragment, useCallback, useEffect, useMemo, useState, type FormEvent } f
 import { Link, useOutletContext, useSearchParams } from 'react-router';
 import { useAuth } from '../lib/auth';
 import { actions, db, errorText } from '../lib/supabase';
-import { perform, queuedText } from '../lib/perform';
 import { cached } from '../lib/offline/cache';
+import { WorkOrderForm } from './Disposition';
 import { formatDateTime } from '../lib/format';
 import { AircraftPicker, type AircraftOption } from '../components/AircraftPicker';
-import { PinField } from '../components/PinField';
 
 export type DdlsEntry = {
   id: string; page_no: number; entry_no: number; kind: string; status: string;
@@ -204,44 +204,31 @@ export function DdlsSheet() {
   );
 }
 
+// Clearing an entry needs an approved work order (D-218): request one here;
+// certifying it (certifying engineer, PIN) clears the entry and closes the
+// snag in the same signature.
 function ClearForm({ entry, onDone }: { entry: DdlsEntry; onDone: (m: string) => void }) {
-  const [text, setText] = useState('');
-  const [book, setBook] = useState('');
-  const [page, setPage] = useState('');
-  const [pin, setPin] = useState('');
-  const [error, setError] = useState('');
-  const [busy, setBusy] = useState(false);
-  async function submit(ev: FormEvent) {
-    ev.preventDefault();
-    setError('');
-    if (!text.trim()) return setError('Describe the rectification actions.');
-    if (!/^[0-9]{4,8}$/.test(pin)) return setError('Enter your PIN (4 to 8 digits) to sign.');
-    setBusy(true);
-    const label = `Clear DDLS ${entry.page_no}/${entry.entry_no} (${entry.snag?.number ?? 'snag'})`;
-    const o = await perform('clear_ddls_entry', {
-      p_entry: entry.id, p_rectification: text.trim(), p_pin: pin,
-      p_rect_tlb_book: book || undefined, p_rect_tlb_page: page || undefined,
-    }, { label, recordPath: `/snags/${entry.snag_id}` });
-    setBusy(false);
-    if (o.error) return setError(errorText(o.error));
-    if (o.queued) return onDone(queuedText(o, label));
-    onDone(`DDLS page ${entry.page_no} entry ${entry.entry_no} cleared; ${entry.snag?.number ?? 'the snag'} closed. The tail status is unchanged until an engineer sets it (D-046).`);
-  }
+  const [wos, setWos] = useState<{ id: string; number: string; status: string }[] | null>(null);
+  useEffect(() => {
+    cached(`snag:${entry.snag_id}:wo`, () => db.from('work_order').select('id, number, status').eq('snag_id', entry.snag_id))
+      .then((r) => setWos((r.data ?? []) as { id: string; number: string; status: string }[]));
+  }, [entry.snag_id]);
+  const active = wos?.find((w) => ['requested', 'pre_approved', 'open', 'work_complete'].includes(w.status));
   return (
-    <form onSubmit={submit}>
+    <div>
       <h3>Clear entry {entry.page_no}/{entry.entry_no}</h3>
-      <label htmlFor={`rect-${entry.id}`}>Rectification actions</label>
-      <textarea id={`rect-${entry.id}`} value={text} onChange={(e) => setText(e.target.value)} />
-      <div className="row">
-        <div><label htmlFor={`rb-${entry.id}`}>Rectification TLB book</label>
-          <input id={`rb-${entry.id}`} className="mono" value={book} onChange={(e) => setBook(e.target.value)} /></div>
-        <div><label htmlFor={`rp-${entry.id}`}>Page</label>
-          <input id={`rp-${entry.id}`} className="mono" value={page} onChange={(e) => setPage(e.target.value)} /></div>
-      </div>
-      <PinField id={`pin-${entry.id}`} value={pin} onChange={setPin} />
-      {error && <div className="error" role="alert">{error}</div>}
-      <p><button type="submit" disabled={busy}>{busy ? 'Signing…' : 'Sign and clear'}</button></p>
-    </form>
+      {!wos ? <p className="muted">Loading…</p> : active ? (
+        <p>
+          Work order <Link className="mono" to={`/work-orders/${active.id}`}>{active.number}</Link> is in progress.
+          Certifying it clears this entry and closes {entry.snag?.number ?? 'the snag'}.
+        </p>
+      ) : (
+        <>
+          <p className="small muted" style={{ marginBottom: 0 }}>Clearing needs an approved work order (D-218).</p>
+          <WorkOrderForm snag={{ id: entry.snag_id }} deferred onDone={onDone} />
+        </>
+      )}
+    </div>
   );
 }
 

@@ -101,8 +101,8 @@ select is((app.submit_offline_signature(:'pay2', repeat('0', 64)) ->> 'ok'), 'fa
 select pg_temp.admin();
 
 -- The record changed before the signature arrived (D-105).
-select pg_temp.payload(:TMB, :'dev1', 'close_snag_no_fault_found', jsonb_build_object(
-  'p_snag', :'snag1', 'p_findings', '[TEST] nothing found')) as pay3 \gset
+select pg_temp.payload(:TMB, :'dev1', 'defer_as_nadd', jsonb_build_object(
+  'p_snag', :'snag1', 'p_declaration', true, 'p_zone', 'CABIN-FWD', 'p_location', '[TEST]', 'p_limit_days', 30)) as pay3 \gset
 select pg_temp.sign(:'pay3', :TMB, :'dev1') as sig3 \gset
 select pg_temp.act_as(:TMB);
 select matches(app.submit_offline_signature(:'pay3', :'sig3') ->> 'reason', 'Snag .* is deferred.*',

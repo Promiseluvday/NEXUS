@@ -93,7 +93,7 @@ export type Database = {
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
 "certify_work_order":
-{ Args: { "p_note": string,"p_pin": string,"p_wo": string }; Returns: undefined
+{ Args: { "p_no_fault_found"?: boolean,"p_note": string,"p_pin": string,"p_tlb_book"?: string,"p_tlb_page"?: string,"p_wo": string }; Returns: undefined
                            },
 "check_my_pin":
 { Args: { "p_pin": string }; Returns: boolean

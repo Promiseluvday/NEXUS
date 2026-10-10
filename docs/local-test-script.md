@@ -18,7 +18,7 @@
    npm run db:reset
    npm run db:test
    ```
-   `db:test` must end with **Result: PASS** (160 checks).
+   `db:test` must end with **Result: PASS** (167 checks).
 3. First time only (and after any `db:stop`/`db:start` that shows a new key): `npm run env:local`. It writes `app\.env.local` with the database address and key for you.
 4. Start the screens: `npm run dev`, then open **http://localhost:5173** in Chrome.
 
@@ -53,7 +53,7 @@
 | ✓ | Step | Expected | Found |
 |---|---|---|---|
 | ☐ | `kdo`: Snags ▸ open SNAG-000001 ▸ **Attend** | Board chip for NX-203 turns amber "Snag attended" | |
-| ☐ | Disposition ▸ Rectify now ▸ request work order | WO-000001, "locked until Quality, then the CO" | |
+| ☐ | Disposition ▸ **Request work order** (or ＋ New ▸ Request work order ▸ NX-203) | WO-000001, "locked until Quality, then the CO" | |
 | ☐ | `abe`: top bar | **No** Approvals button yet (Quality first) | |
 | ☐ | `qar`: **Approvals (1)** ▸ approve with wrong PIN, then right PIN | Wrong PIN refused; then "moves to the next approver" | |
 | ☐ | `abe`: Approvals ▸ approve | "approved: work can start" | |
@@ -61,6 +61,7 @@
 | ☐ | Try attaching a `.txt` or `.docx` | Refused: PDF and images only | |
 | ☐ | `kdo`: Certify | Refused: not certifying for the G550 | |
 | ☐ | `tmb`: Certify with PIN | Certified; snag closed; offers "Set tail status" | |
+| ☐ | On another attended snag: is there any way to close it as "no fault found" without a work order? | No: NFF is a tick when certifying a work order (D-218) | |
 | ☐ | Open the sign-off card from the file list | The PDF opens in a new tab | |
 
 ## 3. Deferrals
@@ -72,7 +73,8 @@
 | ☐ | Tick all, "Also set to Serviceable · MEL" ticked, sign | DDLS page/entry given; NX-202 now **Serviceable · MEL** | |
 | ☐ | Snags & deferrals ▸ DDLS ▸ NX-204 ▸ ▸ ▸ Request extension | "Extension requested" chip | |
 | ☐ | `qar`: approve the extension | New due time on the DDLS | |
-| ☐ | `tmb`: clear the entry with PIN; **Print DDLS** | Entry cleared; print shows deferral, extension and clearing | |
+| ☐ | `tmb`: open the entry ▸ **Request work order** (clearing needs one, D-218) ▸ `qar` and `abe` approve ▸ entry, complete, attach sign-off card ▸ certify with PIN | Certifying clears the DDLS entry and closes the snag | |
+| ☐ | **Print DDLS** | Print shows deferral, extension and clearing | |
 
 ## 4. Cabin items, NADDs, queries
 

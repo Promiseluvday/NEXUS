@@ -379,21 +379,27 @@ function CertifyForm({ wo, missing, canCertify, onDone }: {
 }) {
   const [note, setNote] = useState('');
   const [pin, setPin] = useState('');
+  const [nff, setNff] = useState(false);
+  const [book, setBook] = useState('');
+  const [page, setPage] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   async function submit(e: FormEvent) {
     e.preventDefault();
     setError('');
-    if (!note.trim()) return setError('Write the certification statement.');
+    if (!note.trim()) return setError(nff ? 'Record what was checked and the result.' : 'Write the certification statement.');
     if (!/^[0-9]{4,8}$/.test(pin)) return setError('Enter your PIN (4 to 8 digits) to sign.');
     setBusy(true);
     const label = `Certify ${wo.number}`;
-    const o = await perform('certify_work_order', { p_wo: wo.id, p_pin: pin, p_note: note.trim() },
+    const o = await perform('certify_work_order', {
+      p_wo: wo.id, p_pin: pin, p_note: note.trim(), p_no_fault_found: nff,
+      p_tlb_book: book.trim() || undefined, p_tlb_page: page.trim() || undefined,
+    },
       { label, recordPath: `/work-orders/${wo.id}`, aircraftId: wo.aircraft_id });
     setBusy(false);
     if (o.error) return setError(errorText(o.error));
     if (o.queued) return onDone(queuedText(o, label));
-    onDone(`${wo.number} certified. ${wo.snag?.number ?? 'The snag'} is closed. Set the tail status below if it changes.`);
+    onDone(`${wo.number} certified${nff ? ' as no fault found' : ''}. ${wo.snag?.number ?? 'The snag'} is closed and any DDLS entry or NADD for it is cleared. Set the tail status if it changes.`);
   }
   return (
     <form className="card" onSubmit={submit}>
@@ -404,8 +410,19 @@ function CertifyForm({ wo, missing, canCertify, onDone }: {
       {missing.length > 0 && (
         <div className="notice">Attach first: {missing.map((k) => KIND_LABEL[k] ?? k).join(', ')} (D-065).</div>
       )}
-      <label htmlFor="wo-cert">Certification statement</label>
+      <label className="check">
+        <input type="checkbox" checked={nff} onChange={(e) => setNff(e.target.checked)} />
+        No fault found: the troubleshooting found nothing to rectify (D-218)
+      </label>
+      <label htmlFor="wo-cert">{nff ? 'What was checked, and the result' : 'Certification statement'}</label>
       <textarea id="wo-cert" value={note} onChange={(e) => setNote(e.target.value)} />
+      <div className="row">
+        <div><label htmlFor="cert-book">Tech log book <span className="hint">(optional)</span></label>
+          <input id="cert-book" value={book} onChange={(e) => setBook(e.target.value)} /></div>
+        <div><label htmlFor="cert-page">Page <span className="hint">(optional)</span></label>
+          <input id="cert-page" value={page} onChange={(e) => setPage(e.target.value)} /></div>
+      </div>
+      <p className="small muted">Certifying closes the snag and, with the same signature, clears its DDLS entry or rectifies its NADD.</p>
       <PinField id="cert-pin" value={pin} onChange={setPin} />
       {error && <div className="error" role="alert">{error}</div>}
       <p><button type="submit" disabled={busy || missing.length > 0}>{busy ? 'Signing…' : 'Sign and certify'}</button></p>

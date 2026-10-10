@@ -60,6 +60,11 @@ function NewMenu() {
               Cabin item
             </MenuItem>
           )}
+          {eng && (
+            <MenuItem onSelect={() => { close(); navigate(`/request-work-order${tailId ? `?aircraft=${tailId}` : ''}`); }}>
+              Request work order
+            </MenuItem>
+          )}
           {eng && <MenuItem soon>Request part</MenuItem>}
           <MenuItem onSelect={() => {
             close();

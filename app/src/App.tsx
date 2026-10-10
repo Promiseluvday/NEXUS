@@ -10,6 +10,7 @@
 //     /snags/:id              one snag: attend, disposition, tail status
 //     /approvals              approvals waiting for me
 //     /work-orders            work order list; /work-orders/:id one work order
+//     /request-work-order     pick tail and snag, request a work order (D-218)
 //     /ddls, /nadds           DDLS sheet and NADD list per tail (?aircraft=…)
 //     /cabin-item             report a cabin item on the cabin map
 //     /queries                technical queries I am involved in
@@ -25,6 +26,7 @@ import { AccountNotActive, SetPin } from './screens/SetPin';
 import { ComingSoon, Home } from './screens/Home';
 import { FleetBoard } from './screens/FleetBoard';
 import { AircraftPage } from './screens/AircraftPage';
+import { RequestWorkOrder } from './screens/RequestWorkOrder';
 import { ReportSnag } from './screens/ReportSnag';
 import { SnagList } from './screens/SnagList';
 import { SnagDetail } from './screens/SnagDetail';
@@ -52,6 +54,7 @@ const router = createBrowserRouter([
       { path: 'approvals', element: <Approvals /> },
       { path: 'work-orders', element: <WorkOrderList /> },
       { path: 'work-orders/:id', element: <WorkOrderPage /> },
+      { path: 'request-work-order', element: <RequestWorkOrder /> },
       { path: 'ddls', element: <DdlsSheet /> },
       { path: 'nadds', element: <NaddList /> },
       { path: 'cabin-item', element: <CabinItem /> },

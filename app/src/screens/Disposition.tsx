@@ -1,13 +1,17 @@
-// The five dispositions of an attended snag (D-040, D-214):
+// The dispositions of an attended snag (D-040, D-214, D-218):
 //
-//   Rectify now      → request a work order (Quality, then CO approve: D-063)
+//   Request work order → any rectification, troubleshooting or "no fault
+//                      found" needs a work order approved by Quality, then
+//                      the CO (D-063, D-218). No fault found is recorded when
+//                      the work order is certified.
 //   Defer under MEL  → choose the item, confirm (M), (O) and placard, sign;
 //                      logged on the DDLS automatically (D-053, D-163)
 //   Defer on DDLS    → not an MEL item: days allowed with a manual reference
 //   Defer as NADD    → no airworthiness effect, not emergency equipment (D-160, D-209)
-//   No fault found   → record what was checked, sign; closes the snag
+// Deferring is the only thing allowed without a work order (D-218).
 //
-// One dropdown picks the disposition; only that form shows (docs/ui-rules.md).
+// "Request work order" is the main button; the deferrals sit in one
+// "Defer instead" dropdown; only the chosen form shows (docs/ui-rules.md).
 // Signing needs a certifying engineer for the type and their PIN (D-043,
 // D-094). The DATABASE checks all of this again; the screen only guides.
 // The limits shown are the ones the MEL or the engineer state. Nexus never
@@ -37,14 +41,13 @@ export type SnagForDisposition = {
   tail_status: string | null; // the engineer-set status now (D-046)
 };
 
-type Kind = 'rectify_now' | 'mel' | 'ddls' | 'nadd' | 'nff';
+type Kind = 'rectify_now' | 'mel' | 'ddls' | 'nadd';
 
 const KINDS: { key: Kind; label: string; signs: boolean }[] = [
-  { key: 'rectify_now', label: 'Rectify now: request a work order', signs: false },
+  { key: 'rectify_now', label: 'Request work order', signs: false },
   { key: 'mel', label: 'Defer under the MEL', signs: true },
   { key: 'ddls', label: 'Defer on the DDLS (not an MEL item)', signs: true },
   { key: 'nadd', label: 'Defer as a NADD (no airworthiness effect)', signs: true },
-  { key: 'nff', label: 'No fault found: close', signs: true },
 ];
 
 type Props = {
@@ -61,13 +64,23 @@ export function Disposition({ snag, canCertify, onDone, onChoose }: Props) {
   return (
     <div className="card">
       <h2>Disposition</h2>
-      <label htmlFor="disposition">What will be done with this snag?</label>
-      <select id="disposition" value={kind} onChange={(e) => { setKind(e.target.value as Kind); onChoose?.(); }}>
-        <option value="">Choose a disposition…</option>
-        {KINDS.map((k) => (
-          <option key={k.key} value={k.key}>{k.label}{k.signs && !canCertify ? ' (certifying engineer)' : ''}</option>
-        ))}
-      </select>
+      <p className="small muted" style={{ marginTop: 0 }}>
+        Any work on this snag, including troubleshooting and "no fault found", needs an approved work order (D-218).
+        Without one, it can only be deferred.
+      </p>
+      <div className="disposition-choice">
+        <button type="button" className={kind === 'rectify_now' ? 'chosen' : ''} aria-pressed={kind === 'rectify_now'}
+          onClick={() => { setKind('rectify_now'); onChoose?.(); }}>
+          Request work order
+        </button>
+        <label className="visually-hidden" htmlFor="disposition">Defer instead</label>
+        <select id="disposition" value={kind === 'rectify_now' ? '' : kind} onChange={(e) => { setKind(e.target.value as Kind); onChoose?.(); }}>
+          <option value="">Defer instead…</option>
+          {KINDS.filter((k) => k.key !== 'rectify_now').map((k) => (
+            <option key={k.key} value={k.key}>{k.label}{k.signs && !canCertify ? ' (certifying engineer)' : ''}</option>
+          ))}
+        </select>
+      </div>
       {chosen?.signs && !canCertify && (
         <div className="notice">
           This needs a certifying engineer for the {snag.aircraft_type} (D-043). You do not hold a valid
@@ -79,7 +92,6 @@ export function Disposition({ snag, canCertify, onDone, onChoose }: Props) {
       {kind === 'mel' && <MelForm snag={snag} onDone={onDone} />}
       {kind === 'ddls' && <DdlsForm snag={snag} onDone={onDone} />}
       {kind === 'nadd' && <NaddForm snag={snag} onDone={onDone} />}
-      {kind === 'nff' && <NffForm snag={snag} onDone={onDone} />}
     </div>
   );
 }
@@ -182,7 +194,7 @@ const pinOk = (pin: string) => (/^[0-9]{4,8}$/.test(pin) ? null : 'Enter your PI
 
 // ------------------------------------------------------------ the forms
 
-function WorkOrderForm({ snag, onDone }: FormProps) {
+export function WorkOrderForm({ snag, onDone, deferred = false }: { snag: { id: string }; onDone: (message: string) => void; deferred?: boolean }) {
   const [scope, setScope] = useState('');
   const [hours, setHours] = useState('');
   const { error, busy, run } = useSubmit(onDone);
@@ -202,11 +214,15 @@ function WorkOrderForm({ snag, onDone }: FormProps) {
   }
   return (
     <form onSubmit={submit}>
-      <label htmlFor="wo-scope">Work to be done</label>
+      <label htmlFor="wo-scope">Work to be done <span className="hint">(rectification, or troubleshooting)</span></label>
       <textarea id="wo-scope" value={scope} onChange={(e) => setScope(e.target.value)} required />
       <label htmlFor="wo-hours">Estimated man-hours <span className="hint">(optional)</span></label>
       <input id="wo-hours" type="number" min="0" step="0.5" inputMode="decimal" value={hours} onChange={(e) => setHours(e.target.value)} />
-      <p className="small muted">No signature yet: the work order goes to Quality, then the CO. Work is recorded and certified on the work order.</p>
+      <p className="small muted">
+        No signature yet: the work order goes to Quality, then the CO. Work is recorded and certified on the work order;
+        certifying it closes the snag{deferred ? ' and clears its DDLS entry or NADD' : ''}, or records "no fault found".
+        {deferred && ' The deferral stays in force until then.'}
+      </p>
       <Submit busy={busy} error={error} label="Request work order" />
     </form>
   );
@@ -387,37 +403,6 @@ function NaddForm({ snag, onDone }: FormProps) {
       </Check>
       <PinField value={pin} onChange={setPin} />
       <Submit busy={busy} error={error} label="Sign and defer as NADD" />
-    </form>
-  );
-}
-
-function NffForm({ snag, onDone }: FormProps) {
-  const [findings, setFindings] = useState('');
-  const [pin, setPin] = useState('');
-  const { tlb, change } = useTlb(snag);
-  const { error, busy, run } = useSubmit(onDone);
-  function submit(e: FormEvent) {
-    e.preventDefault();
-    run(
-      () => (findings.trim() ? pinOk(pin) : 'Record what was checked before closing as no fault found.'),
-      async () => {
-        const label = `Close ${snag.number}: no fault found`;
-        const { error: err, queued } = await perform('close_snag_no_fault_found', {
-          p_snag: snag.id, p_findings: findings.trim(), p_pin: pin,
-          p_tlb_book: tlb.book || undefined, p_tlb_page: tlb.page || undefined,
-        }, { label: label, recordPath: `/snags/${snag.id}`, aircraftId: snag.aircraft_id });
-        if (queued) return { error: null, message: queuedText({ queued }, label) };
-        return err ? { error: err } : { error: null, message: `${snag.number} closed: no fault found.` };
-      },
-    );
-  }
-  return (
-    <form onSubmit={submit}>
-      <label htmlFor="nff-findings">What was checked, and the result</label>
-      <textarea id="nff-findings" value={findings} onChange={(e) => setFindings(e.target.value)} required />
-      <TlbFields book={tlb.book} page={tlb.page} onChange={change} withItem={false} />
-      <PinField value={pin} onChange={setPin} />
-      <Submit busy={busy} error={error} label="Sign and close" />
     </form>
   );
 }
