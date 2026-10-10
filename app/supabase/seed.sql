@@ -191,6 +191,7 @@ insert into public.operator_setting (key, value, reason) values
   ('operator.time_zone',            '"Africa/Lagos"',      'Initial set-up (D-055)'),
   ('mel.discovery_day_counts',      'false',               'Initial set-up (D-055)'),
   ('ddls.entries_per_page',         '4',                   'Initial set-up (D-163)'),
+  ('attention.approaching_days',    '3',                   'Initial set-up: days before a recorded due time to flag it'),
   ('nadds.rows_per_sheet',          '8',                   'Initial set-up (D-161)'),
   ('repeat.threshold',              '3',                   'Initial set-up (D-208)'),
   ('repeat.window_days',            '30',                  'Initial set-up (D-208)'),

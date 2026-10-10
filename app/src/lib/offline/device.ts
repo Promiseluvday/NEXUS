@@ -55,7 +55,8 @@ export async function registerDevice(label: string): Promise<string | null> {
 }
 
 export async function checkIn(): Promise<boolean> {
-  const { data, error } = await actions.rpc('device_checkin', { p_device: state.deviceId ?? undefined } as { p_device: string });
+  // Unregistered devices send null: still useful, it sets the server clock.
+  const { data, error } = await actions.rpc('device_checkin', { p_device: state.deviceId ?? null } as unknown as { p_device: string });
   if (error) {
     if (isNetworkError(error)) setReachable(false);
     return false;

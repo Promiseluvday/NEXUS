@@ -1,14 +1,14 @@
 // The frame around every screen after sign-in, as the Claude Design canvas
 // (Main.dc.html):
-//   black header: ☰ (phones), "Nexus MRO by Liebetag", tail search,
+//   black header: "Nexus MRO by Liebetag", tail search,
 //     online/offline pill (D-094), notifications bell (approvals waiting),
 //     ＋ New menu (all actions in one place), account menu with name and
 //     role (Sign out, D-206)
-//   left rail: All aircraft and departments (D-201, D-202)
+//   left rail: All aircraft and departments (D-201, D-202); on a phone it
+//     slides in from More on the bottom bar (Fleet, Snags, Parts, More)
 //   the chosen screen on the right.
-// On a phone the rail slides in from the left with the ☰ button.
 import { useEffect, useState } from 'react';
-import { Link, Outlet, useLocation, useNavigate, useParams } from 'react-router';
+import { Link, NavLink, Outlet, useLocation, useNavigate, useParams } from 'react-router';
 import { useAuth } from '../lib/auth';
 import { Rail } from '../components/Rail';
 import { TailSearch, useAircraftList } from '../components/AircraftPicker';
@@ -150,6 +150,13 @@ export function Home() {
       <main className="main" onClick={() => railOpen && setRailOpen(false)}>
         <Outlet context={{ aircraft }} />
       </main>
+      {/* Phones: bottom bar (Phone.dc.html). More opens the full menu. */}
+      <nav className="bottom-nav" aria-label="Main">
+        <NavLink to="/" end onClick={() => setRailOpen(false)}>Fleet</NavLink>
+        <NavLink to="/snags" onClick={() => setRailOpen(false)}>Snags</NavLink>
+        <NavLink to="/section/SUP/stores-search" onClick={() => setRailOpen(false)}>Parts</NavLink>
+        <button type="button" aria-expanded={railOpen} onClick={() => setRailOpen((o) => !o)}>More</button>
+      </nav>
     </div>
   );
 }

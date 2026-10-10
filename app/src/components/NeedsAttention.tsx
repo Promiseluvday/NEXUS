@@ -5,7 +5,8 @@
 // it. Everything comes from records already in the database:
 //   AOG / U/S   tails an engineer set to AOG or Unserviceable
 //   Due         DDLS deferrals and NADDs whose recorded due time is within
-//               3 days (or past); the due time was written at deferral
+//               the operator's margin (attention.approaching_days, default
+//               3) or past; the due time was written at deferral
 //   Open        snags reported and not yet attended
 //   Approval    approvals waiting for you
 //   Expiry      certifying authorizations ending within 30 days
@@ -15,6 +16,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { db } from '../lib/supabase';
+import { useApproachingDays } from '../lib/settings';
 import { cached } from '../lib/offline/cache';
 import { formatPlainDate, heldFor, type DisplaySettings } from '../lib/format';
 import type { FleetRow } from '../screens/FleetBoard';
@@ -49,9 +51,10 @@ export function NeedsAttention({ rows, now, approvals, display }: {
 }) {
   const [ddls, setDdls] = useState<DdlsDue[]>([]);
   const [auths, setAuths] = useState<AuthDue[]>([]);
+  const margin = useApproachingDays();
 
   useEffect(() => {
-    const soon = new Date(Date.now() + 3 * DAY).toISOString();
+    const soon = new Date(Date.now() + margin * DAY).toISOString();
     cached('attention_ddls', () => db.from('ddls_entry')
       .select('id, aircraft_id, kind, mel_category, due_at, aircraft:aircraft_id (tail)')
       .eq('status', 'open').not('due_at', 'is', null).lte('due_at', soon).order('due_at'))
@@ -62,7 +65,7 @@ export function NeedsAttention({ rows, now, approvals, display }: {
       .is('revoked_at', null).gte('expires_on', new Date().toISOString().slice(0, 10)).lte('expires_on', month)
       .order('expires_on'))
       .then((r) => setAuths((r.data ?? []) as unknown as AuthDue[]));
-  }, [rows]);
+  }, [rows, margin]);
 
   const alerts: Alert[] = [];
   for (const r of rows) {
@@ -83,7 +86,7 @@ export function NeedsAttention({ rows, now, approvals, display }: {
         owner: 'Engineering', sort: new Date(since ?? 0).getTime(),
       });
     }
-    if (r.next_nadd_due && new Date(r.next_nadd_due).getTime() - now.getTime() < 3 * DAY) {
+    if (r.next_nadd_due && new Date(r.next_nadd_due).getTime() - now.getTime() < margin * DAY) {
       alerts.push({
         level: 'due', ref: r.tail, to: `/nadds?aircraft=${r.aircraft_id}`,
         text: `NADD due ${dueText(r.next_nadd_due, now)}`, owner: 'Engineering',

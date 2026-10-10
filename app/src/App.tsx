@@ -4,7 +4,7 @@
 //   No signing PIN yet        → Set your PIN (first sign-in, D-206)
 //   Otherwise                 → the app, with these addresses:
 //     /                       fleet board (All aircraft)
-//     /aircraft/:id           one aircraft
+//     /aircraft/:id           one aircraft overview
 //     /report-snag            report a snag (?aircraft=… fills in the tail)
 //     /snags                  snag list (?view=…&aircraft=…)
 //     /snags/:id              one snag: attend, disposition, tail status
@@ -23,7 +23,8 @@ import { useAuth } from './lib/auth';
 import { SignIn } from './screens/SignIn';
 import { AccountNotActive, SetPin } from './screens/SetPin';
 import { ComingSoon, Home } from './screens/Home';
-import { AircraftSummary, FleetBoard } from './screens/FleetBoard';
+import { FleetBoard } from './screens/FleetBoard';
+import { AircraftPage } from './screens/AircraftPage';
 import { ReportSnag } from './screens/ReportSnag';
 import { SnagList } from './screens/SnagList';
 import { SnagDetail } from './screens/SnagDetail';
@@ -44,7 +45,7 @@ const router = createBrowserRouter([
     element: <Home />,
     children: [
       { index: true, element: <FleetBoard /> },
-      { path: 'aircraft/:id', element: <AircraftSummary /> },
+      { path: 'aircraft/:id', element: <AircraftPage /> },
       { path: 'report-snag', element: <ReportSnag /> },
       { path: 'snags', element: <SnagList /> },
       { path: 'snags/:id', element: <SnagDetail /> },
