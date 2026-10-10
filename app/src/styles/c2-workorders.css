@@ -1,1 +1,92 @@
-/* Phase C batch styles: c2-workorders */
+/* Phase C batch styles: c2-workorders
+   Work orders (WF-G1, WF-G2, WF-WOE), work order request (WF-WO1) and
+   approvals (WF-L1, WF-WQA, WF-WCO). Layout from the wireframes; colours
+   from theme.css. Status colours only where they carry meaning (D-091). */
+
+/* List filters (view and tail) */
+.wo-filters { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.wo-filters > select { flex: 0 1 260px; width: auto; }
+.wo-filters > * { flex: 0 1 320px; }
+.wo-table .wo-scope-cell { max-width: 420px; }
+.wo-table .dept-tag, .wo-table td:first-child, .wo-table td .mono { white-space: nowrap; }
+
+/* Step line: ✓ Requested → ✓ Quality pre-approval → ● CO final approval → … */
+.wo-steps {
+  list-style: none; margin: 0; padding: 12px 14px; display: flex; flex-wrap: wrap; gap: 8px 6px;
+  background: #fff; border: 1px solid var(--line); border-radius: 12px; font-size: 14px;
+}
+.wo-step { display: inline-flex; align-items: center; gap: 4px; color: var(--ink-soft); }
+.wo-step + .wo-step::before { content: '→'; color: var(--ink-soft); margin-right: 6px; }
+.wo-step.done { color: var(--green); }
+.wo-step.now { color: var(--ink); font-weight: 700; }
+.wo-step.rejected { color: var(--red); font-weight: 700; }
+
+/* Approval trail on the work order */
+.wo-trail { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.wo-trail li { display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 8px 0; border-top: 1px solid var(--line-faint); font-size: 14px; line-height: 1.5; }
+.wo-trail li:first-child { border-top: 0; padding-top: 0; }
+.wo-trail-name { flex: 0 0 180px; font-weight: 600; }
+.wo-reason { display: block; font-size: 13px; color: var(--ink-mid); }
+
+/* "Locked until Quality and CO approve" */
+.wo-locked { border: 2px solid var(--ink); border-radius: 12px; padding: 12px 14px; font-weight: 600; font-size: 14px; background: #fff; }
+.wo-locked-red { border-color: var(--aog); color: var(--red); background: var(--red-bg); }
+
+/* Scope and snag side by side on wide screens */
+.wo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; align-items: start; }
+.wo-scope { margin: 0; font-size: 16px; line-height: 1.5; }
+.wo-page .facts { margin: 0; }
+
+/* Task entries */
+.wo-entries { list-style: none; margin: 0; padding: 0; }
+.wo-entries li { padding: 8px 0; border-top: 1px solid var(--line-faint); }
+.wo-entries li:first-child { border-top: 0; padding-top: 0; }
+.wo-form label { margin-top: 4px; }
+.wo-page .sign-box { margin-top: 4px; }
+.wo-tlb > div { min-width: 0; }
+
+/* Completion evidence (WF-WOE): one row per scan, ticked or missing */
+.wo-evidence { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line-faint); border-radius: 8px; }
+.wo-evidence li { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 10px 12px; border-top: 1px solid var(--line-faint); }
+.wo-evidence li:first-child { border-top: 0; }
+.wo-ev-mark { width: 22px; height: 22px; border-radius: 999px; display: inline-grid; place-items: center; font-size: 13px; font-weight: 700; flex: 0 0 auto; }
+.wo-evidence .have .wo-ev-mark { background: var(--green-bg); color: var(--green); }
+.wo-evidence .need .wo-ev-mark { background: var(--amber-bg); color: var(--amber); }
+.wo-evidence .optional .wo-ev-mark { background: var(--grey-bg); color: var(--grey); }
+.wo-ev-name { flex: 1 1 180px; font-weight: 600; font-size: 14px; }
+.wo-evidence .optional .wo-ev-name { font-weight: 400; color: var(--ink-mid); }
+
+/* Work order request (WF-WO1): pick the snag */
+.wo-pick { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.wo-pick li { border: 1px solid var(--line-faint); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
+.wo-pick li.chosen { border: 2px solid var(--ink); background: #f5f9fd; }
+.wo-pick-top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.wo-pick-action { display: flex; align-items: center; min-height: var(--touch); }
+.wo-page .box-body form > label:first-child { margin-top: 0; }
+
+/* Approvals inbox (WF-L1) */
+.ap-count { font-family: var(--mono); font-size: 12px; font-weight: 600; background: var(--ink); color: #fff; border-radius: 999px; padding: 1px 8px; margin-left: 6px; }
+.ap-list { list-style: none; margin: -14px -16px; padding: 0; }
+.ap-list li + li { border-top: 1px solid var(--line-faint); }
+.ap-row { display: flex; flex-direction: column; gap: 3px; padding: 12px 16px; min-height: var(--touch); color: var(--ink); text-decoration: none; }
+.ap-row:hover { background: #f7fbfe; color: var(--ink); }
+.ap-main { font-size: 15px; }
+.ap-main .mono { font-weight: 600; }
+.ap-sub { font-size: 14px; color: var(--ink-mid); }
+.ap-meta { font-size: 13px; color: var(--ink-soft); }
+.ap-wait { font-weight: 600; color: var(--ink-mid); }
+
+/* Decision page (WF-WQA, WF-WCO) */
+.ap-earlier { display: flex; flex-direction: column; gap: 6px; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; font-size: 14px; }
+.ap-page .sign-box { margin-top: 4px; }
+button.ap-reject { background: #fff; border-color: var(--aog); color: var(--red); box-shadow: none; }
+button.ap-reject:hover { background: var(--red-bg); }
+
+@media (max-width: 800px) {
+  .wo-trail-name { flex-basis: 100%; }
+  .wo-filters > select, .wo-filters > * { flex: 1 1 100%; }
+  .wo-steps { font-size: 13px; padding: 10px 12px; }
+  .wo-page .page-actions, .ap-page .page-actions { width: 100%; }
+  .wo-tlb { flex-direction: column; gap: 0; }
+  .ap-page .action-row button { flex: 1 1 100%; justify-content: center; }
+}

@@ -17,7 +17,9 @@
 //     /device                 this tablet, offline signing, change PIN (D-217)
 //     /sync                   send queue on this tablet
 //     /offline-signatures     Quality review of offline signatures
+//     /notifications          things waiting on me, built from current records
 //     /print/ddls/:id, /print/nadds/:id   printable sheets (no app frame)
+//     /print/serviceability   daily serviceability state (?copy=ops: Operations copy, D-203)
 //     /section/:dept/:page    subsections built in later slices
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router';
 import { useAuth } from './lib/auth';
@@ -27,6 +29,8 @@ import { ComingSoon, Home } from './screens/Home';
 import { FleetBoard } from './screens/FleetBoard';
 import { AircraftPage } from './screens/AircraftPage';
 import { RequestWorkOrder } from './screens/RequestWorkOrder';
+import { Notifications } from './screens/Notifications';
+import { ServiceabilityPrint } from './screens/ServiceabilityPrint';
 import { ReportSnag } from './screens/ReportSnag';
 import { SnagList } from './screens/SnagList';
 import { SnagDetail } from './screens/SnagDetail';
@@ -55,6 +59,7 @@ const router = createBrowserRouter([
       { path: 'work-orders', element: <WorkOrderList /> },
       { path: 'work-orders/:id', element: <WorkOrderPage /> },
       { path: 'request-work-order', element: <RequestWorkOrder /> },
+      { path: 'notifications', element: <Notifications /> },
       { path: 'ddls', element: <DdlsSheet /> },
       { path: 'nadds', element: <NaddList /> },
       { path: 'cabin-item', element: <CabinItem /> },
@@ -68,6 +73,7 @@ const router = createBrowserRouter([
   },
   { path: '/print/ddls/:id', element: <DdlsPrint /> },
   { path: '/print/nadds/:id', element: <NaddsPrint /> },
+  { path: '/print/serviceability', element: <ServiceabilityPrint /> },
 ]);
 
 export function App() {

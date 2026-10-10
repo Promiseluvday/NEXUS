@@ -190,7 +190,7 @@ export function FleetBoard() {
             </button>
           </p>
         </div>
-        <button type="button" className="outline-button" onClick={() => window.print()}>Print serviceability state</button>
+        <Link className="button outline-button" to="/print/serviceability" target="_blank" rel="noopener">Print serviceability state</Link>
       </div>
 
       {error && <div className="error" role="alert">{error}</div>}

@@ -238,7 +238,7 @@ export function AircraftPage() {
           tone={r.next_nadd_due && new Date(r.next_nadd_due).getTime() - now.getTime() < margin * DAY ? 'warn' : undefined} />
         <Tile n={r.open_snags} label="Open snags" to={`/snags?aircraft=${id}`} />
         <Tile n={mel} label="MEL deferrals" to={`/ddls?aircraft=${id}`} />
-        <Tile n={d?.wos.length ?? '…'} label="Work orders open" to="/work-orders" />
+        <Tile n={d?.wos.length ?? '…'} label="Work orders open" to={`/work-orders?aircraft=${id}`} />
         <Tile n={due.filter((x) => flag(x.due)).length} label="Due items flagged" to={`/aircraft/${id}#p-due`}
           tone={due.some((x) => flag(x.due)) ? 'warn' : undefined} />
         <Tile n="—" label="Part requests" tone="none" />
