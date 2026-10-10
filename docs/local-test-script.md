@@ -19,7 +19,7 @@
    npm run db:test
    ```
    `db:test` must end with **Result: PASS** (160 checks).
-3. First time only: make sure `app\.env.local` exists with the anon key (`npm run db:status`, copy the anon key after `VITE_SUPABASE_ANON_KEY=`).
+3. First time only (and after any `db:stop`/`db:start` that shows a new key): `npm run env:local`. It writes `app\.env.local` with the database address and key for you.
 4. Start the screens: `npm run dev`, then open **http://localhost:5173** in Chrome.
 
 **Sample users** (password for all: `nexus-dev-only`). At first sign-in each asks for a PIN; use **246813** for everyone (6 digits, needed for offline signing).
@@ -120,6 +120,7 @@ Open **http://localhost:4173**.
 
 | Problem | Fix |
 |---|---|
+| "The app is not connected to a database" | `npm run env:local`, then stop (Ctrl+C) and restart `npm run dev` |
 | "Cannot reach the Nexus server" | Docker Desktop running? Then `npm run db:start` |
 | `db:start` says a port is in use | `npm run db:stop`, then `npm run db:start` |
 | Sign-in fails for every user | `npm run db:reset` (rebuilds the sample data) |

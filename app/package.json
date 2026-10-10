@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "types": "supabase gen types typescript --local --schema public,app > src/lib/database.types.ts",
+    "env:local": "node scripts/make-env.mjs",
     "db:start": "supabase start -x studio,imgproxy,mailpit,logflare,vector,supavisor,edge-runtime,realtime,postgres-meta",
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",

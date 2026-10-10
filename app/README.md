@@ -150,9 +150,11 @@ npm run preview      # opens on http://localhost:4173
 
 ### Opening the screens
 
-Once, create your settings file:
-1. Copy `.env.example` to `.env.local` (same folder): `copy .env.example .env.local`
-2. Run `npm run db:status`, copy the **anon key** value, and paste it into `.env.local` after `VITE_SUPABASE_ANON_KEY=`.
+Once, create your settings file (with the database running):
+```
+npm run env:local
+```
+It writes `.env.local` with the local database address and key. (By hand instead: copy `.env.example` to `.env.local` and paste the anon key from `npm run db:status`.)
 
 Then each time:
 ```
