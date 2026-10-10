@@ -1,4 +1,5 @@
-// Fleet board (D-006, D-046, D-120, D-200) and the single-aircraft summary.
+// All aircraft dashboard (D-006, D-046, D-120, D-200; layout from the Claude
+// Design canvas, Main.dc.html) and the single-aircraft summary.
 //
 // Everything shown comes from app.fleet_board() in the database, which only
 // returns aircraft this user may see. The screen adds nothing of its own
@@ -6,15 +7,15 @@
 // two recorded times). It never works out serviceability (D-020).
 //
 // Layout rules (docs/ui-rules.md): status and "Blocked by" are always on
-// show, never inside a dropdown. The filter is a row of chips on desktop and
-// one dropdown on a phone, so aircraft are visible without scrolling.
-// Whole rows are clickable (D-098); the ▸ arrow opens the tail's open items
-// in place.
-import { Fragment, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+// show, never inside a dropdown. The filter is a row of chips on desktop,
+// one scrolling row on a phone. Whole cards are clickable (D-098).
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { useAuth } from '../lib/auth';
 import { actions, db, errorText } from '../lib/supabase';
-import { formatDateTime, formatPlainDate, formatTime, heldFor, type DisplaySettings } from '../lib/format';
+import { formatDate, formatDateTime, formatPlainDate, formatTime, heldFor, type DisplaySettings } from '../lib/format';
+import { NeedsAttention, dueText } from '../components/NeedsAttention';
+import { usePendingApprovals } from './Approvals';
 import { SnagChip, TAIL_STATUS, TailStatusChip } from '../components/StatusChip';
 import { cached } from '../lib/offline/cache';
 import { useOutbox } from '../lib/offline/hooks';
@@ -81,14 +82,14 @@ function useProvisional(): Record<string, string> {
   return out;
 }
 
-// Filters: each counts AIRCRAFT.
+// Filter chips (Main.dc.html): each counts AIRCRAFT.
 const FILTERS: { key: string; label: string; match: (r: FleetRow) => boolean }[] = [
-  { key: 'all', label: 'All aircraft', match: () => true },
-  { key: 'SVC', label: 'Serviceable', match: (r) => r.status === 'SVC' },
-  { key: 'SVC_MEL', label: 'Serviceable · MEL', match: (r) => r.status === 'SVC_MEL' },
-  { key: 'down', label: 'U/S or AOG', match: (r) => r.status === 'US' || r.status === 'AOG' },
+  { key: 'all', label: 'All', match: () => true },
+  { key: 'down', label: 'AOG / unserviceable', match: (r) => r.status === 'US' || r.status === 'AOG' },
+  { key: 'snag', label: 'Snag open', match: (r) => r.snag_display !== null },
   { key: 'IN_CHECK', label: 'In check', match: (r) => r.status === 'IN_CHECK' },
-  { key: 'snag', label: 'Snag open or attended', match: (r) => r.snag_display !== null },
+  { key: 'mel', label: 'MEL open', match: (r) => r.status === 'SVC_MEL' || r.open_ddls > 0 },
+  { key: 'svc', label: 'Serviceable', match: (r) => r.status === 'SVC' || r.status === 'SVC_MEL' },
 ];
 
 function Blocked({ row, now, compact = false }: { row: FleetRow; now: Date; compact?: boolean }) {
@@ -174,37 +175,106 @@ function OpenSnags({ aircraftId, display }: { aircraftId: string; display: Displ
   );
 }
 
+// One tail card (Main.dc.html). Shows only what was recorded: the status an
+// engineer set, what holds the aircraft and since when, the next DDLS due
+// time written at deferral, and counts. Nexus never decides serviceability
+// (D-020); "No blocking items" just means nothing is holding the tail.
+function TailCard({ r, now, display, provisional }: {
+  r: FleetRow; now: Date; display: DisplaySettings; provisional?: string;
+}) {
+  const navigate = useNavigate();
+  const open = () => navigate(`/aircraft/${r.aircraft_id}`);
+  const snag = r.snag_display;
+  const down = r.status === 'US' || r.status === 'AOG';
+  const dueMs = r.next_ddls_due ? new Date(r.next_ddls_due).getTime() - now.getTime() : null;
+  const note = r.next_ddls_due
+    ? `${r.open_ddls} DDLS item${r.open_ddls > 1 ? 's' : ''} · next due ${formatDateTime(r.next_ddls_due, display)} (${dueText(r.next_ddls_due, now)})`
+    : null;
+  const clear = !r.blocked_by && !snag && !down && r.status !== 'IN_CHECK';
+  const status = r.status ? TAIL_STATUS[r.status]?.long ?? r.status : 'no status';
+
+  return (
+    <article className="tcard" tabIndex={0} onClick={open} onKeyDown={(e) => e.key === 'Enter' && open()}
+      aria-label={`${r.tail}, ${snag ? 'snag open' : status}`}>
+      <div className="tcard-top">
+        <div>
+          <div className="tcard-tail">{r.tail}</div>
+          <div className="tcard-type">{r.aircraft_type}</div>
+        </div>
+        <div className="tcard-status">
+          {snag ? <SnagChip display={snag} /> : <TailStatusChip status={r.status} />}
+          {provisional && <span className="chip tone-amber provisional">→ {TAIL_STATUS[provisional]?.short ?? provisional} (provisional)</span>}
+          {!snag && r.status_set_by && (
+            <span className="tcard-setby">Set by <span className="mono">{r.status_set_by}</span> · {formatDateTime(r.status_set_at, display)}</span>
+          )}
+        </div>
+      </div>
+
+      {r.blocked_by && (
+        <div className={`block${down ? ' down' : ''}`}>
+          <div className="block-label">Blocked by</div>
+          <div className="block-text">{r.blocked_by} <span className="mono">{r.blocked_ref}</span></div>
+          <div className="block-meta">
+            {r.blocked_holder && <span className="dept-tag">{r.blocked_holder}</span>}
+            {r.blocked_since && <span>holding for {heldFor(r.blocked_since, now)}</span>}
+          </div>
+        </div>
+      )}
+
+      {snag && (
+        <div className="tcard-line">
+          Last status: <strong>{r.status ? TAIL_STATUS[r.status]?.short ?? r.status : 'none recorded'}</strong>
+          {r.status_set_by && <> · set by <span className="mono">{r.status_set_by}</span> · <span className="mono">{formatDateTime(r.status_set_at, display)}</span></>}
+        </div>
+      )}
+
+      {r.expected_rts_on && (
+        <div className="tcard-line">Expected return to service: <strong>{formatPlainDate(r.expected_rts_on, display)}</strong></div>
+      )}
+
+      {note && <div className={`note${dueMs !== null && dueMs < 2 * 86_400_000 ? ' warn' : ''}`}>{note}</div>}
+
+      {clear && !note && <div className="clear-line">No blocking items</div>}
+
+      <div className="stats">
+        <div title="Flight hours arrive with flight records (later phase)"><div className="k">Hours</div><div className="v none">—</div></div>
+        <div title="Cycles arrive with flight records (later phase)"><div className="k">Cycles</div><div className="v none">—</div></div>
+        <div><div className="k">Snags</div><div className="v">{r.open_snags}</div></div>
+        <div><div className="k">DDLS</div><div className="v">{r.open_ddls}</div></div>
+        <div><div className="k">NADD</div><div className="v">{r.open_nadds}</div></div>
+      </div>
+      <Link to={`/aircraft/${r.aircraft_id}`} className="open-link" onClick={(e) => e.stopPropagation()}>Open aircraft →</Link>
+    </article>
+  );
+}
+
+// The All aircraft dashboard (Main.dc.html): heading, filter chips, a card
+// per tail and the Needs attention panel.
 export function FleetBoard() {
   const { display } = useAuth();
-  const navigate = useNavigate();
   const { rows, error, loadedAt, load, fromCache } = useFleetBoard();
   const provisional = useProvisional();
+  const { items: pending } = usePendingApprovals();
   const [filter, setFilter] = useState('all');
-  const [expanded, setExpanded] = useState<string | null>(null);
   const now = loadedAt ?? new Date();
 
   const shown = useMemo(() => rows.filter(FILTERS.find((t) => t.key === filter)!.match), [rows, filter]);
   const count = (key: string) => rows.filter(FILTERS.find((t) => t.key === key)!.match).length;
-  const open = (r: FleetRow) => navigate(`/aircraft/${r.aircraft_id}`);
+  const weekday = new Intl.DateTimeFormat('en-GB', { weekday: 'long', timeZone: display.timeZone }).format(now);
 
   return (
-    <div className="page">
-      <div className="page-head">
+    <div className="dash">
+      <div className="dash-head">
         <div>
           <h1>All aircraft</h1>
-          <button type="button" className="link-button small" onClick={load} title="Refresh now">
-            {loadedAt ? `Updated ${formatTime(loadedAt, display)}` : 'Loading…'} ↻
-          </button>
+          <p className="dash-sub">
+            {weekday} {formatDate(now, display)} · {rows.length} aircraft ·{' '}
+            <button type="button" className="link-button" onClick={load} title="Refresh now">
+              {loadedAt ? `updated ${formatTime(loadedAt, display)}` : 'loading…'} ↻
+            </button>
+          </p>
         </div>
-        {/* Phone: one dropdown instead of a wall of tiles */}
-        <label className="filter-select">
-          <span className="visually-hidden">Show</span>
-          <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-            {FILTERS.map((f) => (
-              <option key={f.key} value={f.key}>Show: {f.label} ({count(f.key)})</option>
-            ))}
-          </select>
-        </label>
+        <button type="button" className="outline-button" onClick={() => window.print()}>Print serviceability state</button>
       </div>
 
       {error && <div className="error" role="alert">{error}</div>}
@@ -214,79 +284,26 @@ export function FleetBoard() {
         </div>
       )}
 
-      {/* Desktop and tablet: one slim row of count chips */}
-      <div className="filters" role="group" aria-label="Filter aircraft">
+      <div className="chips-row" role="group" aria-label="Filter fleet">
         {FILTERS.map((f) => (
-          <button key={f.key} type="button" className={`filter${filter === f.key ? ' selected' : ''}`}
-            aria-pressed={filter === f.key} onClick={() => setFilter(f.key)}>
-            <span className="num">{count(f.key)}</span> {f.label}
+          <button key={f.key} type="button" className="fchip" aria-pressed={filter === f.key} onClick={() => setFilter(f.key)}>
+            {f.label} ({count(f.key)})
           </button>
         ))}
       </div>
 
-      <table className="board">
-        <thead>
-          <tr>
-            <th aria-label="Open items list" style={{ width: 44 }} />
-            <th>Tail</th>
-            <th>Status (set by engineer)</th>
-            <th>Open items</th>
-            <th>Blocked by</th>
-          </tr>
-        </thead>
-        <tbody>
+      <div className="dash-body">
+        <section className="tail-grid" aria-label="Aircraft">
           {shown.map((r) => (
-            <Fragment key={r.aircraft_id}>
-              <tr onClick={() => open(r)} tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && open(r)}>
-                <td>
-                  <button type="button" className="expand" aria-expanded={expanded === r.aircraft_id}
-                    aria-label={`Show open items for ${r.tail}`}
-                    onClick={(e) => { e.stopPropagation(); setExpanded((x) => (x === r.aircraft_id ? null : r.aircraft_id)); }}>
-                    <span aria-hidden>▸</span>
-                  </button>
-                </td>
-                <td>
-                  <div className="tail">{r.tail}</div>
-                  <div className="small muted">{r.aircraft_type}</div>
-                </td>
-                <td><StatusCell row={r} display={display} provisional={provisional[r.aircraft_id]} /></td>
-                <td><OpenItems row={r} display={display} /></td>
-                <td><Blocked row={r} now={now} /></td>
-              </tr>
-              {expanded === r.aircraft_id && (
-                <tr className="expanded-row">
-                  <td />
-                  <td colSpan={4}><OpenSnags aircraftId={r.aircraft_id} display={display} /></td>
-                </tr>
-              )}
-            </Fragment>
+            <TailCard key={r.aircraft_id} r={r} now={now} display={display} provisional={provisional[r.aircraft_id]} />
           ))}
-        </tbody>
-      </table>
-
-      {/* Phone: one card per aircraft */}
-      <div className="cards">
-        {shown.map((r) => (
-          <button key={r.aircraft_id} type="button" className="card tail-card" onClick={() => open(r)}>
-            <div className="top">
-              <span className="tail">{r.tail}</span>
-              <TailStatusChip status={r.status} short />
-            </div>
-            {provisional[r.aircraft_id] && <span className="chip tone-amber provisional">→ {TAIL_STATUS[provisional[r.aircraft_id]]?.short} (provisional)</span>}
-            <div className="small muted">
-              {r.aircraft_type}
-              {r.status_set_by && <> · by <span className="mono">{r.status_set_by}</span> {formatDateTime(r.status_set_at, display)}</>}
-            </div>
-            <div className="card-items"><OpenItems row={r} display={display} compact /></div>
-            <Blocked row={r} now={now} compact />
-          </button>
-        ))}
+          {rows.length > 0 && shown.length === 0 && <p className="muted">No aircraft match this filter.</p>}
+          {loadedAt && rows.length === 0 && !error && (
+            <p className="muted">No aircraft in your aircraft scope. A Super Admin grants aircraft access (D-121).</p>
+          )}
+        </section>
+        <NeedsAttention rows={rows} now={now} approvals={pending?.length ?? 0} display={display} />
       </div>
-
-      {rows.length > 0 && shown.length === 0 && <p className="muted">No aircraft match this filter.</p>}
-      {loadedAt && rows.length === 0 && !error && (
-        <p className="muted">No aircraft in your aircraft scope. A Super Admin grants aircraft access (D-121).</p>
-      )}
     </div>
   );
 }

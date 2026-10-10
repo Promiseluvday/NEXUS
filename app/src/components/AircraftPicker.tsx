@@ -101,7 +101,8 @@ export function TailSearch({ aircraft, onPick }: SearchProps) {
         aria-expanded={open}
         aria-controls="tail-search-list"
         aria-autocomplete="list"
-        placeholder={`Go to a tail (${aircraft.length})…`}
+        placeholder={`Search tails (${aircraft.length})…`}
+        aria-label="Search tails"
         value={text}
         onFocus={() => setOpen(true)}
         onChange={(e) => {

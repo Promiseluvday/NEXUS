@@ -1,14 +1,17 @@
-// The frame around every screen after sign-in:
-//   black top bar: ☰ (phones), Liebetag mark, online/offline pill (D-094),
-//     ＋ New menu (all actions in one place), user menu (Sign out, D-206)
-//   left rail: departments and aircraft (D-201, D-202)
+// The frame around every screen after sign-in, as the Claude Design canvas
+// (Main.dc.html):
+//   black header: ☰ (phones), "Nexus MRO by Liebetag", tail search,
+//     online/offline pill (D-094), notifications bell (approvals waiting),
+//     ＋ New menu (all actions in one place), account menu with name and
+//     role (Sign out, D-206)
+//   left rail: All aircraft and departments (D-201, D-202)
 //   the chosen screen on the right.
 // On a phone the rail slides in from the left with the ☰ button.
 import { useEffect, useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate, useParams } from 'react-router';
 import { useAuth } from '../lib/auth';
 import { Rail } from '../components/Rail';
-import { useAircraftList } from '../components/AircraftPicker';
+import { TailSearch, useAircraftList } from '../components/AircraftPicker';
 import { Menu, MenuItem } from '../components/Menu';
 import { usePendingApprovals } from './Approvals';
 import { useOnline, useOutbox } from '../lib/offline/hooks';
@@ -23,7 +26,7 @@ function SyncPill() {
   const items = useOutbox();
   const waiting = items.filter((i) => i.status === 'queued' || i.status === 'sending').length;
   const failed = items.filter((i) => i.status === 'failed').length;
-  const text = `${online ? 'Online' : 'Offline'}${waiting ? ` · ${waiting} waiting` : ''}${failed ? ` · ${failed} refused` : ''}`;
+  const text = `${online ? 'Online' : 'Offline'}${waiting ? ` · ${waiting} waiting` : ''}${failed ? ` · ${failed} refused` : ''}${online && !waiting && !failed ? ' · all synced' : ''}`;
   return (
     <Link to="/sync" className={`pill ${online && !failed ? 'pill-online' : 'pill-offline'}${waiting || failed ? ' pill-busy' : ''}`}
       role="status" title={online ? 'Connected to the Nexus server' : 'No connection: actions wait on this tablet'}>
@@ -72,32 +75,31 @@ function NewMenu() {
   );
 }
 
-// "Approvals (2)": shown only when something is waiting for this person.
-function ApprovalsBadge() {
-  const { items, load } = usePendingApprovals();
-  useEffect(() => {
-    window.addEventListener('nexus:approvals', load);
-    return () => window.removeEventListener('nexus:approvals', load);
-  }, [load]);
-  if (!items?.length) return null;
-  return <Link to="/approvals" className="button badge-button">Approvals <span className="badge">{items.length}</span></Link>;
+// The bell: how many approvals are waiting for this person. Tap for the
+// approvals inbox. (Other notifications join it in later phases.)
+function Bell({ count }: { count: number }) {
+  return (
+    <Link to="/approvals" className={`bell${count ? "" : " bell-zero"}`} aria-label={`Notifications, ${count} waiting`} title="Approvals waiting for you">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg>
+      {count > 0 ? <span className="badge">{count}</span> : <span>0</span>}
+    </Link>
+  );
 }
 
 function UserMenu() {
   const { me, signOut } = useAuth();
   const navigate = useNavigate();
+  const role = me?.departments.map((d) => d.name).join(' · ') ?? '';
   return (
-    <Menu label={<span className="mono">{me?.tlc}</span>} ariaLabel="Account" align="right" className="plain">
+    <Menu
+      label={<span><span className="account-name"><span className="account-full">{me?.fullName} </span><span className="mono">{me?.tlc}</span></span><span className="account-role">{role}</span></span>}
+      ariaLabel="Account menu" align="right" className="account-button">
       {(close) => (
         <>
-          <div className="menu-head">
-            <strong>{me?.fullName}</strong> <span className="mono">{me?.tlc}</span>
-            <div className="small muted">{me?.departments.map((d) => d.name).join(' · ')}</div>
-          </div>
-          <MenuItem onSelect={() => { close(); navigate('/device#pin'); }}>Change PIN</MenuItem>
+          <MenuItem onSelect={() => { close(); navigate('/device#pin'); }}>My account · change PIN</MenuItem>
           <MenuItem onSelect={() => { close(); navigate('/device'); }}>This tablet and offline signing</MenuItem>
           <MenuItem onSelect={() => { close(); navigate('/sync'); }}>Send queue</MenuItem>
-          <MenuItem onSelect={signOut}>Sign out</MenuItem>
+          <MenuItem onSelect={signOut}><span className="danger-text">Sign out</span></MenuItem>
         </>
       )}
     </Menu>
@@ -107,6 +109,13 @@ function UserMenu() {
 export function Home() {
   const aircraft = useAircraftList();
   const [railOpen, setRailOpen] = useState(false);
+  const navigate = useNavigate();
+  const { items: pending, load: loadPending } = usePendingApprovals();
+  useEffect(() => {
+    window.addEventListener('nexus:approvals', loadPending);
+    return () => window.removeEventListener('nexus:approvals', loadPending);
+  }, [loadPending]);
+  const approvals = pending?.length ?? 0;
   // Send waiting actions whenever the connection allows (D-102).
   useEffect(() => startAutoSync(getCurrentUser), []);
   // Save the MEL and cabin zones for offline use (D-102, D-217).
@@ -125,15 +134,19 @@ export function Home() {
           ☰
         </button>
         <Link to="/" className="brand">
-          <span className="brand-mark">N</span> <span className="brand-name">Nexus MRO</span>
+          <span className="brand-name">Nexus<span> MRO</span></span>
+          <span className="brand-by">by Liebetag</span>
         </Link>
-        <span className="spacer" />
+        <div className="top-search">
+          <TailSearch aircraft={aircraft} onPick={(id) => navigate(`/aircraft/${id}`)} />
+        </div>
         <SyncPill />
-        <ApprovalsBadge />
+        <Bell count={approvals} />
         <NewMenu />
+        <span className="spacer" />
         <UserMenu />
       </header>
-      <Rail aircraft={aircraft} open={railOpen} onNavigate={() => setRailOpen(false)} />
+      <Rail aircraft={aircraft} open={railOpen} approvals={approvals} onNavigate={() => setRailOpen(false)} />
       <main className="main" onClick={() => railOpen && setRailOpen(false)}>
         <Outlet context={{ aircraft }} />
       </main>
