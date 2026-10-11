@@ -72,9 +72,10 @@ function NewMenu() {
           )}
           <MenuItem onSelect={() => {
             close();
-            // A query is always about a record: raise it on the snag or work order being viewed.
+            // A query is always about a record: raise it on the snag or work order being viewed,
+            // otherwise open the raise form, which first asks which snag or work order (WF-TQ3).
             if (onRecord) navigate(`${location.pathname}?query=new#queries`);
-            else navigate('/queries');
+            else navigate('/queries?raise=1');
           }}>
             Raise technical query
           </MenuItem>
