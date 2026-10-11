@@ -17,6 +17,7 @@
 // request (D-146); the database refuses it and the message says so.
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router';
+import { REQUISITION_ACTION_TYPES } from './Procurement';
 import { useAuth } from '../lib/auth';
 import { actions, db, errorText } from '../lib/supabase';
 import { formatDateTime, heldFor } from '../lib/format';
@@ -52,6 +53,7 @@ const GROUPS: { title: string; types: string[] }[] = [
   { title: 'DDLS and MEL extensions', types: ['ddls_extension'] },
   { title: 'NADD extensions', types: ['nadd_extension'] },
   { title: 'Certifying authorizations', types: ['certifying_authorization'] },
+  { title: 'Requisitions', types: REQUISITION_ACTION_TYPES },
 ];
 
 type WoBrief = { id: string; number: string; scope: string; aircraft: { tail: string } | null; snag: { number: string } | null };
@@ -150,7 +152,7 @@ function Inbox({ items }: { items: Pending[] | null }) {
       )}
 
       <p className="panel-note">
-        Requisitions and approval-chain changes join this inbox when they are built <span className="rail-tag">Soon</span>
+        Approval-chain changes join this inbox when they are built <span className="rail-tag">Soon</span>
       </p>
     </div>
   );

@@ -53,14 +53,41 @@ export type Database = {
             [_ in never]: never
           }
           Functions: {
-            "access_summary":
+            "accept_receipt":
+{ Args: { "p_certificate_ref": string,"p_certificate_type": string,"p_condition_ok": boolean,"p_pin": string,"p_pn_sn_match": boolean,"p_receipt": string }; Returns: string
+                           },
+"accept_returned_part":
+{ Args: { "p_condition": string,"p_line": string,"p_reason"?: string }; Returns: string
+                           },
+"access_summary":
 { Args: { "p_category": string,"p_person": string }; Returns: string
+                           },
+"acknowledge_receipt":
+{ Args: { "p_receipt": string }; Returns: string
+                           },
+"acknowledge_transfer":
+{ Args: { "p_transfer": string }; Returns: string
                            },
 "activate_mel_revision":
 { Args: { "p_revision": string }; Returns: undefined
                            },
 "add_mel_items":
 { Args: { "p_items": Json,"p_revision": string }; Returns: number
+                           },
+"add_mro_part":
+{ Args: { "p_description"?: string,"p_job": string,"p_part"?: string,"p_part_number_text"?: string,"p_qty": number,"p_unit_cost": number }; Returns: string
+                           },
+"add_mro_quote":
+{ Args: { "p_amount": number,"p_entry": string,"p_job": string,"p_note"?: string }; Returns: string
+                           },
+"add_part":
+{ Args: { "p_class": string,"p_description": string,"p_part_number": string,"p_serialised"?: boolean,"p_shelf_life_tracked"?: boolean,"p_unit"?: string }; Returns: string
+                           },
+"add_po_line":
+{ Args: { "p_po": string,"p_req": string }; Returns: string
+                           },
+"add_supplier":
+{ Args: { "p_approval_ref"?: string,"p_code": string,"p_contact"?: string,"p_country"?: string,"p_kind": string,"p_name": string,"p_pin": string,"p_scope_note"?: string }; Returns: string
                            },
 "add_work_order_entry":
 { Args: { "p_entry": string,"p_wo": string }; Returns: string
@@ -88,6 +115,47 @@ export type Database = {
 "admin_set_status":
 { Args: { "p_person": string,"p_pin": string,"p_reason": string,"p_status": string }; Returns: undefined
                            },
+"adsb_aircraft_totals":
+{ Args: { "p_aircraft": string }; Returns: Record<string, unknown>
+                           },
+"adsb_check_document":
+{ Args: { "p": Json }; Returns: undefined
+                           },
+"adsb_check_unique_reference":
+{ Args: { "p": Json,"p_except_key": string }; Returns: undefined
+                           },
+"adsb_decide":
+{ Args: { "p_decision": string,"p_entry": string,"p_note": string,"p_pin": string }; Returns: string
+                           },
+"adsb_due_flags":
+{ Args: { "p_aircraft": string,"p_next_cycles": number,"p_next_hours": number,"p_next_on": string,"p_status": string }; Returns: Record<string, unknown>
+                           },
+"adsb_figure_flag":
+{ Args: { "p_current": number,"p_due": number,"p_margin": number }; Returns: string
+                           },
+"adsb_require_engineer":
+{ Args: { "p_aircraft"?: string }; Returns: string
+                           },
+"adsb_text":
+{ Args: { "p": Json,"p_key": string }; Returns: string
+                           },
+"adsb_today":
+{ Args: Record<PropertyKey, never>; Returns: string
+                           },
+"adsb_write_entry":
+{ Args: { "p_aircraft": string,"p_device_time": string,"p_document_key": string,"p_entry_key": string,"p_fields": Json,"p_reason": string,"p_supersedes": string,"p_version": number }; Returns: string
+                           },
+"agree_mro_cost":
+{ Args: { "p_amount": number,"p_job": string,"p_note"?: string,"p_pin": string }; Returns: undefined
+                           },
+"aircraft_totals":
+{ Args: { "p_aircraft": string }; Returns: {
+              "aircraft_id": string,"apu_cycles": number,"apu_hours": number,"baseline_as_at": string,"cycles": number,"flights": number,"has_baseline": boolean,"hours": number,"hours_basis": string,"landings": number,"last_entered_at": string,"last_entered_by": string,"last_entered_name": string,"last_flight_date": string,"tail": string
+            }[]
+                           },
+"allocate_line":
+{ Args: { "p_line": string }; Returns: number
+                           },
 "apply_access":
 { Args: { "p_category": string,"p_person": string,"p_reason": string,"p_values": Json }; Returns: undefined
                            },
@@ -103,6 +171,17 @@ export type Database = {
 "attend_snag":
 { Args: { "p_note"?: string,"p_snag": string }; Returns: undefined
                            },
+"authorization_request":
+{ Args: { "p_authorization": string }; Returns: string
+                           },
+"authorization_state":
+{ Args: { "a": Omit<Database["public"]['Tables']["certifying_authorization"]['Row'], Database["public"]['Tables']["certifying_authorization"]['ComputedFields']> }; Returns: string
+                           },
+"authorizations_waiting":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "aircraft_type_code": string,"expires_on": string,"full_name": string,"id": string,"issued_at": string,"issued_by": string,"person_id": string,"reference": string,"three_letter_code": string,"valid_from": string
+            }[]
+                           },
 "can_approve_authorizations":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
@@ -112,8 +191,26 @@ export type Database = {
 "can_see_aircraft":
 { Args: { "p_aircraft": string }; Returns: boolean
                            },
+"can_see_outside_mro":
+{ Args: { "p_aircraft": string }; Returns: boolean
+                           },
+"can_see_part_request":
+{ Args: { "p_aircraft": string,"p_requested_by": string,"p_store": string }; Returns: boolean
+                           },
+"can_see_purchase_orders":
+{ Args: Record<PropertyKey, never>; Returns: boolean
+                           },
 "can_see_record":
 { Args: { "p_id": string,"p_table": string }; Returns: boolean
+                           },
+"can_see_record_before_procurement":
+{ Args: { "p_id": string,"p_table": string }; Returns: boolean
+                           },
+"can_see_record_before_stores":
+{ Args: { "p_id": string,"p_table": string }; Returns: boolean
+                           },
+"can_see_requisition":
+{ Args: { "p_action": string,"p_line": string,"p_raised_by": string,"p_store": string }; Returns: boolean
                            },
 "can_see_store":
 { Args: { "p_store": string }; Returns: boolean
@@ -121,8 +218,32 @@ export type Database = {
 "can_view_cost":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
+"can_view_people":
+{ Args: Record<PropertyKey, never>; Returns: boolean
+                           },
+"cancel_part_request":
+{ Args: { "p_reason": string,"p_request": string }; Returns: undefined
+                           },
+"cancel_purchase_order":
+{ Args: { "p_pin": string,"p_po": string,"p_reason": string }; Returns: undefined
+                           },
+"cancel_requisition":
+{ Args: { "p_reason": string,"p_req": string }; Returns: undefined
+                           },
 "certify_work_order":
 { Args: { "p_no_fault_found"?: boolean,"p_note": string,"p_pin": string,"p_tlb_book"?: string,"p_tlb_page"?: string,"p_wo": string }; Returns: undefined
+                           },
+"check_after_baseline":
+{ Args: { "p_aircraft": string,"p_date": string }; Returns: undefined
+                           },
+"check_engineer_for_flights":
+{ Args: { "p_aircraft": string,"p_pin": string,"p_reason": string }; Returns: undefined
+                           },
+"check_flight_figures":
+{ Args: { "p_apu_cycles": number,"p_apu_hours": number,"p_cycles": number,"p_date": string,"p_hours": number,"p_kind": string,"p_landings": number,"p_void"?: boolean }; Returns: undefined
+                           },
+"check_may_log_flight":
+{ Args: { "p_aircraft": string }; Returns: undefined
                            },
 "check_my_pin":
 { Args: { "p_pin": string }; Returns: boolean
@@ -133,17 +254,41 @@ export type Database = {
 "clear_ddls_entry":
 { Args: { "p_entry": string,"p_pin": string,"p_rect_tlb_book"?: string,"p_rect_tlb_page"?: string,"p_rectification": string }; Returns: undefined
                            },
+"close_request_if_done":
+{ Args: { "p_request": string }; Returns: undefined
+                           },
 "close_snag_no_fault_found":
 { Args: { "p_findings": string,"p_pin": string,"p_snag": string,"p_tlb_book"?: string,"p_tlb_page"?: string }; Returns: undefined
                            },
 "complete_work_order":
 { Args: { "p_note": string,"p_wo": string }; Returns: undefined
                            },
+"confirm_aog_priority":
+{ Args: { "p_pin": string,"p_request": string }; Returns: undefined
+                           },
 "confirm_nadd":
 { Args: { "p_declaration": boolean,"p_limit_days"?: number,"p_nadd": string,"p_pin": string }; Returns: undefined
                            },
 "confirm_nadd_fields":
 { Args: { "p_limit_days": number,"p_nadd": string }; Returns: undefined
+                           },
+"correct_adsb_compliance":
+{ Args: { "p_device_time"?: string,"p_entry": string,"p_fields": Json,"p_pin": string,"p_reason": string }; Returns: string
+                           },
+"correct_adsb_document":
+{ Args: { "p_device_time"?: string,"p_document_key": string,"p_fields": Json,"p_reason": string }; Returns: string
+                           },
+"correct_flight_record":
+{ Args: { "p_apu_cycles"?: number,"p_apu_hours"?: number,"p_cycles": number,"p_device_time"?: string,"p_flight_date": string,"p_from"?: string,"p_hours": number,"p_landings": number,"p_log_ref"?: string,"p_pin": string,"p_reason": string,"p_record": string,"p_to"?: string,"p_void"?: boolean }; Returns: string
+                           },
+"cost_check":
+{ Args: Record<PropertyKey, never>; Returns: undefined
+                           },
+"create_purchase_order":
+{ Args: { "p_eta"?: string,"p_note"?: string,"p_requisitions": (string)[],"p_supplier": string,"p_supplier_ref"?: string }; Returns: Json
+                           },
+"currency_code":
+{ Args: Record<PropertyKey, never>; Returns: string
                            },
 "current_person_id":
 { Args: Record<PropertyKey, never>; Returns: string
@@ -153,6 +298,9 @@ export type Database = {
                            },
 "decide_approval_core":
 { Args: { "p_decision": string,"p_reason"?: string,"p_request": string }; Returns: string
+                           },
+"decide_certifying_authorization":
+{ Args: { "p_authorization": string,"p_decision": string,"p_pin": string,"p_reason"?: string }; Returns: string
                            },
 "defer_as_nadd":
 { Args: { "p_declaration": boolean,"p_limit_days"?: number,"p_location"?: string,"p_pin": string,"p_snag": string,"p_zone"?: string }; Returns: string
@@ -175,10 +323,27 @@ export type Database = {
 "enrol_device":
 { Args: { "p_device": string }; Returns: undefined
                            },
+"enter_adsb_compliance":
+{ Args: { "p_aircraft": string,"p_device_time"?: string,"p_document_key": string,"p_fields": Json,"p_pin": string }; Returns: string
+                           },
+"expiry_flag":
+{ Args: { "p_expires": string }; Returns: string
+                           },
 "fleet_board":
 { Args: Record<PropertyKey, never>; Returns: {
               "aircraft_id": string,"aircraft_type": string,"blocked_by": string,"blocked_holder": string,"blocked_ref": string,"blocked_since": string,"expected_rts_on": string,"next_ddls_due": string,"next_nadd_due": string,"open_ddls": number,"open_nadds": number,"open_snags": number,"snag_display": string,"status": string,"status_set_at": string,"status_set_by": string,"tail": string
             }[]
+                           },
+"fleet_totals":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "aircraft_id": string,"apu_cycles": number,"apu_hours": number,"baseline_as_at": string,"cycles": number,"flights": number,"has_baseline": boolean,"hours": number,"hours_basis": string,"landings": number,"last_entered_at": string,"last_entered_by": string,"last_entered_name": string,"last_flight_date": string,"tail": string
+            }[]
+                           },
+"flight_hours_basis":
+{ Args: Record<PropertyKey, never>; Returns: string
+                           },
+"flight_today":
+{ Args: Record<PropertyKey, never>; Returns: string
                            },
 "has_department":
 { Args: { "p_department": string }; Returns: boolean
@@ -191,6 +356,9 @@ export type Database = {
                            },
 "holds_step":
 { Args: { "p_action": string,"p_step": number }; Returns: boolean
+                           },
+"holds_store":
+{ Args: { "p_store": string }; Returns: boolean
                            },
 "involved_in_query":
 { Args: { "p_department": string,"p_person": string,"p_raised_by": string }; Returns: boolean
@@ -207,9 +375,32 @@ export type Database = {
 "is_super_admin":
 { Args: { "p_department"?: string }; Returns: boolean
                            },
+"issue_certifying_authorization":
+{ Args: { "p_aircraft_type": string,"p_expires_on": string,"p_person": string,"p_pin": string,"p_reference": string,"p_valid_from": string }; Returns: string
+                           },
 "issue_offline_key":
 { Args: { "p_device": string,"p_pin": string }; Returns: string
                            },
+"issue_part":
+{ Args: { "p_line": string,"p_pin": string }; Returns: string
+                           },
+"log_flight":
+{ Args: { "p_aircraft": string,"p_apu_cycles"?: number,"p_apu_hours"?: number,"p_client_ref"?: string,"p_cycles": number,"p_device_time"?: string,"p_flight_date": string,"p_from"?: string,"p_hours": number,"p_landings": number,"p_log_ref"?: string,"p_to"?: string }; Returns: string
+                           },
+"lot_problem":
+{ Args: { "p_lot": Omit<Database["public"]['Tables']["stock_lot"]['Row'], Database["public"]['Tables']["stock_lot"]['ComputedFields']> }; Returns: string
+                           },
+"medical_required":
+{ Args: { "p_person": string }; Returns: boolean
+                           },
+"mro_job_for_procurement":
+{ Args: { "p_job": string }; Returns: Database["public"]['Tables']["outside_mro_job"]['Row']
+                          SetofOptions: {
+        from: "*"
+        to: "outside_mro_job"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "my_active_appointments":
 { Args: Record<PropertyKey, never>; Returns: Database["public"]['Tables']["appointment"]['Row'][]
                           SetofOptions: {
@@ -232,6 +423,9 @@ export type Database = {
 "my_pin_is_set":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
+"my_procurement_rights":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "nadd_for_engineer":
 { Args: { "p_allowed_status": (string)[],"p_nadd": string }; Returns: Database["public"]['Tables']["nadd"]['Row']
                           SetofOptions: {
@@ -252,7 +446,40 @@ export type Database = {
 "open_mel_revision":
 { Args: { "p_aircraft_type": string,"p_approval_date": string,"p_approval_reference": string,"p_revision": string }; Returns: string
                            },
+"open_outside_mro_job":
+{ Args: { "p_aircraft"?: string,"p_expected_back"?: string,"p_part"?: string,"p_scope"?: string,"p_sent_on"?: string,"p_serial"?: string,"p_supplier": string,"p_title": string,"p_us_return"?: string,"p_work_order"?: string }; Returns: Json
+                           },
+"open_receipt":
+{ Args: { "p_batch"?: string,"p_bin"?: string,"p_delivered_against"?: string,"p_expiry"?: string,"p_for_request_line"?: string,"p_part": string,"p_purchase_order"?: string,"p_qty": number,"p_serial"?: string,"p_store": string }; Returns: string
+                           },
+"operator_today":
+{ Args: Record<PropertyKey, never>; Returns: string
+                           },
+"outside_mro_job_detail":
+{ Args: { "p_id": string }; Returns: Json
+                           },
+"outside_mro_jobs":
+{ Args: { "p_open_only"?: boolean }; Returns: {
+              "accepted": boolean,"agreed_cost": number,"aircraft_id": string,"created_at": string,"currency": string,"expected_back": string,"id": string,"number": string,"overdue": boolean,"part_number": string,"raised_by_code": string,"returned_on": string,"sent_on": string,"serial_no": string,"status": string,"status_since": string,"supplier_name": string,"tail": string,"title": string,"us_return_number": string,"work_order_id": string,"work_order_number": string
+            }[]
+                           },
+"part_request_lines":
+{ Args: { "p_aircraft"?: string,"p_open_only"?: boolean,"p_request"?: string,"p_work_order"?: string }; Returns: {
+              "aircraft_id": string,"aog_confirmed": boolean,"batch_no": string,"bin": string,"description": string,"fit_position": string,"held_since": string,"holder": string,"ipc_ref": string,"issue_voucher": string,"line_id": string,"line_no": number,"lot_id": string,"lot_problem": string,"part_id": string,"part_number": string,"priority": string,"purpose": string,"qty": number,"remarks": string,"removed_part": string,"request_id": string,"request_number": string,"request_status": string,"request_type": string,"requested_at": string,"requested_by_code": string,"required_by": string,"requisition_id": string,"serial_no": string,"split_from": string,"state": string,"state_reason": string,"store_code": string,"store_name": string,"tail": string,"unit": string,"work_order_id": string,"work_order_number": string,"work_order_status": string
+            }[]
+                           },
+"people_list":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "account_status": string,"appointments": string,"certifying_types": string,"departments": string,"expiry_flag": string,"full_name": string,"home_department": string,"pending_authorizations": number,"person_id": string,"rank_or_title": string,"three_letter_code": string
+            }[]
+                           },
 "person_admin_department":
+{ Args: { "p_person": string }; Returns: string
+                           },
+"person_appointments":
+{ Args: { "p_person": string }; Returns: string
+                           },
+"person_expiry_flag":
 { Args: { "p_person": string }; Returns: string
                            },
 "person_has_department":
@@ -261,20 +488,112 @@ export type Database = {
 "person_has_permission":
 { Args: { "p_permission": string,"p_person": string }; Returns: boolean
                            },
+"person_is_commander":
+{ Args: { "p_person": string }; Returns: boolean
+                           },
+"person_record":
+{ Args: { "p_person": string }; Returns: Json
+                           },
 "pin_ok":
 { Args: { "p_pin": string }; Returns: boolean
+                           },
+"place_purchase_order":
+{ Args: { "p_pin": string,"p_po": string }; Returns: undefined
+                           },
+"po_add_requisition":
+{ Args: { "p_po": string,"p_req": string }; Returns: string
+                           },
+"po_event":
+{ Args: { "p_eta"?: string,"p_event": string,"p_note"?: string,"p_po": string }; Returns: undefined
+                           },
+"po_for_buyer":
+{ Args: { "p_allowed": (string)[],"p_po": string }; Returns: Database["public"]['Tables']["purchase_order"]['Row']
+                          SetofOptions: {
+        from: "*"
+        to: "purchase_order"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"po_state_words":
+{ Args: { "p_status": string }; Returns: string
+                           },
+"po_touch_lines":
+{ Args: { "p_po": string }; Returns: undefined
+                           },
+"price_history":
+{ Args: { "p_part": string }; Returns: {
+              "at": string,"currency": string,"qty": number,"reason": string,"reference": string,"source": string,"supplier": string,"unit_price": number
+            }[]
+                           },
+"priority_use_report":
+{ Args: { "p_since"?: string }; Returns: {
+              "aog_confirmed": number,"aog_requested": number,"aog_unconfirmed": number,"full_name": string,"person_id": string,"routine": number,"three_letter_code": string,"urgent": number
+            }[]
+                           },
+"procurement_check":
+{ Args: { "p_permission": string }; Returns: string
                            },
 "propose_nadd":
 { Args: { "p_aircraft": string,"p_ata"?: string,"p_client_ref"?: string,"p_description": string,"p_device_time"?: string,"p_location"?: string,"p_tlb_book"?: string,"p_tlb_item"?: string,"p_tlb_page"?: string,"p_zone"?: string }; Returns: string
                            },
+"purchase_order_detail":
+{ Args: { "p_id": string }; Returns: Json
+                           },
+"purchase_order_list":
+{ Args: { "p_open_only"?: boolean }; Returns: {
+              "clearing_ref": string,"created_at": string,"currency": string,"eta": string,"first_line": string,"has_aog": boolean,"id": string,"lines": number,"number": string,"ordered_at": string,"overdue": boolean,"raised_by_code": string,"shipment_ref": string,"status": string,"status_since": string,"supplier_id": string,"supplier_name": string,"supplier_ref": string,"tails": string,"total": number
+            }[]
+                           },
+"quality_check":
+{ Args: { "p_person": string,"p_pin": string }; Returns: string
+                           },
+"quarantine_lot":
+{ Args: { "p_lot": string,"p_reason": string }; Returns: undefined
+                           },
+"quarantine_receipt":
+{ Args: { "p_reason": string,"p_receipt": string }; Returns: string
+                           },
 "raise_approval":
 { Args: { "p_action": string,"p_record_id": string,"p_record_table": string,"p_summary": string }; Returns: string
+                           },
+"raise_requisition":
+{ Args: { "p_device_time"?: string,"p_estimated_value"?: number,"p_kind": string,"p_part"?: string,"p_part_number_text"?: string,"p_priority"?: string,"p_purpose"?: string,"p_qty"?: number,"p_remarks"?: string,"p_request_line"?: string,"p_required_by"?: string,"p_store"?: string,"p_us_return"?: string }; Returns: Json
+                           },
+"raise_transfer":
+{ Args: { "p_from": string,"p_lot"?: string,"p_note"?: string,"p_part": string,"p_qty": number,"p_return_of"?: string,"p_to": string }; Returns: string
+                           },
+"receipt_missing_documents":
+{ Args: { "p_receipt": string }; Returns: (string)[]
+                           },
+"receive_po_delivery":
+{ Args: { "p_batch"?: string,"p_bin"?: string,"p_expiry"?: string,"p_line": string,"p_part"?: string,"p_qty"?: number,"p_serial"?: string }; Returns: string
+                           },
+"receive_transfer":
+{ Args: { "p_transfer": string }; Returns: string
+                           },
+"receive_us_return":
+{ Args: { "p_note"?: string,"p_part"?: string,"p_return": string,"p_tag_ref": string }; Returns: string
                            },
 "reclassify_nadd_as_snag":
 { Args: { "p_nadd": string,"p_note": string }; Returns: string
                            },
+"record_invoice":
+{ Args: { "p_amount": number,"p_invoice_date": string,"p_invoice_no": string,"p_note"?: string,"p_outside_mro_job"?: string,"p_purchase_order"?: string }; Returns: string
+                           },
+"record_mro_technical_acceptance":
+{ Args: { "p_job": string,"p_note": string,"p_pin": string }; Returns: undefined
+                           },
+"record_part_fitted":
+{ Args: { "p_line": string,"p_note"?: string,"p_removed_serial"?: string }; Returns: string
+                           },
+"record_qualification":
+{ Args: { "p_aircraft_type"?: string,"p_expires_on"?: string,"p_issued_on"?: string,"p_issuing_authority"?: string,"p_kind": string,"p_licence_category"?: string,"p_medical_class"?: string,"p_person": string,"p_pin": string,"p_reason"?: string,"p_reference"?: string,"p_replaces"?: string }; Returns: string
+                           },
 "record_svc_mel":
 { Args: { "p_reason": string,"p_snag": string }; Returns: undefined
+                           },
+"record_us_removal":
+{ Args: { "p_aircraft": string,"p_part": string,"p_part_number_text": string,"p_reason": string,"p_request_line"?: string,"p_serial": string,"p_store": string,"p_work_order"?: string }; Returns: string
                            },
 "rectify_nadd":
 { Args: { "p_action_taken": string,"p_nadd": string,"p_pin": string,"p_rect_tlb_book"?: string,"p_rect_tlb_page"?: string }; Returns: undefined
@@ -282,8 +601,23 @@ export type Database = {
 "refuse_emergency_zone":
 { Args: { "p_aircraft": string,"p_zone": string }; Returns: undefined
                            },
+"register_adsb_document":
+{ Args: { "p_device_time"?: string,"p_fields": Json }; Returns: string
+                           },
+"reject_adsb_compliance":
+{ Args: { "p_entry": string,"p_pin": string,"p_reason": string }; Returns: string
+                           },
 "reject_nadd":
 { Args: { "p_nadd": string,"p_reason": string }; Returns: undefined
+                           },
+"release_from_quarantine":
+{ Args: { "p_certificate_ref": string,"p_certificate_type": string,"p_lot": string,"p_pin": string,"p_reason": string }; Returns: undefined
+                           },
+"release_reservation":
+{ Args: { "p_line": string,"p_reason": string }; Returns: undefined
+                           },
+"remove_po_line":
+{ Args: { "p_line": string,"p_reason": string }; Returns: undefined
                            },
 "repeat_defect":
 { Args: { "p_snag": string }; Returns: {
@@ -305,11 +639,54 @@ export type Database = {
 "request_nadd_extension":
 { Args: { "p_extra_days": number,"p_nadd": string,"p_reason": string }; Returns: string
                            },
+"request_part":
+{ Args: { "p_aircraft"?: string,"p_client_ref"?: string,"p_device_time"?: string,"p_ipc_ref"?: string,"p_part"?: string,"p_part_number_text"?: string,"p_position"?: string,"p_priority"?: string,"p_purpose"?: string,"p_qty": number,"p_remarks"?: string,"p_removed_part"?: string,"p_request_type": string,"p_required_by"?: string,"p_store": string,"p_work_order"?: string }; Returns: Json
+                           },
 "request_work_order":
 { Args: { "p_est_man_hours"?: number,"p_scope": string,"p_snag": string }; Returns: string
                            },
 "require_certifying":
 { Args: { "p_aircraft": string,"p_pin": string }; Returns: undefined
+                           },
+"require_pin":
+{ Args: { "p_pin": string }; Returns: undefined
+                           },
+"requisition_chain_for":
+{ Args: { "p_priority": string,"p_value": number }; Returns: string
+                           },
+"requisition_detail":
+{ Args: { "p_id": string }; Returns: Json
+                           },
+"requisition_for_supply":
+{ Args: { "p_req": string }; Returns: Database["public"]['Tables']["requisition"]['Row']
+                          SetofOptions: {
+        from: "*"
+        to: "requisition"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"requisition_line_note":
+{ Args: { "p_note": string,"p_req": string }; Returns: undefined
+                           },
+"requisition_list":
+{ Args: { "p_id"?: string,"p_open_only"?: boolean }; Returns: {
+              "action_type": string,"aircraft_id": string,"approval_request_id": string,"can_approve": boolean,"cancel_reason": string,"chain_name": string,"currency": string,"description": string,"estimated_value": number,"held_since": string,"holder": string,"id": string,"kind": string,"number": string,"part_id": string,"part_number": string,"po_eta": string,"po_id": string,"po_number": string,"po_status": string,"priority": string,"purpose": string,"qty": number,"raised_at": string,"raised_by": string,"raised_by_code": string,"rejected_reason": string,"remarks": string,"request_cancelled": boolean,"request_id": string,"request_line_id": string,"request_line_state": string,"request_number": string,"required_by": string,"stage": string,"status": string,"step_count": number,"step_name": string,"step_no": number,"store_code": string,"superseded_by": string,"supplier_name": string,"tail": string,"unit": string,"us_return_id": string,"us_return_number": string,"version": number
+            }[]
+                           },
+"requisition_summary":
+{ Args: { "p_req": string,"p_tail": string }; Returns: string
+                           },
+"reserve_line":
+{ Args: { "p_line": string }; Returns: string
+                           },
+"resubmit_requisition":
+{ Args: { "p_estimated_value"?: number,"p_priority"?: string,"p_qty"?: number,"p_remarks"?: string,"p_req": string,"p_required_by"?: string }; Returns: Json
+                           },
+"return_unused_part":
+{ Args: { "p_line": string,"p_reason": string }; Returns: undefined
+                           },
+"revoke_certifying_authorization":
+{ Args: { "p_authorization": string,"p_pin": string,"p_reason": string }; Returns: string
                            },
 "revoke_device":
 { Args: { "p_device": string,"p_lost"?: boolean,"p_reason": string }; Returns: undefined
@@ -319,11 +696,40 @@ export type Database = {
               "category": string,"id": string,"interval_unit": string,"interval_value": number,"item_number": string,"m_procedure": boolean,"o_procedure": boolean,"remarks": string,"revision": string,"revision_id": string,"title": string
             }[]
                            },
+"search_stores":
+{ Args: { "p_limit"?: number,"p_text"?: string }; Returns: {
+              "available": number,"certificate": string,"description": string,"expired_qty": number,"next_expiry": string,"on_hand": number,"part_class": string,"part_id": string,"part_number": string,"quarantine_qty": number,"reserved": number,"serialised": boolean,"shelf_life_tracked": boolean,"stores": Json,"uncertified_qty": number,"unit": string
+            }[]
+                           },
+"sentence":
+{ Args: { "p_text": string }; Returns: string
+                           },
+"set_flight_baseline":
+{ Args: { "p_aircraft": string,"p_apu_cycles"?: number,"p_apu_hours"?: number,"p_as_at": string,"p_cycles": number,"p_device_time"?: string,"p_hours": number,"p_landings": number,"p_log_ref"?: string,"p_pin": string,"p_reason": string }; Returns: string
+                           },
+"set_line_state":
+{ Args: { "p_line": string,"p_reason"?: string,"p_state": string }; Returns: undefined
+                           },
 "set_my_password":
 { Args: { "p_new_password": string }; Returns: undefined
                            },
 "set_my_pin":
 { Args: { "p_pin": string }; Returns: undefined
+                           },
+"set_outside_mro_status":
+{ Args: { "p_date"?: string,"p_job": string,"p_reason"?: string,"p_status": string }; Returns: undefined
+                           },
+"set_po_line_price":
+{ Args: { "p_line": string,"p_reason"?: string,"p_unit_price": number }; Returns: undefined
+                           },
+"set_procurement_setting":
+{ Args: { "p_key": string,"p_pin": string,"p_reason": string,"p_value": Json }; Returns: undefined
+                           },
+"set_stores_setting":
+{ Args: { "p_key": string,"p_pin": string,"p_reason": string,"p_value": Json }; Returns: undefined
+                           },
+"set_supplier_status":
+{ Args: { "p_pin": string,"p_reason": string,"p_status": string,"p_supplier": string }; Returns: undefined
                            },
 "set_tail_status":
 { Args: { "p_aircraft": string,"p_expected_rts"?: string,"p_pin": string,"p_reason": string,"p_status": string }; Returns: string
@@ -347,8 +753,43 @@ export type Database = {
         isOneToOne: true
         isSetofReturn: false
       } },
+"stock_alerts":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "alert": string,"condition": string,"description": string,"expires_on": string,"level": string,"lot_id": string,"part_id": string,"part_number": string,"qty": number,"store_code": string
+            }[]
+                           },
+"stock_move":
+{ Args: { "p_kind": string,"p_line"?: string,"p_lot": string,"p_on_hand": number,"p_qty": number,"p_reason"?: string,"p_receipt"?: string,"p_reserved": number,"p_transfer"?: string,"p_us_return"?: string,"p_voucher"?: string }; Returns: string
+                           },
+"stock_receipt_into_lot":
+{ Args: { "p_receipt": string }; Returns: string
+                           },
+"store_of_record":
+{ Args: Record<PropertyKey, never>; Returns: string
+                           },
 "submit_offline_signature":
 { Args: { "p_payload": string,"p_signature": string }; Returns: Json
+                           },
+"supply_check":
+{ Args: { "p_permissions": (string)[],"p_store": string }; Returns: string
+                           },
+"today":
+{ Args: Record<PropertyKey, never>; Returns: string
+                           },
+"transfer_into_lot":
+{ Args: { "p_transfer": string }; Returns: string
+                           },
+"unreserve_line":
+{ Args: { "p_line": string,"p_new_state": string,"p_reason": string }; Returns: undefined
+                           },
+"update_purchase_order":
+{ Args: { "p_clearing_ref"?: string,"p_eta"?: string,"p_note"?: string,"p_po": string,"p_shipment_ref"?: string,"p_status"?: string }; Returns: undefined
+                           },
+"verify_adsb_compliance":
+{ Args: { "p_entry": string,"p_note"?: string,"p_pin": string }; Returns: string
+                           },
+"withdraw_qualification":
+{ Args: { "p_pin": string,"p_qualification": string,"p_reason": string }; Returns: undefined
                            },
 "work_order_for_engineer":
 { Args: { "p_allowed_status": (string)[],"p_wo": string }; Returns: Database["public"]['Tables']["work_order"]['Row']
@@ -459,6 +900,126 @@ isOneToOne: false
     },{
       foreignKeyName: "account_event_person_id_fkey"
       columns: ["person_id"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"adsb_compliance": {
+                  Row: {
+                    "aircraft_id": string,"applicability": string,"compliance_method": string | null,"compliance_reference": string | null,"correction_reason": string | null,"created_at": string,"created_by": string | null,"device_time": string | null,"document_id": string,"document_key": string,"entered_at": string,"entered_by": string,"entry_key": string,"id": string,"last_complied_cycles": number | null,"last_complied_hours": number | null,"last_complied_on": string | null,"next_due_cycles": number | null,"next_due_hours": number | null,"next_due_on": string | null,"next_due_text": string | null,"not_applicable_reason": string | null,"remarks": string | null,"status": string,"supersedes_id": string | null,"version": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "aircraft_id": string,"applicability": string,"compliance_method"?: string | null,"compliance_reference"?: string | null,"correction_reason"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"document_id": string,"document_key": string,"entered_at"?: string,"entered_by": string,"entry_key"?: string,"id"?: string,"last_complied_cycles"?: number | null,"last_complied_hours"?: number | null,"last_complied_on"?: string | null,"next_due_cycles"?: number | null,"next_due_hours"?: number | null,"next_due_on"?: string | null,"next_due_text"?: string | null,"not_applicable_reason"?: string | null,"remarks"?: string | null,"status": string,"supersedes_id"?: string | null,"version"?: number
+                  }
+                  Update: {
+                    "aircraft_id"?: string,"applicability"?: string,"compliance_method"?: string | null,"compliance_reference"?: string | null,"correction_reason"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"document_id"?: string,"document_key"?: string,"entered_at"?: string,"entered_by"?: string,"entry_key"?: string,"id"?: string,"last_complied_cycles"?: number | null,"last_complied_hours"?: number | null,"last_complied_on"?: string | null,"next_due_cycles"?: number | null,"next_due_hours"?: number | null,"next_due_on"?: string | null,"next_due_text"?: string | null,"not_applicable_reason"?: string | null,"remarks"?: string | null,"status"?: string,"supersedes_id"?: string | null,"version"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "adsb_compliance_aircraft_id_fkey"
+      columns: ["aircraft_id"]
+isOneToOne: false
+      referencedRelation: "aircraft"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "adsb_compliance_document_id_fkey"
+      columns: ["document_id"]
+isOneToOne: false
+      referencedRelation: "adsb_document"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "adsb_compliance_document_id_fkey"
+      columns: ["document_id"]
+isOneToOne: false
+      referencedRelation: "adsb_document_current"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "adsb_compliance_entered_by_fkey"
+      columns: ["entered_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "adsb_compliance_supersedes_id_fkey"
+      columns: ["supersedes_id"]
+isOneToOne: true
+      referencedRelation: "adsb_compliance"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "adsb_compliance_supersedes_id_fkey"
+      columns: ["supersedes_id"]
+isOneToOne: true
+      referencedRelation: "adsb_compliance_current"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"adsb_document": {
+                  Row: {
+                    "aircraft_type_code": string,"applies_to_note": string | null,"correction_reason": string | null,"created_at": string,"created_by": string | null,"device_time": string | null,"doc_type": string,"document_key": string,"effective_on": string | null,"entered_by": string,"id": string,"issuing_authority": string,"reference": string,"revision": string | null,"supersedes_id": string | null,"title": string,"version": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "aircraft_type_code": string,"applies_to_note"?: string | null,"correction_reason"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"doc_type": string,"document_key"?: string,"effective_on"?: string | null,"entered_by": string,"id"?: string,"issuing_authority": string,"reference": string,"revision"?: string | null,"supersedes_id"?: string | null,"title": string,"version"?: number
+                  }
+                  Update: {
+                    "aircraft_type_code"?: string,"applies_to_note"?: string | null,"correction_reason"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"doc_type"?: string,"document_key"?: string,"effective_on"?: string | null,"entered_by"?: string,"id"?: string,"issuing_authority"?: string,"reference"?: string,"revision"?: string | null,"supersedes_id"?: string | null,"title"?: string,"version"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "adsb_document_aircraft_type_code_fkey"
+      columns: ["aircraft_type_code"]
+isOneToOne: false
+      referencedRelation: "aircraft_type"
+      referencedColumns: ["code"]
+    },{
+      foreignKeyName: "adsb_document_entered_by_fkey"
+      columns: ["entered_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "adsb_document_supersedes_id_fkey"
+      columns: ["supersedes_id"]
+isOneToOne: true
+      referencedRelation: "adsb_document"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "adsb_document_supersedes_id_fkey"
+      columns: ["supersedes_id"]
+isOneToOne: true
+      referencedRelation: "adsb_document_current"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"adsb_verification": {
+                  Row: {
+                    "compliance_id": string,"created_at": string,"created_by": string | null,"decided_at": string,"decided_by": string,"decision": string,"device_time": string | null,"id": string,"note": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "compliance_id": string,"created_at"?: string,"created_by"?: string | null,"decided_at"?: string,"decided_by": string,"decision": string,"device_time"?: string | null,"id"?: string,"note"?: string | null
+                  }
+                  Update: {
+                    "compliance_id"?: string,"created_at"?: string,"created_by"?: string | null,"decided_at"?: string,"decided_by"?: string,"decision"?: string,"device_time"?: string | null,"id"?: string,"note"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "adsb_verification_compliance_id_fkey"
+      columns: ["compliance_id"]
+isOneToOne: true
+      referencedRelation: "adsb_compliance"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "adsb_verification_compliance_id_fkey"
+      columns: ["compliance_id"]
+isOneToOne: true
+      referencedRelation: "adsb_compliance_current"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "adsb_verification_decided_by_fkey"
+      columns: ["decided_by"]
 isOneToOne: false
       referencedRelation: "person"
       referencedColumns: ["id"]
@@ -924,6 +1485,44 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"flight_record": {
+                  Row: {
+                    "aircraft_id": string,"apu_cycles": number | null,"apu_hours": number | null,"client_ref": string | null,"created_at": string,"created_by": string | null,"cycles": number,"device_time": string | null,"entered_at": string,"entered_by": string,"flight_date": string,"from_place": string | null,"hours": number,"hours_basis": string,"id": string,"is_void": boolean,"kind": string,"landings": number,"log_ref": string | null,"reason": string | null,"record_id": string,"supersedes": string | null,"to_place": string | null,"version": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "aircraft_id": string,"apu_cycles"?: number | null,"apu_hours"?: number | null,"client_ref"?: string | null,"created_at"?: string,"created_by"?: string | null,"cycles": number,"device_time"?: string | null,"entered_at"?: string,"entered_by": string,"flight_date": string,"from_place"?: string | null,"hours": number,"hours_basis": string,"id"?: string,"is_void"?: boolean,"kind": string,"landings": number,"log_ref"?: string | null,"reason"?: string | null,"record_id": string,"supersedes"?: string | null,"to_place"?: string | null,"version"?: number
+                  }
+                  Update: {
+                    "aircraft_id"?: string,"apu_cycles"?: number | null,"apu_hours"?: number | null,"client_ref"?: string | null,"created_at"?: string,"created_by"?: string | null,"cycles"?: number,"device_time"?: string | null,"entered_at"?: string,"entered_by"?: string,"flight_date"?: string,"from_place"?: string | null,"hours"?: number,"hours_basis"?: string,"id"?: string,"is_void"?: boolean,"kind"?: string,"landings"?: number,"log_ref"?: string | null,"reason"?: string | null,"record_id"?: string,"supersedes"?: string | null,"to_place"?: string | null,"version"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "flight_record_aircraft_id_fkey"
+      columns: ["aircraft_id"]
+isOneToOne: false
+      referencedRelation: "aircraft"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "flight_record_entered_by_fkey"
+      columns: ["entered_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "flight_record_supersedes_fkey"
+      columns: ["supersedes"]
+isOneToOne: false
+      referencedRelation: "flight_record"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "flight_record_supersedes_fkey"
+      columns: ["supersedes"]
+isOneToOne: false
+      referencedRelation: "flight_record_current"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"mel_item": {
                   Row: {
                     "category": string,"created_at": string,"created_by": string | null,"device_time": string | null,"id": string,"interval_unit": string,"interval_value": number | null,"item_number": string,"m_procedure": boolean,"number_digits": string | null,"o_procedure": boolean,"remarks": string | null,"revision_id": string,"title": string
@@ -1104,6 +1703,252 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"outside_mro_job": {
+                  Row: {
+                    "acceptance_note": string | null,"accepted_at": string | null,"accepted_by": string | null,"aircraft_id": string | null,"cancel_reason": string | null,"created_at": string,"created_by": string | null,"device_time": string | null,"expected_back": string | null,"id": string,"number": string,"part_id": string | null,"raised_by": string,"returned_on": string | null,"scope": string | null,"sent_on": string | null,"serial_no": string | null,"status": string,"status_since": string,"supplier_id": string,"title": string,"us_return_id": string | null,"work_order_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "acceptance_note"?: string | null,"accepted_at"?: string | null,"accepted_by"?: string | null,"aircraft_id"?: string | null,"cancel_reason"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"expected_back"?: string | null,"id"?: string,"number": string,"part_id"?: string | null,"raised_by": string,"returned_on"?: string | null,"scope"?: string | null,"sent_on"?: string | null,"serial_no"?: string | null,"status"?: string,"status_since"?: string,"supplier_id": string,"title": string,"us_return_id"?: string | null,"work_order_id"?: string | null
+                  }
+                  Update: {
+                    "acceptance_note"?: string | null,"accepted_at"?: string | null,"accepted_by"?: string | null,"aircraft_id"?: string | null,"cancel_reason"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"expected_back"?: string | null,"id"?: string,"number"?: string,"part_id"?: string | null,"raised_by"?: string,"returned_on"?: string | null,"scope"?: string | null,"sent_on"?: string | null,"serial_no"?: string | null,"status"?: string,"status_since"?: string,"supplier_id"?: string,"title"?: string,"us_return_id"?: string | null,"work_order_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "outside_mro_job_accepted_by_fkey"
+      columns: ["accepted_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "outside_mro_job_aircraft_id_fkey"
+      columns: ["aircraft_id"]
+isOneToOne: false
+      referencedRelation: "aircraft"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "outside_mro_job_part_id_fkey"
+      columns: ["part_id"]
+isOneToOne: false
+      referencedRelation: "part"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "outside_mro_job_raised_by_fkey"
+      columns: ["raised_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "outside_mro_job_supplier_id_fkey"
+      columns: ["supplier_id"]
+isOneToOne: false
+      referencedRelation: "supplier"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "outside_mro_job_us_return_id_fkey"
+      columns: ["us_return_id"]
+isOneToOne: false
+      referencedRelation: "us_return"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "outside_mro_job_work_order_id_fkey"
+      columns: ["work_order_id"]
+isOneToOne: false
+      referencedRelation: "work_order"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"outside_mro_part": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"currency": string,"description": string | null,"device_time": string | null,"entered_by": string,"id": string,"job_id": string,"part_id": string | null,"part_number_text": string | null,"qty": number,"unit_cost": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"currency": string,"description"?: string | null,"device_time"?: string | null,"entered_by": string,"id"?: string,"job_id": string,"part_id"?: string | null,"part_number_text"?: string | null,"qty": number,"unit_cost": number
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"currency"?: string,"description"?: string | null,"device_time"?: string | null,"entered_by"?: string,"id"?: string,"job_id"?: string,"part_id"?: string | null,"part_number_text"?: string | null,"qty"?: number,"unit_cost"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "outside_mro_part_entered_by_fkey"
+      columns: ["entered_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "outside_mro_part_job_id_fkey"
+      columns: ["job_id"]
+isOneToOne: false
+      referencedRelation: "outside_mro_job"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "outside_mro_part_part_id_fkey"
+      columns: ["part_id"]
+isOneToOne: false
+      referencedRelation: "part"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"outside_mro_quote": {
+                  Row: {
+                    "amount": number,"created_at": string,"created_by": string | null,"currency": string,"device_time": string | null,"entered_by": string,"entry": string,"id": string,"job_id": string,"note": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount": number,"created_at"?: string,"created_by"?: string | null,"currency": string,"device_time"?: string | null,"entered_by": string,"entry": string,"id"?: string,"job_id": string,"note"?: string | null
+                  }
+                  Update: {
+                    "amount"?: number,"created_at"?: string,"created_by"?: string | null,"currency"?: string,"device_time"?: string | null,"entered_by"?: string,"entry"?: string,"id"?: string,"job_id"?: string,"note"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "outside_mro_quote_entered_by_fkey"
+      columns: ["entered_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "outside_mro_quote_job_id_fkey"
+      columns: ["job_id"]
+isOneToOne: false
+      referencedRelation: "outside_mro_job"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"part": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"description": string,"device_time": string | null,"id": string,"part_class": string,"part_number": string,"serialised": boolean,"shelf_life_tracked": boolean,"status": string,"unit": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"description": string,"device_time"?: string | null,"id"?: string,"part_class": string,"part_number": string,"serialised"?: boolean,"shelf_life_tracked"?: boolean,"status"?: string,"unit"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"description"?: string,"device_time"?: string | null,"id"?: string,"part_class"?: string,"part_number"?: string,"serialised"?: boolean,"shelf_life_tracked"?: boolean,"status"?: string,"unit"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"part_request": {
+                  Row: {
+                    "aircraft_id": string | null,"aog_confirmed_at": string | null,"aog_confirmed_by": string | null,"aog_confirmed_how": string | null,"cancel_reason": string | null,"cancelled_at": string | null,"cancelled_by": string | null,"client_ref": string | null,"created_at": string,"created_by": string | null,"device_time": string | null,"id": string,"number": string,"priority": string,"purpose": string | null,"remarks": string | null,"request_type": string,"requested_by": string,"required_by": string | null,"status": string,"store_code": string,"work_order_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "aircraft_id"?: string | null,"aog_confirmed_at"?: string | null,"aog_confirmed_by"?: string | null,"aog_confirmed_how"?: string | null,"cancel_reason"?: string | null,"cancelled_at"?: string | null,"cancelled_by"?: string | null,"client_ref"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"id"?: string,"number": string,"priority"?: string,"purpose"?: string | null,"remarks"?: string | null,"request_type": string,"requested_by": string,"required_by"?: string | null,"status"?: string,"store_code": string,"work_order_id"?: string | null
+                  }
+                  Update: {
+                    "aircraft_id"?: string | null,"aog_confirmed_at"?: string | null,"aog_confirmed_by"?: string | null,"aog_confirmed_how"?: string | null,"cancel_reason"?: string | null,"cancelled_at"?: string | null,"cancelled_by"?: string | null,"client_ref"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"id"?: string,"number"?: string,"priority"?: string,"purpose"?: string | null,"remarks"?: string | null,"request_type"?: string,"requested_by"?: string,"required_by"?: string | null,"status"?: string,"store_code"?: string,"work_order_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "part_request_aircraft_id_fkey"
+      columns: ["aircraft_id"]
+isOneToOne: false
+      referencedRelation: "aircraft"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "part_request_aog_confirmed_by_fkey"
+      columns: ["aog_confirmed_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "part_request_cancelled_by_fkey"
+      columns: ["cancelled_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "part_request_requested_by_fkey"
+      columns: ["requested_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "part_request_store_code_fkey"
+      columns: ["store_code"]
+isOneToOne: false
+      referencedRelation: "store"
+      referencedColumns: ["code"]
+    },{
+      foreignKeyName: "part_request_work_order_id_fkey"
+      columns: ["work_order_id"]
+isOneToOne: false
+      referencedRelation: "work_order"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"part_request_line": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"device_time": string | null,"fit_note": string | null,"fitted_at": string | null,"fitted_by": string | null,"id": string,"ipc_ref": string | null,"issue_voucher": string | null,"issued_at": string | null,"issued_by": string | null,"line_no": number,"lot_id": string | null,"part_id": string | null,"part_number_text": string | null,"position": string | null,"qty": number,"removed_part": string,"request_id": string,"requisition_id": string | null,"reserved_at": string | null,"return_accepted_by": string | null,"return_condition": string | null,"return_reason": string | null,"returned_at": string | null,"split_from": string | null,"state": string,"state_reason": string | null,"state_since": string,"store_code": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"fit_note"?: string | null,"fitted_at"?: string | null,"fitted_by"?: string | null,"id"?: string,"ipc_ref"?: string | null,"issue_voucher"?: string | null,"issued_at"?: string | null,"issued_by"?: string | null,"line_no": number,"lot_id"?: string | null,"part_id"?: string | null,"part_number_text"?: string | null,"position"?: string | null,"qty": number,"removed_part"?: string,"request_id": string,"requisition_id"?: string | null,"reserved_at"?: string | null,"return_accepted_by"?: string | null,"return_condition"?: string | null,"return_reason"?: string | null,"returned_at"?: string | null,"split_from"?: string | null,"state"?: string,"state_reason"?: string | null,"state_since"?: string,"store_code": string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"fit_note"?: string | null,"fitted_at"?: string | null,"fitted_by"?: string | null,"id"?: string,"ipc_ref"?: string | null,"issue_voucher"?: string | null,"issued_at"?: string | null,"issued_by"?: string | null,"line_no"?: number,"lot_id"?: string | null,"part_id"?: string | null,"part_number_text"?: string | null,"position"?: string | null,"qty"?: number,"removed_part"?: string,"request_id"?: string,"requisition_id"?: string | null,"reserved_at"?: string | null,"return_accepted_by"?: string | null,"return_condition"?: string | null,"return_reason"?: string | null,"returned_at"?: string | null,"split_from"?: string | null,"state"?: string,"state_reason"?: string | null,"state_since"?: string,"store_code"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "part_request_line_fitted_by_fkey"
+      columns: ["fitted_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "part_request_line_issued_by_fkey"
+      columns: ["issued_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "part_request_line_lot_id_fkey"
+      columns: ["lot_id"]
+isOneToOne: false
+      referencedRelation: "stock_lot"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "part_request_line_part_id_fkey"
+      columns: ["part_id"]
+isOneToOne: false
+      referencedRelation: "part"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "part_request_line_request_id_fkey"
+      columns: ["request_id"]
+isOneToOne: false
+      referencedRelation: "part_request"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "part_request_line_requisition_fk"
+      columns: ["requisition_id"]
+isOneToOne: false
+      referencedRelation: "requisition"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "part_request_line_return_accepted_by_fkey"
+      columns: ["return_accepted_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "part_request_line_split_from_fkey"
+      columns: ["split_from"]
+isOneToOne: false
+      referencedRelation: "part_request_line"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "part_request_line_store_code_fkey"
+      columns: ["store_code"]
+isOneToOne: false
+      referencedRelation: "store"
+      referencedColumns: ["code"]
+    }
+                  ]
                 },"permission": {
                   Row: {
                     "code": string,"created_at": string,"created_by": string | null,"department_code": string | null,"description": string | null,"device_time": string | null,"name": string
@@ -1138,16 +1983,138 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
-                },"qualification": {
+                },"purchase_order": {
                   Row: {
-                    "aircraft_type_code": string | null,"created_at": string,"created_by": string | null,"device_time": string | null,"expires_on": string | null,"id": string,"issued_on": string | null,"issuing_authority": string | null,"kind": string,"licence_category": string | null,"medical_class": string | null,"person_id": string,"reference": string | null,"superseded_at": string | null,"superseded_by": string | null
+                    "cancel_reason": string | null,"cancelled_at": string | null,"cancelled_by": string | null,"clearing_ref": string | null,"created_at": string,"created_by": string | null,"currency": string,"device_time": string | null,"eta": string | null,"id": string,"note": string | null,"number": string,"ordered_at": string | null,"ordered_by": string | null,"raised_by": string,"shipment_ref": string | null,"status": string,"status_since": string,"supplier_id": string,"supplier_ref": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "aircraft_type_code"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"expires_on"?: string | null,"id"?: string,"issued_on"?: string | null,"issuing_authority"?: string | null,"kind": string,"licence_category"?: string | null,"medical_class"?: string | null,"person_id": string,"reference"?: string | null,"superseded_at"?: string | null,"superseded_by"?: string | null
+                    "cancel_reason"?: string | null,"cancelled_at"?: string | null,"cancelled_by"?: string | null,"clearing_ref"?: string | null,"created_at"?: string,"created_by"?: string | null,"currency": string,"device_time"?: string | null,"eta"?: string | null,"id"?: string,"note"?: string | null,"number": string,"ordered_at"?: string | null,"ordered_by"?: string | null,"raised_by": string,"shipment_ref"?: string | null,"status"?: string,"status_since"?: string,"supplier_id": string,"supplier_ref"?: string | null
                   }
                   Update: {
-                    "aircraft_type_code"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"expires_on"?: string | null,"id"?: string,"issued_on"?: string | null,"issuing_authority"?: string | null,"kind"?: string,"licence_category"?: string | null,"medical_class"?: string | null,"person_id"?: string,"reference"?: string | null,"superseded_at"?: string | null,"superseded_by"?: string | null
+                    "cancel_reason"?: string | null,"cancelled_at"?: string | null,"cancelled_by"?: string | null,"clearing_ref"?: string | null,"created_at"?: string,"created_by"?: string | null,"currency"?: string,"device_time"?: string | null,"eta"?: string | null,"id"?: string,"note"?: string | null,"number"?: string,"ordered_at"?: string | null,"ordered_by"?: string | null,"raised_by"?: string,"shipment_ref"?: string | null,"status"?: string,"status_since"?: string,"supplier_id"?: string,"supplier_ref"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "purchase_order_cancelled_by_fkey"
+      columns: ["cancelled_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "purchase_order_ordered_by_fkey"
+      columns: ["ordered_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "purchase_order_raised_by_fkey"
+      columns: ["raised_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "purchase_order_supplier_id_fkey"
+      columns: ["supplier_id"]
+isOneToOne: false
+      referencedRelation: "supplier"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"purchase_order_event": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"device_time": string | null,"done_by": string | null,"eta": string | null,"event": string,"id": string,"note": string | null,"purchase_order_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"done_by"?: string | null,"eta"?: string | null,"event": string,"id"?: string,"note"?: string | null,"purchase_order_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"done_by"?: string | null,"eta"?: string | null,"event"?: string,"id"?: string,"note"?: string | null,"purchase_order_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "purchase_order_event_done_by_fkey"
+      columns: ["done_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "purchase_order_event_purchase_order_id_fkey"
+      columns: ["purchase_order_id"]
+isOneToOne: false
+      referencedRelation: "purchase_order"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"purchase_order_line": {
+                  Row: {
+                    "cancel_reason": string | null,"created_at": string,"created_by": string | null,"device_time": string | null,"id": string,"line_no": number,"part_id": string | null,"part_number_text": string | null,"purchase_order_id": string,"qty": number,"requisition_id": string,"status": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "cancel_reason"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"id"?: string,"line_no": number,"part_id"?: string | null,"part_number_text"?: string | null,"purchase_order_id": string,"qty": number,"requisition_id": string,"status"?: string
+                  }
+                  Update: {
+                    "cancel_reason"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"id"?: string,"line_no"?: number,"part_id"?: string | null,"part_number_text"?: string | null,"purchase_order_id"?: string,"qty"?: number,"requisition_id"?: string,"status"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "purchase_order_line_part_id_fkey"
+      columns: ["part_id"]
+isOneToOne: false
+      referencedRelation: "part"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "purchase_order_line_purchase_order_id_fkey"
+      columns: ["purchase_order_id"]
+isOneToOne: false
+      referencedRelation: "purchase_order"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "purchase_order_line_requisition_id_fkey"
+      columns: ["requisition_id"]
+isOneToOne: false
+      referencedRelation: "requisition"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"purchase_order_line_price": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"currency": string,"device_time": string | null,"entered_by": string,"id": string,"po_line_id": string,"reason": string | null,"unit_price": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"currency": string,"device_time"?: string | null,"entered_by": string,"id"?: string,"po_line_id": string,"reason"?: string | null,"unit_price": number
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"currency"?: string,"device_time"?: string | null,"entered_by"?: string,"id"?: string,"po_line_id"?: string,"reason"?: string | null,"unit_price"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "purchase_order_line_price_entered_by_fkey"
+      columns: ["entered_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "purchase_order_line_price_po_line_id_fkey"
+      columns: ["po_line_id"]
+isOneToOne: false
+      referencedRelation: "purchase_order_line"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"qualification": {
+                  Row: {
+                    "aircraft_type_code": string | null,"created_at": string,"created_by": string | null,"device_time": string | null,"expires_on": string | null,"id": string,"issued_on": string | null,"issuing_authority": string | null,"kind": string,"licence_category": string | null,"medical_class": string | null,"person_id": string,"recorded_by": string | null,"reference": string | null,"replaced_by": string | null,"superseded_at": string | null,"superseded_by": string | null,"superseded_reason": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "aircraft_type_code"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"expires_on"?: string | null,"id"?: string,"issued_on"?: string | null,"issuing_authority"?: string | null,"kind": string,"licence_category"?: string | null,"medical_class"?: string | null,"person_id": string,"recorded_by"?: string | null,"reference"?: string | null,"replaced_by"?: string | null,"superseded_at"?: string | null,"superseded_by"?: string | null,"superseded_reason"?: string | null
+                  }
+                  Update: {
+                    "aircraft_type_code"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"expires_on"?: string | null,"id"?: string,"issued_on"?: string | null,"issuing_authority"?: string | null,"kind"?: string,"licence_category"?: string | null,"medical_class"?: string | null,"person_id"?: string,"recorded_by"?: string | null,"reference"?: string | null,"replaced_by"?: string | null,"superseded_at"?: string | null,"superseded_by"?: string | null,"superseded_reason"?: string | null
                   }
                   Relationships: [
                     {
@@ -1163,10 +2130,122 @@ isOneToOne: false
       referencedRelation: "person"
       referencedColumns: ["id"]
     },{
+      foreignKeyName: "qualification_recorded_by_fkey"
+      columns: ["recorded_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "qualification_replaced_by_fkey"
+      columns: ["replaced_by"]
+isOneToOne: false
+      referencedRelation: "qualification"
+      referencedColumns: ["id"]
+    },{
       foreignKeyName: "qualification_superseded_by_fkey"
       columns: ["superseded_by"]
 isOneToOne: false
       referencedRelation: "person"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"requisition": {
+                  Row: {
+                    "action_type": string,"approval_request_id": string | null,"cancel_reason": string | null,"cancelled_at": string | null,"cancelled_by": string | null,"created_at": string,"created_by": string | null,"device_time": string | null,"id": string,"kind": string,"number": string,"part_id": string | null,"part_number_text": string | null,"priority": string,"purpose": string | null,"qty": number,"raised_at": string,"raised_by": string,"rejected_reason": string | null,"remarks": string | null,"request_line_id": string | null,"required_by": string | null,"status": string,"status_since": string,"store_code": string,"superseded_by": string | null,"supersedes": string | null,"us_return_id": string | null,"version": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "action_type": string,"approval_request_id"?: string | null,"cancel_reason"?: string | null,"cancelled_at"?: string | null,"cancelled_by"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"id"?: string,"kind": string,"number": string,"part_id"?: string | null,"part_number_text"?: string | null,"priority"?: string,"purpose"?: string | null,"qty": number,"raised_at"?: string,"raised_by": string,"rejected_reason"?: string | null,"remarks"?: string | null,"request_line_id"?: string | null,"required_by"?: string | null,"status"?: string,"status_since"?: string,"store_code": string,"superseded_by"?: string | null,"supersedes"?: string | null,"us_return_id"?: string | null,"version"?: number
+                  }
+                  Update: {
+                    "action_type"?: string,"approval_request_id"?: string | null,"cancel_reason"?: string | null,"cancelled_at"?: string | null,"cancelled_by"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"id"?: string,"kind"?: string,"number"?: string,"part_id"?: string | null,"part_number_text"?: string | null,"priority"?: string,"purpose"?: string | null,"qty"?: number,"raised_at"?: string,"raised_by"?: string,"rejected_reason"?: string | null,"remarks"?: string | null,"request_line_id"?: string | null,"required_by"?: string | null,"status"?: string,"status_since"?: string,"store_code"?: string,"superseded_by"?: string | null,"supersedes"?: string | null,"us_return_id"?: string | null,"version"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "requisition_action_type_fkey"
+      columns: ["action_type"]
+isOneToOne: false
+      referencedRelation: "approval_chain"
+      referencedColumns: ["action_type"]
+    },{
+      foreignKeyName: "requisition_approval_request_id_fkey"
+      columns: ["approval_request_id"]
+isOneToOne: false
+      referencedRelation: "approval_request"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "requisition_cancelled_by_fkey"
+      columns: ["cancelled_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "requisition_part_id_fkey"
+      columns: ["part_id"]
+isOneToOne: false
+      referencedRelation: "part"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "requisition_raised_by_fkey"
+      columns: ["raised_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "requisition_request_line_id_fkey"
+      columns: ["request_line_id"]
+isOneToOne: false
+      referencedRelation: "part_request_line"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "requisition_store_code_fkey"
+      columns: ["store_code"]
+isOneToOne: false
+      referencedRelation: "store"
+      referencedColumns: ["code"]
+    },{
+      foreignKeyName: "requisition_superseded_by_fkey"
+      columns: ["superseded_by"]
+isOneToOne: false
+      referencedRelation: "requisition"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "requisition_supersedes_fkey"
+      columns: ["supersedes"]
+isOneToOne: false
+      referencedRelation: "requisition"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "requisition_us_return_id_fkey"
+      columns: ["us_return_id"]
+isOneToOne: false
+      referencedRelation: "us_return"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"requisition_estimate": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"currency": string,"device_time": string | null,"entered_by": string,"estimated_value": number,"requisition_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"currency": string,"device_time"?: string | null,"entered_by": string,"estimated_value": number,"requisition_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"currency"?: string,"device_time"?: string | null,"entered_by"?: string,"estimated_value"?: number,"requisition_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "requisition_estimate_entered_by_fkey"
+      columns: ["entered_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "requisition_estimate_requisition_id_fkey"
+      columns: ["requisition_id"]
+isOneToOne: true
+      referencedRelation: "requisition"
       referencedColumns: ["id"]
     }
                   ]
@@ -1214,6 +2293,248 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"stock_lot": {
+                  Row: {
+                    "batch_no": string | null,"bin": string | null,"certificate_ref": string | null,"certificate_status": string,"certificate_type": string | null,"condition": string,"condition_reason": string | null,"condition_set_at": string | null,"condition_set_by": string | null,"created_at": string,"created_by": string | null,"device_time": string | null,"id": string,"part_id": string,"qty_on_hand": number,"qty_reserved": number,"receipt_id": string | null,"serial_no": string | null,"shelf_life_expires_on": string | null,"source": string,"store_code": string,"transfer_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "batch_no"?: string | null,"bin"?: string | null,"certificate_ref"?: string | null,"certificate_status"?: string,"certificate_type"?: string | null,"condition"?: string,"condition_reason"?: string | null,"condition_set_at"?: string | null,"condition_set_by"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"id"?: string,"part_id": string,"qty_on_hand"?: number,"qty_reserved"?: number,"receipt_id"?: string | null,"serial_no"?: string | null,"shelf_life_expires_on"?: string | null,"source": string,"store_code": string,"transfer_id"?: string | null
+                  }
+                  Update: {
+                    "batch_no"?: string | null,"bin"?: string | null,"certificate_ref"?: string | null,"certificate_status"?: string,"certificate_type"?: string | null,"condition"?: string,"condition_reason"?: string | null,"condition_set_at"?: string | null,"condition_set_by"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"id"?: string,"part_id"?: string,"qty_on_hand"?: number,"qty_reserved"?: number,"receipt_id"?: string | null,"serial_no"?: string | null,"shelf_life_expires_on"?: string | null,"source"?: string,"store_code"?: string,"transfer_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "stock_lot_condition_set_by_fkey"
+      columns: ["condition_set_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "stock_lot_part_id_fkey"
+      columns: ["part_id"]
+isOneToOne: false
+      referencedRelation: "part"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "stock_lot_receipt_fk"
+      columns: ["receipt_id"]
+isOneToOne: false
+      referencedRelation: "stock_receipt"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "stock_lot_store_code_fkey"
+      columns: ["store_code"]
+isOneToOne: false
+      referencedRelation: "store"
+      referencedColumns: ["code"]
+    },{
+      foreignKeyName: "stock_lot_transfer_fk"
+      columns: ["transfer_id"]
+isOneToOne: false
+      referencedRelation: "stock_transfer"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"stock_movement": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"device_time": string | null,"done_by": string,"id": string,"kind": string,"lot_id": string,"on_hand_change": number,"part_id": string,"qty": number,"reason": string | null,"receipt_id": string | null,"request_line_id": string | null,"reserved_change": number,"seq": number,"store_code": string,"transfer_id": string | null,"us_return_id": string | null,"voucher": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"done_by": string,"id"?: string,"kind": string,"lot_id": string,"on_hand_change"?: number,"part_id": string,"qty": number,"reason"?: string | null,"receipt_id"?: string | null,"request_line_id"?: string | null,"reserved_change"?: number,"seq"?: never,"store_code": string,"transfer_id"?: string | null,"us_return_id"?: string | null,"voucher"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"done_by"?: string,"id"?: string,"kind"?: string,"lot_id"?: string,"on_hand_change"?: number,"part_id"?: string,"qty"?: number,"reason"?: string | null,"receipt_id"?: string | null,"request_line_id"?: string | null,"reserved_change"?: number,"seq"?: never,"store_code"?: string,"transfer_id"?: string | null,"us_return_id"?: string | null,"voucher"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "stock_movement_done_by_fkey"
+      columns: ["done_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "stock_movement_lot_id_fkey"
+      columns: ["lot_id"]
+isOneToOne: false
+      referencedRelation: "stock_lot"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "stock_movement_part_id_fkey"
+      columns: ["part_id"]
+isOneToOne: false
+      referencedRelation: "part"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "stock_movement_receipt_id_fkey"
+      columns: ["receipt_id"]
+isOneToOne: false
+      referencedRelation: "stock_receipt"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "stock_movement_request_line_id_fkey"
+      columns: ["request_line_id"]
+isOneToOne: false
+      referencedRelation: "part_request_line"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "stock_movement_store_code_fkey"
+      columns: ["store_code"]
+isOneToOne: false
+      referencedRelation: "store"
+      referencedColumns: ["code"]
+    },{
+      foreignKeyName: "stock_movement_transfer_id_fkey"
+      columns: ["transfer_id"]
+isOneToOne: false
+      referencedRelation: "stock_transfer"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "stock_movement_us_return_id_fkey"
+      columns: ["us_return_id"]
+isOneToOne: false
+      referencedRelation: "us_return"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"stock_receipt": {
+                  Row: {
+                    "acknowledged_at": string | null,"acknowledged_by": string | null,"batch_no": string | null,"bin": string | null,"certificate_ref": string | null,"certificate_type": string | null,"condition_ok": boolean | null,"created_at": string,"created_by": string | null,"delivered_against": string | null,"device_time": string | null,"for_request_line_id": string | null,"id": string,"inspected_at": string | null,"inspected_by": string | null,"lot_id": string | null,"number": string,"opened_by": string,"part_id": string,"pn_sn_match": boolean | null,"purchase_order_id": string | null,"purchase_order_line_id": string | null,"qty": number,"quarantine_reason": string | null,"serial_no": string | null,"shelf_life_expires_on": string | null,"status": string,"store_code": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "acknowledged_at"?: string | null,"acknowledged_by"?: string | null,"batch_no"?: string | null,"bin"?: string | null,"certificate_ref"?: string | null,"certificate_type"?: string | null,"condition_ok"?: boolean | null,"created_at"?: string,"created_by"?: string | null,"delivered_against"?: string | null,"device_time"?: string | null,"for_request_line_id"?: string | null,"id"?: string,"inspected_at"?: string | null,"inspected_by"?: string | null,"lot_id"?: string | null,"number": string,"opened_by": string,"part_id": string,"pn_sn_match"?: boolean | null,"purchase_order_id"?: string | null,"purchase_order_line_id"?: string | null,"qty": number,"quarantine_reason"?: string | null,"serial_no"?: string | null,"shelf_life_expires_on"?: string | null,"status"?: string,"store_code": string
+                  }
+                  Update: {
+                    "acknowledged_at"?: string | null,"acknowledged_by"?: string | null,"batch_no"?: string | null,"bin"?: string | null,"certificate_ref"?: string | null,"certificate_type"?: string | null,"condition_ok"?: boolean | null,"created_at"?: string,"created_by"?: string | null,"delivered_against"?: string | null,"device_time"?: string | null,"for_request_line_id"?: string | null,"id"?: string,"inspected_at"?: string | null,"inspected_by"?: string | null,"lot_id"?: string | null,"number"?: string,"opened_by"?: string,"part_id"?: string,"pn_sn_match"?: boolean | null,"purchase_order_id"?: string | null,"purchase_order_line_id"?: string | null,"qty"?: number,"quarantine_reason"?: string | null,"serial_no"?: string | null,"shelf_life_expires_on"?: string | null,"status"?: string,"store_code"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "stock_receipt_acknowledged_by_fkey"
+      columns: ["acknowledged_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "stock_receipt_for_request_line_id_fkey"
+      columns: ["for_request_line_id"]
+isOneToOne: false
+      referencedRelation: "part_request_line"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "stock_receipt_inspected_by_fkey"
+      columns: ["inspected_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "stock_receipt_lot_id_fkey"
+      columns: ["lot_id"]
+isOneToOne: false
+      referencedRelation: "stock_lot"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "stock_receipt_opened_by_fkey"
+      columns: ["opened_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "stock_receipt_part_id_fkey"
+      columns: ["part_id"]
+isOneToOne: false
+      referencedRelation: "part"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "stock_receipt_purchase_order_fk"
+      columns: ["purchase_order_id"]
+isOneToOne: false
+      referencedRelation: "purchase_order"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "stock_receipt_purchase_order_line_id_fkey"
+      columns: ["purchase_order_line_id"]
+isOneToOne: false
+      referencedRelation: "purchase_order_line"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "stock_receipt_store_code_fkey"
+      columns: ["store_code"]
+isOneToOne: false
+      referencedRelation: "store"
+      referencedColumns: ["code"]
+    }
+                  ]
+                },"stock_transfer": {
+                  Row: {
+                    "acknowledged_at": string | null,"acknowledged_by": string | null,"created_at": string,"created_by": string | null,"device_time": string | null,"from_lot_id": string,"from_store": string,"id": string,"note": string | null,"number": string,"part_id": string,"qty": number,"raised_at": string,"raised_by": string,"received_at": string | null,"received_by": string | null,"return_of": string | null,"status": string,"to_lot_id": string | null,"to_store": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "acknowledged_at"?: string | null,"acknowledged_by"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"from_lot_id": string,"from_store": string,"id"?: string,"note"?: string | null,"number": string,"part_id": string,"qty": number,"raised_at"?: string,"raised_by": string,"received_at"?: string | null,"received_by"?: string | null,"return_of"?: string | null,"status"?: string,"to_lot_id"?: string | null,"to_store": string
+                  }
+                  Update: {
+                    "acknowledged_at"?: string | null,"acknowledged_by"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"from_lot_id"?: string,"from_store"?: string,"id"?: string,"note"?: string | null,"number"?: string,"part_id"?: string,"qty"?: number,"raised_at"?: string,"raised_by"?: string,"received_at"?: string | null,"received_by"?: string | null,"return_of"?: string | null,"status"?: string,"to_lot_id"?: string | null,"to_store"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "stock_transfer_acknowledged_by_fkey"
+      columns: ["acknowledged_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "stock_transfer_from_lot_id_fkey"
+      columns: ["from_lot_id"]
+isOneToOne: false
+      referencedRelation: "stock_lot"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "stock_transfer_from_store_fkey"
+      columns: ["from_store"]
+isOneToOne: false
+      referencedRelation: "store"
+      referencedColumns: ["code"]
+    },{
+      foreignKeyName: "stock_transfer_part_id_fkey"
+      columns: ["part_id"]
+isOneToOne: false
+      referencedRelation: "part"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "stock_transfer_raised_by_fkey"
+      columns: ["raised_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "stock_transfer_received_by_fkey"
+      columns: ["received_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "stock_transfer_return_of_fkey"
+      columns: ["return_of"]
+isOneToOne: false
+      referencedRelation: "stock_transfer"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "stock_transfer_to_lot_id_fkey"
+      columns: ["to_lot_id"]
+isOneToOne: false
+      referencedRelation: "stock_lot"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "stock_transfer_to_store_fkey"
+      columns: ["to_store"]
+isOneToOne: false
+      referencedRelation: "store"
+      referencedColumns: ["code"]
+    }
+                  ]
                 },"store": {
                   Row: {
                     "code": string,"created_at": string,"created_by": string | null,"device_time": string | null,"is_store_of_record": boolean,"name": string
@@ -1227,6 +2548,70 @@ isOneToOne: false
                   }
                   Relationships: [
                     
+                  ]
+                },"supplier": {
+                  Row: {
+                    "added_by": string,"approval_ref": string | null,"code": string,"contact": string | null,"country": string | null,"created_at": string,"created_by": string | null,"device_time": string | null,"id": string,"kind": string,"name": string,"scope_note": string | null,"status": string,"status_reason": string | null,"status_set_at": string | null,"status_set_by": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "added_by": string,"approval_ref"?: string | null,"code": string,"contact"?: string | null,"country"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"id"?: string,"kind"?: string,"name": string,"scope_note"?: string | null,"status"?: string,"status_reason"?: string | null,"status_set_at"?: string | null,"status_set_by"?: string | null
+                  }
+                  Update: {
+                    "added_by"?: string,"approval_ref"?: string | null,"code"?: string,"contact"?: string | null,"country"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"id"?: string,"kind"?: string,"name"?: string,"scope_note"?: string | null,"status"?: string,"status_reason"?: string | null,"status_set_at"?: string | null,"status_set_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "supplier_added_by_fkey"
+      columns: ["added_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "supplier_status_set_by_fkey"
+      columns: ["status_set_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"supplier_invoice": {
+                  Row: {
+                    "amount": number,"created_at": string,"created_by": string | null,"currency": string,"device_time": string | null,"id": string,"invoice_date": string,"invoice_no": string,"note": string | null,"outside_mro_job_id": string | null,"purchase_order_id": string | null,"recorded_by": string,"supplier_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount": number,"created_at"?: string,"created_by"?: string | null,"currency": string,"device_time"?: string | null,"id"?: string,"invoice_date": string,"invoice_no": string,"note"?: string | null,"outside_mro_job_id"?: string | null,"purchase_order_id"?: string | null,"recorded_by": string,"supplier_id": string
+                  }
+                  Update: {
+                    "amount"?: number,"created_at"?: string,"created_by"?: string | null,"currency"?: string,"device_time"?: string | null,"id"?: string,"invoice_date"?: string,"invoice_no"?: string,"note"?: string | null,"outside_mro_job_id"?: string | null,"purchase_order_id"?: string | null,"recorded_by"?: string,"supplier_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "supplier_invoice_outside_mro_job_id_fkey"
+      columns: ["outside_mro_job_id"]
+isOneToOne: false
+      referencedRelation: "outside_mro_job"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "supplier_invoice_purchase_order_id_fkey"
+      columns: ["purchase_order_id"]
+isOneToOne: false
+      referencedRelation: "purchase_order"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "supplier_invoice_recorded_by_fkey"
+      columns: ["recorded_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "supplier_invoice_supplier_id_fkey"
+      columns: ["supplier_id"]
+isOneToOne: false
+      referencedRelation: "supplier"
+      referencedColumns: ["id"]
+    }
                   ]
                 },"tail_status_event": {
                   Row: {
@@ -1315,6 +2700,68 @@ isOneToOne: false
       columns: ["query_id"]
 isOneToOne: false
       referencedRelation: "technical_query"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"us_return": {
+                  Row: {
+                    "aircraft_id": string,"created_at": string,"created_by": string | null,"device_time": string | null,"id": string,"lot_id": string | null,"number": string,"part_id": string | null,"part_number_text": string | null,"reason": string,"receive_note": string | null,"received_at": string | null,"received_by": string | null,"removed_at": string,"removed_by": string,"request_line_id": string | null,"return_due_on": string | null,"serial_no": string | null,"status": string,"store_code": string,"tag_ref": string | null,"work_order_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "aircraft_id": string,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"id"?: string,"lot_id"?: string | null,"number": string,"part_id"?: string | null,"part_number_text"?: string | null,"reason": string,"receive_note"?: string | null,"received_at"?: string | null,"received_by"?: string | null,"removed_at"?: string,"removed_by": string,"request_line_id"?: string | null,"return_due_on"?: string | null,"serial_no"?: string | null,"status"?: string,"store_code": string,"tag_ref"?: string | null,"work_order_id"?: string | null
+                  }
+                  Update: {
+                    "aircraft_id"?: string,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"id"?: string,"lot_id"?: string | null,"number"?: string,"part_id"?: string | null,"part_number_text"?: string | null,"reason"?: string,"receive_note"?: string | null,"received_at"?: string | null,"received_by"?: string | null,"removed_at"?: string,"removed_by"?: string,"request_line_id"?: string | null,"return_due_on"?: string | null,"serial_no"?: string | null,"status"?: string,"store_code"?: string,"tag_ref"?: string | null,"work_order_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "us_return_aircraft_id_fkey"
+      columns: ["aircraft_id"]
+isOneToOne: false
+      referencedRelation: "aircraft"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "us_return_lot_id_fkey"
+      columns: ["lot_id"]
+isOneToOne: false
+      referencedRelation: "stock_lot"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "us_return_part_id_fkey"
+      columns: ["part_id"]
+isOneToOne: false
+      referencedRelation: "part"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "us_return_received_by_fkey"
+      columns: ["received_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "us_return_removed_by_fkey"
+      columns: ["removed_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "us_return_request_line_id_fkey"
+      columns: ["request_line_id"]
+isOneToOne: false
+      referencedRelation: "part_request_line"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "us_return_store_code_fkey"
+      columns: ["store_code"]
+isOneToOne: false
+      referencedRelation: "store"
+      referencedColumns: ["code"]
+    },{
+      foreignKeyName: "us_return_work_order_id_fkey"
+      columns: ["work_order_id"]
+isOneToOne: false
+      referencedRelation: "work_order"
       referencedColumns: ["id"]
     }
                   ]
@@ -1449,7 +2896,65 @@ isOneToOne: false
                 }
           }
           Views: {
-            "aircraft_current_status": {
+            "adsb_compliance_current": {
+                  Row: {
+                    "aircraft_id": string | null,"aircraft_type_code": string | null,"applicability": string | null,"assessed_revision": string | null,"compliance_method": string | null,"compliance_reference": string | null,"correction_reason": string | null,"current_cycles": number | null,"current_hours": number | null,"current_revision": string | null,"cycles_flag": string | null,"date_flag": string | null,"doc_type": string | null,"document_id": string | null,"document_key": string | null,"document_revised": boolean | null,"due_flag": string | null,"entered_at": string | null,"entered_by": string | null,"entered_by_tlc": string | null,"entry_key": string | null,"hours_flag": string | null,"id": string | null,"issuing_authority": string | null,"last_complied_cycles": number | null,"last_complied_hours": number | null,"last_complied_on": string | null,"next_due_cycles": number | null,"next_due_hours": number | null,"next_due_on": string | null,"next_due_text": string | null,"not_applicable_reason": string | null,"reference": string | null,"remarks": string | null,"status": string | null,"tail": string | null,"title": string | null,"totals_available": boolean | null,"verification_note": string | null,"verification_state": string | null,"verified_at": string | null,"verified_by_tlc": string | null,"version": number | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    {
+      foreignKeyName: "adsb_compliance_aircraft_id_fkey"
+      columns: ["aircraft_id"]
+isOneToOne: false
+      referencedRelation: "aircraft"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "adsb_compliance_document_id_fkey"
+      columns: ["document_id"]
+isOneToOne: false
+      referencedRelation: "adsb_document"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "adsb_compliance_document_id_fkey"
+      columns: ["document_id"]
+isOneToOne: false
+      referencedRelation: "adsb_document_current"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "adsb_compliance_entered_by_fkey"
+      columns: ["entered_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "aircraft_aircraft_type_code_fkey"
+      columns: ["aircraft_type_code"]
+isOneToOne: false
+      referencedRelation: "aircraft_type"
+      referencedColumns: ["code"]
+    }
+                  ]
+                },"adsb_document_current": {
+                  Row: {
+                    "aircraft_type_code": string | null,"applies_to_note": string | null,"correction_reason": string | null,"created_at": string | null,"doc_type": string | null,"document_key": string | null,"effective_on": string | null,"entered_by": string | null,"entered_by_tlc": string | null,"id": string | null,"issuing_authority": string | null,"reference": string | null,"revision": string | null,"title": string | null,"version": number | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    {
+      foreignKeyName: "adsb_document_aircraft_type_code_fkey"
+      columns: ["aircraft_type_code"]
+isOneToOne: false
+      referencedRelation: "aircraft_type"
+      referencedColumns: ["code"]
+    },{
+      foreignKeyName: "adsb_document_entered_by_fkey"
+      columns: ["entered_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"aircraft_current_status": {
                   Row: {
                     "aircraft_id": string | null,"expected_rts_on": string | null,"reason": string | null,"set_at": string | null,"set_by": string | null,"status": string | null
                   }
@@ -1466,6 +2971,44 @@ isOneToOne: false
       columns: ["set_by"]
 isOneToOne: false
       referencedRelation: "person"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"flight_record_current": {
+                  Row: {
+                    "aircraft_id": string | null,"apu_cycles": number | null,"apu_hours": number | null,"client_ref": string | null,"created_at": string | null,"created_by": string | null,"cycles": number | null,"device_time": string | null,"entered_at": string | null,"entered_by": string | null,"flight_date": string | null,"from_place": string | null,"hours": number | null,"hours_basis": string | null,"id": string | null,"is_void": boolean | null,"kind": string | null,"landings": number | null,"log_ref": string | null,"reason": string | null,"record_id": string | null,"supersedes": string | null,"to_place": string | null,"version": number | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                           "aircraft_id"?: string | null,"apu_cycles"?: number | null,"apu_hours"?: number | null,"client_ref"?: string | null,"created_at"?: string | null,"created_by"?: string | null,"cycles"?: number | null,"device_time"?: string | null,"entered_at"?: string | null,"entered_by"?: string | null,"flight_date"?: string | null,"from_place"?: string | null,"hours"?: number | null,"hours_basis"?: string | null,"id"?: string | null,"is_void"?: boolean | null,"kind"?: string | null,"landings"?: number | null,"log_ref"?: string | null,"reason"?: string | null,"record_id"?: string | null,"supersedes"?: string | null,"to_place"?: string | null,"version"?: number | null
+                         }
+                        Update: {
+                           "aircraft_id"?: string | null,"apu_cycles"?: number | null,"apu_hours"?: number | null,"client_ref"?: string | null,"created_at"?: string | null,"created_by"?: string | null,"cycles"?: number | null,"device_time"?: string | null,"entered_at"?: string | null,"entered_by"?: string | null,"flight_date"?: string | null,"from_place"?: string | null,"hours"?: number | null,"hours_basis"?: string | null,"id"?: string | null,"is_void"?: boolean | null,"kind"?: string | null,"landings"?: number | null,"log_ref"?: string | null,"reason"?: string | null,"record_id"?: string | null,"supersedes"?: string | null,"to_place"?: string | null,"version"?: number | null
+                         }
+                        Relationships: [
+                    {
+      foreignKeyName: "flight_record_aircraft_id_fkey"
+      columns: ["aircraft_id"]
+isOneToOne: false
+      referencedRelation: "aircraft"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "flight_record_entered_by_fkey"
+      columns: ["entered_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "flight_record_supersedes_fkey"
+      columns: ["supersedes"]
+isOneToOne: false
+      referencedRelation: "flight_record"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "flight_record_supersedes_fkey"
+      columns: ["supersedes"]
+isOneToOne: false
+      referencedRelation: "flight_record_current"
       referencedColumns: ["id"]
     }
                   ]

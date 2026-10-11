@@ -56,6 +56,7 @@ const MENU: Record<string, Entry[]> = {
   SUP: [
     { label: 'Supply board', to: '/supply' },
     { label: 'Stores search', to: '/stores' },
+    { label: 'Requisitions', to: '/procurement/requisitions' },
     { group: 'Stock movements', items: [
       { label: 'Issue parts', to: '/stores/issue' },
       { label: 'Receiving', to: '/stores/receiving' },
@@ -67,13 +68,16 @@ const MENU: Record<string, Entry[]> = {
     ] },
   ],
   PRO: [
-    { label: 'Requisitions', to: '/section/PRO/requisitions' },
-    { label: 'Purchase orders', to: '/section/PRO/purchase-orders' },
-    { label: 'Outside-MRO jobs', to: '/section/PRO/outside-mro' },
+    { label: 'Procurement board', to: '/procurement' },
+    { label: 'Requisitions', to: '/procurement/requisitions' },
+    { label: 'Purchase orders', to: '/procurement/purchase-orders' },
+    { label: 'Suppliers', to: '/procurement/suppliers' },
+    { label: 'Outside-MRO jobs', to: '/procurement/outside-mro' },
   ],
   QUA: [
     { label: 'Offline signatures', to: '/offline-signatures' },
     { label: 'ADs and SBs to verify', to: '/ads-sbs?status=awaiting' },
+    { label: 'Approved suppliers', to: '/procurement/suppliers' },
     { label: 'MEL revisions', to: '/section/QUA/mel' },
     { label: 'Audit trail', to: '/section/QUA/audit' },
   ],

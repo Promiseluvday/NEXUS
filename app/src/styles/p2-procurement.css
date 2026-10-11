@@ -1,0 +1,61 @@
+/* Phase 2 · procurement (screens/procurement/*). Imported by procurement/common.tsx.
+   Layout from the wireframes WF-K1..K3, WF-MRO2 and DeptProcurement; colours
+   from theme.css. Status colours only with words (D-091). */
+
+.pq-table td { vertical-align: middle; }
+.pq-table td:first-child, .pq-table .mono { white-space: nowrap; }
+.pq-table tr.pq-mine { background: #fffbea; }
+.pq-plain tbody tr { cursor: default; }
+.pq-empty { margin: 0; }
+.pq-money { white-space: nowrap; }
+.pq-nocost { margin-top: 12px; }
+.pq-yours { color: var(--ink); font-weight: 700; margin-top: 4px; }
+.pq-chips { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.pq-card-line { margin: 6px 0; }
+.pq-tiles { max-width: 1100px; }
+
+/* Forms */
+.pq-form { display: flex; flex-direction: column; gap: 12px; }
+.pq-row { flex-wrap: wrap; }
+.pq-row > * { flex: 1 1 200px; min-width: 0; }
+.pq-inline { margin-top: 8px; padding: 10px 12px; border: 1px dashed var(--ink-soft); border-radius: var(--radius); background: #fff; }
+.pq-inline-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+.pq-inline-row > input, .pq-inline-row > select { flex: 1 1 160px; min-width: 0; }
+.pq-pick { margin: 0; display: inline-flex; align-items: center; gap: 6px; }
+.pq-decide { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line-faint); }
+
+/* Approval chain (WF-K2): one row per step */
+.pq-chain { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.pq-step { display: grid; grid-template-columns: 24px minmax(160px, 1fr) 2fr; gap: 4px 10px; align-items: baseline;
+  padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--radius); background: #fff; }
+.pq-step-mark { font-weight: 700; }
+.pq-step.done .pq-step-mark { color: var(--green); }
+.pq-step.rejected .pq-step-mark, .pq-step.rejected .pq-step-name { color: var(--red); }
+.pq-step.now { border-color: var(--ink); }
+.pq-step.now .pq-step-name { font-weight: 700; }
+.pq-step.todo { color: var(--ink-soft); }
+
+/* PO lines */
+.pq-lines .pq-line { padding: 10px 0; border-top: 1px solid var(--line-faint); display: flex; flex-direction: column; gap: 6px; }
+.pq-lines .pq-line:first-child { border-top: 0; padding-top: 0; }
+.pq-line.superseded { opacity: 0.6; }
+.pq-line-top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.pq-line-cost { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; color: var(--ink-mid); }
+
+/* Invoices */
+.pq-invoices { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.pq-invoices li { padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--radius); background: #fff; }
+.pq-inv-top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.pq-files { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin-top: 6px; }
+.pq-upload { position: relative; cursor: pointer; min-height: 40px; display: inline-flex; align-items: center; }
+
+/* Small lists shown instead of tables on phones */
+.pq-mobile-list { display: none; list-style: none; margin: 0; padding: 0; }
+.pq-mobile-list li { padding: 8px 0; border-top: 1px solid var(--line-faint); }
+
+@media (max-width: 800px) {
+  .pq-page .action-row > button, .pq-page .action-row > .button { flex: 1 1 100%; justify-content: center; }
+  .pq-step { grid-template-columns: 24px 1fr; }
+  .pq-step > .small { grid-column: 2; }
+  .pq-mobile-list { display: block; }
+}

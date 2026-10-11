@@ -23,6 +23,7 @@
 //     /ads-sbs                ADs and SBs register and compliance (?aircraft=…, ?view=register, D-016)
 //     /supply, /stores/…      Supply board, stores search, issue, receiving, quarantine, U/S returns, transfers (D-070, D-141 to D-153)
 //     /part-requests          part requests (?aircraft=…, /new, /:id; D-068, D-143, D-145)
+//     /procurement/…          requisitions, purchase orders, suppliers, outside-MRO jobs (D-073 to D-079, D-144 to D-149)
 //     /notifications          things waiting on me, built from current records
 //     /print/ddls/:id, /print/nadds/:id   printable sheets (no app frame)
 //     /print/serviceability   daily serviceability state (?copy=ops: Operations copy, D-203)
@@ -43,6 +44,10 @@ import {
   IssueParts, PartDetail, PartRequestForm, PartRequestList, PartRequestPage, Quarantine, ReceiptPage, Receiving,
   StoresSearch, SupplyBoard, Transfers, UsReturns,
 } from './screens/Stores';
+import {
+  NewPurchaseOrder, NewRequisition, OutsideMroList, OutsideMroPage, ProcurementBoard, PurchaseOrderList,
+  PurchaseOrderPage, RequisitionList, RequisitionPage, Suppliers,
+} from './screens/Procurement';
 import { PeopleList, PersonAuthorizationsPage, PersonQualificationsPage, PersonRecordPage } from './screens/People';
 import { ServiceabilityPrint } from './screens/ServiceabilityPrint';
 import { ReportSnag } from './screens/ReportSnag';
@@ -88,6 +93,16 @@ const router = createBrowserRouter([
       { path: 'part-requests', element: <PartRequestList /> },
       { path: 'part-requests/new', element: <PartRequestForm /> },
       { path: 'part-requests/:id', element: <PartRequestPage /> },
+      { path: 'procurement', element: <ProcurementBoard /> },
+      { path: 'procurement/requisitions', element: <RequisitionList /> },
+      { path: 'procurement/requisitions/new', element: <NewRequisition /> },
+      { path: 'procurement/requisitions/:id', element: <RequisitionPage /> },
+      { path: 'procurement/purchase-orders', element: <PurchaseOrderList /> },
+      { path: 'procurement/purchase-orders/new', element: <NewPurchaseOrder /> },
+      { path: 'procurement/purchase-orders/:id', element: <PurchaseOrderPage /> },
+      { path: 'procurement/suppliers', element: <Suppliers /> },
+      { path: 'procurement/outside-mro', element: <OutsideMroList /> },
+      { path: 'procurement/outside-mro/:id', element: <OutsideMroPage /> },
       { path: 'people', element: <PeopleList /> },
       { path: 'people/:personId', element: <PersonRecordPage /> },
       { path: 'people/:personId/qualifications', element: <PersonQualificationsPage /> },

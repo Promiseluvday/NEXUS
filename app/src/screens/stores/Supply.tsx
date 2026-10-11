@@ -17,6 +17,7 @@ import {
   Empty, StoresTabs, qtyText, usePartRequestLines, useSupplyRights, type RequestLine,
 } from './common';
 import { RequestLinesTable } from './Requests';
+import { RaiseRepairRequisitionLink } from '../Procurement';
 
 // The accepted certificate list Quality keeps (D-148).
 export function useCertificateTypes(): string[] {
@@ -286,10 +287,14 @@ export function UsReturns() {
                 <div className="small">Removed U/S {formatDateTime(r.removed_at, display)} by <span className="mono">{r.remover?.three_letter_code}</span>
                   {r.return_due_on && <> · due at {r.store_code} {formatPlainDate(r.return_due_on, display)}</>}</div>
                 <div className="small">Reason: {r.reason}</div>
+                {/* A received U/S part can go for repair through a requisition (procurement). */}
+                {isSupply && r.status === 'received' && (
+                  <div className="action-row"><RaiseRepairRequisitionLink usReturnId={r.id} received /></div>
+                )}
                 {isSupply && r.status === 'expected' && open !== r.id && (
                   <div className="action-row">
                     <button type="button" onClick={() => setOpen(r.id)}>Process return</button>
-                    <button type="button" className="secondary" disabled title="Comes with the procurement slice">Raise repair requisition</button>
+                    <RaiseRepairRequisitionLink usReturnId={r.id} received={false} />
                   </div>
                 )}
                 {open === r.id && (
