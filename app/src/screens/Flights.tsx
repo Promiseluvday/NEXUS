@@ -11,7 +11,7 @@
 //
 // Who does what (checked again by the database, D-125):
 //   Pilots (Operations) and Engineering log flights, tails in scope (D-027).
-//   Only Engineering corrects (a new version with a reason and PIN; the
+//   Only Engineering corrects (a new version stamped with 3LC and time; the
 //   original stays in history, D-023) and enters the brought-forward totals.
 //   Command and Quality read everything; Supply and Procurement see totals only.
 // Totals are the sum of what people entered. Nothing is forecast (D-020 to D-022).
@@ -461,7 +461,9 @@ function LogFlightForm({ aircraft, aircraftId, basis, baselineAsAt, onDone, onCa
   );
 }
 
-// Correct flight record (WF-FR1): Engineering, new version, reason, PIN.
+// Correct flight record (WF-FR1): Engineering, new version. A flight needs
+// no reason or PIN: the new version records the engineer's 3LC and the time
+// (Promise, 11 Oct). Brought-forward totals still need a reason and PIN.
 function CorrectForm({ current, original, onDone, onCancel }: {
   current: FlightRecord; original: FlightRecord; onDone: (message: string, newId: string) => void; onCancel: () => void;
 }) {
@@ -485,13 +487,13 @@ function CorrectForm({ current, original, onDone, onCancel }: {
     setError('');
     const n = voided ? { hours: 0, cycles: 0, landings: 0, apuHours: null, apuCycles: null } : readFigures(f, current.kind);
     if ('error' in n) return setError(n.error!);
-    if (!reason.trim()) return setError('Give the reason for the correction (D-027).');
-    if (!pin) return setError('Sign with your PIN.');
+    if (isBase && !reason.trim()) return setError('Give the reason for the correction (D-027).');
+    if (isBase && !pin) return setError('Sign with your PIN.');
     setBusy(true);
     const { data, error: err } = await anyActions.rpc('correct_flight_record', {
       p_record: current.id, p_flight_date: f.date,
       p_hours: n.hours, p_cycles: n.cycles, p_landings: n.landings,
-      p_reason: reason.trim(), p_pin: pin,
+      p_reason: reason.trim() || null, p_pin: isBase ? pin : null,
       p_from: f.from.trim() || null, p_to: f.to.trim() || null, p_log_ref: f.logRef.trim() || null,
       p_apu_hours: n.apuHours, p_apu_cycles: n.apuCycles,
       p_void: voided, p_device_time: new Date().toISOString(),
@@ -523,10 +525,10 @@ function CorrectForm({ current, original, onDone, onCancel }: {
         )}
         {!voided && <FigureFields f={f} set={set} basis={current.hours_basis} withRoute={!isBase}
           dateLabel={isBase ? 'As at (date of the paper figures)' : 'Date'} />}
-        <label htmlFor="fr-reason">Reason for correction</label>
-        <textarea id="fr-reason" value={reason} onChange={(e) => setReason(e.target.value)} required
+        <label htmlFor="fr-reason">{isBase ? 'Reason for correction' : 'Note'} {!isBase && <span className="hint">(optional; your 3LC and the time are recorded)</span>}</label>
+        <textarea id="fr-reason" value={reason} onChange={(e) => setReason(e.target.value)} required={isBase}
           placeholder="e.g. Tech log page reads 2.6 h" />
-        <PinField value={pin} onChange={setPin} id="fr-pin" />
+        {isBase && <PinField value={pin} onChange={setPin} id="fr-pin" />}
       </Section>
       {error && <div className="error" role="alert" style={{ margin: 0 }}>{error}</div>}
       <div className="action-row">
@@ -534,7 +536,7 @@ function CorrectForm({ current, original, onDone, onCancel }: {
         <a className="button outline-button" href="#versions">Version history</a>
         <button type="button" className="outline-button" onClick={onCancel}>Cancel</button>
       </div>
-      <p className="small muted" style={{ margin: 0 }}>Corrections need a connection: the PIN is checked by the server (D-104).</p>
+      {isBase && <p className="small muted" style={{ margin: 0 }}>Brought-forward corrections need a connection: the PIN is checked by the server (D-104).</p>}
     </form>
   );
 }

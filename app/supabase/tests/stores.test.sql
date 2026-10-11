@@ -174,7 +174,7 @@ select is((select aog_confirmed_at is null from public.part_request where id = (
   'D-147: AOG on a serviceable tail is requested but not confirmed');
 select pg_temp.act_as(:KDO);
 select throws_like(format($$ select app.confirm_aog_priority(%L, '1357') $$, :'r_aog'::jsonb ->> 'id'),
-  '%not the requester%', 'D-147: the requester cannot confirm their own AOG');
+  '%certifying authorization%', 'D-147: confirming AOG needs a certifying engineer for the type (a non-certifying requester cannot)');
 select pg_temp.admin();
 select pg_temp.act_as(:TMB);
 select lives_ok(format($$ select app.confirm_aog_priority(%L, '2468') $$, :'r_aog'::jsonb ->> 'id'),

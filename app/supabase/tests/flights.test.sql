@@ -117,11 +117,12 @@ select throws_like(format($$ select app.correct_flight_record(%L, current_date -
 select pg_temp.admin();
 
 select pg_temp.act_as(:KDO);
-select throws_like(format($$ select app.correct_flight_record(%L, current_date - 2, 2.6, 1, 1, ' ', '555666') $$, :'orig'),
-  '%reason%', 'D-027: a correction needs a reason');
+select throws_like(format($$ select app.correct_flight_record(%L, current_date, 1000.0, 400, 402, ' ', '555666') $$,
+                          (select id from public.flight_record_current where aircraft_id = :TAIL and kind = 'baseline')),
+  '%reason%', 'D-027: correcting the brought-forward totals still needs a reason');
 select lives_ok(format($$ select app.correct_flight_record(%L, current_date - 2, 2.6, 1, 1,
-                         'Tech log page 12/045 reads 2.6 h', '555666', 'XNAA', 'XNBB', 'TLB 12/045', 0.9, 1) $$, :'orig'),
-  'D-027: Engineering corrects a flight record');
+                         null, null, 'XNAA', 'XNBB', 'TLB 12/045', 0.9, 1) $$, :'orig'),
+  '11 Oct: any engineer corrects a flight record with no reason or PIN; 3LC and time are recorded');
 select pg_temp.admin();
 select is((select string_agg(version || ':' || hours::text, ',' order by version) from public.flight_record where record_id = :'orig'),
   '1:2.4,2:2.6', 'D-023: the correction is a new version; the original is kept unchanged');

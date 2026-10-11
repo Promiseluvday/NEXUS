@@ -626,7 +626,7 @@ export function PartRequestPage() {
 
       {h.status === 'open' && (
         <div className="action-row">
-          {h.priority === 'AOG' && !h.aog_confirmed_at && canCertify && !mine && (
+          {h.priority === 'AOG' && !h.aog_confirmed_at && canCertify && (
             <button type="button" onClick={() => setMode({ kind: 'aog' })}>Confirm AOG priority</button>
           )}
           {(isEngineer || mine) && lines && !lines.some((l) => ['issued', 'returning'].includes(l.state)) && (
