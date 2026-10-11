@@ -68,3 +68,34 @@ Same as section 4 (O-14): need-to-know Scheduling permission, full audit of ever
 - **Q-OP2:** When does a mission leave Outstanding missions: when flown, when the flight order is issued, or when Operations closes it? Drawn: Completed or Cancelled with a reason.
 - **Q-OP3:** Are Standby 1 and Standby 2 the right duty slots, and are they per day or per shift? Drawn: per day, configurable.
 - **Q-OP4:** Request number format. Drawn: `FR-000031`; use Operations' own format if one exists.
+
+---
+
+## 6. PROPOSAL P12 — now being built: flight requests, fleet roster, crew scheduling, flight order (7 Oct 2026)
+
+**Status: PROPOSAL to log in docs/DECISIONS.md.** Promise instructed on 7 Oct 2026 that crew scheduling and flight requests will now be built. This amends D-012 (out of scope), D-013 (Phases 5 and 6) and D-017 ("Coming soon"), and replaces P9 (section 5). Until it is logged, D-012, D-013 and D-017 remain the recorded decisions.
+
+Drawn on the design canvas: OP2 (register flight request), OP3 (Outstanding missions), OP4 (mission detail), SCH1 (fleet roster), SCH2 (crew roster), CS1 (assign crew), FO1 (flight order print), R15 (crew "My duties", mobile).
+
+### 6.1 Mission states
+
+Registered → Aircraft assigned → Crew assigned → Flight order issued → Completed (or Cancelled with a reason). A mission stays in Outstanding missions until Completed or Cancelled.
+
+### 6.2 Crew assignment rules (drawn as defaults)
+
+- Positions come from the aircraft type (operator setting). Drawn for G550: Captain, First officer, Cabin crew ×1. Flight engineer per type is open (Q-CR3).
+- A crew member can be picked only with a valid type rating for the assigned aircraft type and every qualification the requirements matrix marks mandatory valid on the mission dates (D-080, D-081). PAF: medical for flying crew, not for engineers (D-082).
+- Expiry dates come from the person record (D-085). Nexus only compares them with the mission dates; nothing is projected.
+- Expired: cannot be assigned. Expiring within the alert window: assigned with a warning (Q-CR1).
+- Leave, training and "Unavailable" block assignment. The reason for "Unavailable" is not shown (D-084).
+- Duty clashes are flagged. Flight duty and rest limits are open (Q-CR2).
+- A flight engineer from Engineering is rostered from the same person record (D-085, D-124).
+- Saving notifies each crew member (My duties) and Operations; every change is a version.
+
+### 6.3 Flight order
+
+Built from section 2's blocks once aircraft and crew are set. Aircraft status and (O) restrictions come from Engineering at the time of issue. Issuer, signature and number format are open (Q-FO1); drawn as `FO-000031`.
+
+### 6.4 Open questions
+
+Q-CR1 alert window, Q-CR2 duty and rest limits, Q-CR3 positions per type, Q-FO1 flight order issuer and number. Section 4 (O-14 classification handling) still applies to every screen.

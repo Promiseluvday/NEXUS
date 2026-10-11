@@ -86,3 +86,38 @@ The holder at each state feeds "Blocked by" (D-006). A tail waiting on CO approv
 | Q-W4 | Does a **scheduled check package** need one work order with both approvals, or one per task? | One work order for the package; non-routine findings get their own |
 | Q-W5 | Which evidence scans are mandatory: all four types, or any one? | Configurable; PAF to set |
 | Q-W6 | Does the CRS reference run in one fleet-wide sequence, like work orders? | Yes, fleet-wide, never reused |
+
+---
+
+## 8. Work order first (D-218, 10 Oct 2026)
+
+**Status:** DECIDED. Promise's request (proposal P21) was logged by Claude Code as **D-218** and built in migration 0024. D-218 governs; read it in `docs/DECISIONS.md`. This section summarises it.
+
+### Rule
+
+1. A snag or observation is reported (D-040). The engineer assesses it first (Snag attended, D-200).
+2. **No work is recorded** until a work order is approved: Quality pre-approves, then the CO (D-063). Rectifying, troubleshooting and **no fault found** all need one.
+3. **Allowed without a work order:** deferral only: under the MEL, on the DDLS (manual reference, days allowed), or as a NADD.
+4. A work order can be requested on an **attended** snag or on a **deferred** snag; the deferral stays in force until the work order is certified. **One active work order per snag.**
+5. **Certifying the work order** (certifying engineer, PIN, D-043) closes the snag and, in the same signature, clears its DDLS entry. "No fault found" is a tick at certification.
+6. **NADD exception:** a NADD can still be rectified directly with the PIN and no work order, because it may be fixed at another MRO during a heavy check. If its snag has a work order, certifying it also rectifies the NADD.
+
+### Disposition under D-218
+
+| Path | Work order? | Then |
+|---|---|---|
+| Rectify / troubleshoot | Yes, before any work | Work on WO → evidence (D-065) → certify → tail status (D-215) |
+| No fault found | Yes | Checks recorded on WO → certify with the "No fault found" tick |
+| Defer under MEL | No | Countdown; auto-logged on the DDLS (D-163). Cleared by certifying a WO |
+| Defer on DDLS, not MEL | No | Cleared by certifying a WO |
+| Defer as NADD | No | Rectified directly (PIN) or by certifying a WO on its snag |
+
+### Canvas
+
+Drawn on D2 and R4 (work order box on the snag), D4 (Request work order, or defer instead), D5 (No fault found tick), DD3 (clearing through the work order), NA3 (direct rectification note), WO1.
+
+### New risk
+
+| # | Risk | Mitigation |
+|---|---|---|
+| RW-6 | Minor faults wait for two approvals, so engineers defer them as NADD and rectify directly to avoid the work order | Quality report of NADDs raised and rectified within a short time; repeat-defect alert (D-208) |

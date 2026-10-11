@@ -44,11 +44,15 @@ You are the DOCUMENTS assistant for Nexus MRO.
 ### Claude Design — paste at the top of every design prompt
 
 ```
-Nexus MRO screen. Hangar-grade theme: IBM Plex Sans for interface, IBM Plex
-Mono for tails, part numbers, hours and dates. Navy primary, teal for
-actions. Status colours for meaning only (green serviceable, amber MEL or
-deferred, red AOG or unserviceable, blue information, grey closed), always
-paired with a word. Touch targets 44px minimum. Fictional data only.
+Nexus MRO screen. IBM Plex Sans for interface, IBM Plex Mono for tails,
+part numbers, hours and dates. Colours (D-212): black header and text,
+white cards on a pale light-blue ground, light-blue buttons with black
+text, yellow for the Liebetag mark and highlights, links in a deeper blue;
+never light-blue text on white. Status colours for meaning only (green
+serviceable, amber MEL or deferred, red AOG or unserviceable, blue
+information, grey closed), always paired with a word (D-091). Dates
+"07 Oct 2026" from a calendar, times 24-hour "14:30" (D-204). Layout per
+docs/ui-rules.md. Touch targets 44px minimum. Fictional data only.
 No features beyond what the task lists.
 ```
 
