@@ -683,3 +683,61 @@ STOP IF: A colour fails 4.5:1 contrast for text; note it and use the
 nearest passing shade.
 DONE = List every artboard changed.
 ```
+
+---
+
+## Prompt 11: Align the canvas with the built Phase 1 (10 Oct 2026)
+
+Decisions: D-206, D-213, D-215, D-216, D-217. Rules: `docs/ui-rules.md` (agreed 8 Oct, UX pass). Source of truth for names: the built app (`app/src/components/Rail.tsx`, `app/src/screens/`). Run after Prompt 10.
+
+```
+[Design standing rules from docs/PROMPTING.md section 1]
+
+TASK: Make the "Nexus MRO" canvas match what Claude Code built in Phase 1,
+so the designs and the app tell the same story. Desktop and mobile.
+
+SCOPE:
+1. Rail (ui-rules §1, §3): "All aircraft", then a tail search box
+   ("Go to a tail"; each match shows its status chip). Departments the
+   user may use, each ▾; only one open at a time (home open). Groups one
+   level deep, never deeper:
+     Engineering ▸ Snags & deferrals (Snags, DDLS, NADDs), Work orders,
+                   Workshops (Tire Bay, Battery Workshop, AGE)
+     Operations  ▸ Aircraft availability, NADDs (cabin items),
+                   Scheduling (Flight scheduling, Crew scheduling)
+     Supply      ▸ Stores (Main Store, Forward Store), Receiving
+     Procurement ▸ Requisitions, Purchase orders, Outside-MRO jobs
+     Quality     ▸ Approvals, MEL revisions, Offline signatures, Audit trail
+     Command     ▸ Approvals, Reports
+   Quality and Command also get "Other departments ▾", collapsed, each
+   marked "View". Screens not built in Phase 1 show a "Soon" tag.
+2. Top bar (ui-rules §1, §4): add "＋ New ▾" with Report snag, Cabin item,
+   Request part, Raise technical query, filtered to the user's rights;
+   opened on a tail, the tail is filled in. Remove the same actions where
+   they repeat as page buttons (keep "Raise query on this record" inside a
+   record).
+3. User menu (3LC ▾, D-206): Change PIN, This tablet and offline signing,
+   My account, Sign out.
+4. Phone (ui-rules §5): rail behind ☰; fleet filter as one "Show: … ▾"
+   dropdown; top bar ☰, mark, offline pill (only when offline), ＋ New,
+   user menu.
+5. Tail status (D-215): every place that sets a tail status asks for the
+   PIN on the same screen.
+6. Deferral (D-216): MEL and DDLS deferral forms show "Also set the tail
+   to Serviceable · MEL", pre-ticked only when the tail is Serviceable;
+   unticked with a warning when it is U/S, AOG or In check.
+7. Offline signing (D-217): mark entries signed offline as "Signed
+   offline · awaiting server check" on screen and on the DDLS, NADDS and
+   CRS prints. Add three screens matching the built ones: "This tablet
+   and offline signing" (register, enrolled by a Super Admin, switch on
+   with the 6-digit PIN), "Send queue" (waiting, sending, accepted,
+   refused), and Quality's "Offline signatures" review list.
+8. Snag numbers (D-213): sample snags use the SNAG-000001 format.
+
+NOT: No other new screens or features. No change to status colours.
+Fictional data only.
+STOP IF: The yellow quick-access rail on the aircraft dashboard (Promise's
+request, 7 Oct) conflicts with item 2. Keep it and note the conflict on
+the open-questions sticky unless Promise has decided.
+DONE = List every artboard changed.
+```
