@@ -17,6 +17,7 @@ import { Link, NavLink } from 'react-router';
 import { useAuth, type Department } from '../lib/auth';
 import { TAIL_STATUS } from './StatusChip';
 import type { AircraftOption } from './AircraftPicker';
+import { mayManageNumbering } from '../screens/Numbering';
 
 type Screen = { label: string; to: string; section?: string };
 type Entry = Screen | { group: string; items: Screen[] };
@@ -176,7 +177,10 @@ function FleetLink({ aircraft, onNavigate }: { aircraft: AircraftOption[]; onNav
             return (
               <Link key={a.id} to={`/aircraft/${a.id}`} className="rail-tail" onClick={() => { setOpen(false); onNavigate(); }}>
                 <span><span className="tail">{a.tail}</span><span className="type">{a.type}</span></span>
-                <span className={`st st-${snag ? 'snag' : a.status ?? ''}`}>{label}</span>
+                <span className="st-group">
+                  <span className={`st st-${snag ? 'snag' : a.status ?? ''}`}>{label}</span>
+                  {a.inWork && <span className="st st-inwork" title={`In work · ${a.inWork}`}>In work</span>}
+                </span>
               </Link>
             );
           })}
@@ -214,10 +218,13 @@ export function Rail({ aircraft, open, onNavigate, approvals }: Props) {
           onToggle={() => toggle(d.code)} onNavigate={onNavigate} />
       ))}
 
-      {(me?.adminDepartments?.length ?? 0) > 0 && (
+      {mayManageNumbering(me) && (
         <>
           <div className="rail-heading">Administration</div>
-          <NavLink to="/admin/users" className="rail-link" onClick={onNavigate}>Users and roles</NavLink>
+          {(me?.adminDepartments?.length ?? 0) > 0 && (
+            <NavLink to="/admin/users" className="rail-link" onClick={onNavigate}>Users and roles</NavLink>
+          )}
+          <NavLink to="/admin/numbering" className="rail-link" onClick={onNavigate}>Numbering</NavLink>
         </>
       )}
       {/* People, licences and certifying authorizations (D-032, D-080).

@@ -188,6 +188,9 @@ export type Database = {
 "can_load_mel":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
+"can_manage_numbering":
+{ Args: Record<PropertyKey, never>; Returns: boolean
+                           },
 "can_see_aircraft":
 { Args: { "p_aircraft": string }; Returns: boolean
                            },
@@ -250,6 +253,9 @@ export type Database = {
                            },
 "check_new_password":
 { Args: { "p_password": string }; Returns: undefined
+                           },
+"check_number_format":
+{ Args: { "p_format": string,"p_series": string }; Returns: Record<string, unknown>
                            },
 "clear_ddls_entry":
 { Args: { "p_entry": string,"p_pin": string,"p_rect_tlb_book"?: string,"p_rect_tlb_page"?: string,"p_rectification": string }; Returns: undefined
@@ -331,7 +337,7 @@ export type Database = {
                            },
 "fleet_board":
 { Args: Record<PropertyKey, never>; Returns: {
-              "aircraft_id": string,"aircraft_type": string,"blocked_by": string,"blocked_holder": string,"blocked_ref": string,"blocked_since": string,"expected_rts_on": string,"next_ddls_due": string,"next_nadd_due": string,"open_ddls": number,"open_nadds": number,"open_snags": number,"snag_display": string,"status": string,"status_set_at": string,"status_set_by": string,"tail": string
+              "aircraft_id": string,"aircraft_type": string,"blocked_by": string,"blocked_holder": string,"blocked_ref": string,"blocked_since": string,"expected_rts_on": string,"in_work_ref": string,"next_ddls_due": string,"next_nadd_due": string,"open_ddls": number,"open_nadds": number,"open_snags": number,"snag_display": string,"status": string,"status_set_at": string,"status_set_by": string,"tail": string
             }[]
                            },
 "fleet_totals":
@@ -344,6 +350,9 @@ export type Database = {
                            },
 "flight_today":
 { Args: Record<PropertyKey, never>; Returns: string
+                           },
+"format_number":
+{ Args: { "p_at": string,"p_format": string,"p_n": number,"p_tail": string }; Returns: string
                            },
 "has_department":
 { Args: { "p_department": string }; Returns: boolean
@@ -439,6 +448,21 @@ export type Database = {
                            },
 "next_number":
 { Args: { "p_default_format": string,"p_series": string }; Returns: string
+                           } |
+{ Args: { "p_default_format": string,"p_series": string,"p_tail": string }; Returns: string
+                           },
+"number_counter":
+{ Args: { "p_at": string,"p_format": string,"p_series": string }; Returns: string
+                           },
+"numbered_documents":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "code": string,"col": string,"default_format": string,"label": string,"series": string,"tbl": string
+            }[]
+                           },
+"numbering_settings":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "changed_at": string,"changed_by": string,"code": string,"format": string,"label": string,"next_number": string,"reason": string,"series": string,"version": number
+            }[]
                            },
 "offline_signed_at":
 { Args: Record<PropertyKey, never>; Returns: string
@@ -451,6 +475,9 @@ export type Database = {
                            },
 "open_receipt":
 { Args: { "p_batch"?: string,"p_bin"?: string,"p_delivered_against"?: string,"p_expiry"?: string,"p_for_request_line"?: string,"p_part": string,"p_purchase_order"?: string,"p_qty": number,"p_serial"?: string,"p_store": string }; Returns: string
+                           },
+"operator_local_time":
+{ Args: { "p_at": string }; Returns: string
                            },
 "operator_today":
 { Args: Record<PropertyKey, never>; Returns: string
@@ -519,6 +546,9 @@ export type Database = {
                            },
 "po_touch_lines":
 { Args: { "p_po": string }; Returns: undefined
+                           },
+"preview_number":
+{ Args: { "p_format"?: string,"p_series": string }; Returns: string
                            },
 "price_history":
 { Args: { "p_part": string }; Returns: {
@@ -685,6 +715,9 @@ export type Database = {
 "return_unused_part":
 { Args: { "p_line": string,"p_reason": string }; Returns: undefined
                            },
+"revise_work_order":
+{ Args: { "p_est_man_hours": number,"p_pin": string,"p_reason": string,"p_scope": string,"p_wo": string }; Returns: Json
+                           },
 "revoke_certifying_authorization":
 { Args: { "p_authorization": string,"p_pin": string,"p_reason": string }; Returns: string
                            },
@@ -715,6 +748,9 @@ export type Database = {
                            },
 "set_my_pin":
 { Args: { "p_pin": string }; Returns: undefined
+                           },
+"set_numbering_setting":
+{ Args: { "p_key": string,"p_pin": string,"p_reason": string,"p_value": string }; Returns: string
                            },
 "set_outside_mro_status":
 { Args: { "p_date"?: string,"p_job": string,"p_reason"?: string,"p_status": string }; Returns: undefined
@@ -799,6 +835,9 @@ export type Database = {
         isOneToOne: true
         isSetofReturn: false
       } },
+"work_order_label":
+{ Args: { "p_number": string,"p_revision": number }; Returns: string
+                           },
 "work_order_missing_scans":
 { Args: { "p_wo": string }; Returns: (string)[]
                            }
@@ -2819,14 +2858,14 @@ isOneToOne: false
                   ]
                 },"work_order": {
                   Row: {
-                    "aircraft_id": string,"approval_request_id": string | null,"certification_note": string | null,"certified_at": string | null,"certified_by": string | null,"created_at": string,"created_by": string | null,"device_time": string | null,"est_man_hours": number | null,"id": string,"number": string,"requested_by": string,"scope": string,"snag_id": string | null,"status": string,"work_completed_at": string | null,"work_completed_by": string | null
+                    "aircraft_id": string,"approval_request_id": string | null,"certification_note": string | null,"certified_at": string | null,"certified_by": string | null,"created_at": string,"created_by": string | null,"device_time": string | null,"est_man_hours": number | null,"id": string,"number": string,"requested_by": string,"revision": number,"scope": string,"snag_id": string | null,"status": string,"work_completed_at": string | null,"work_completed_by": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "aircraft_id": string,"approval_request_id"?: string | null,"certification_note"?: string | null,"certified_at"?: string | null,"certified_by"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"est_man_hours"?: number | null,"id"?: string,"number": string,"requested_by": string,"scope": string,"snag_id"?: string | null,"status"?: string,"work_completed_at"?: string | null,"work_completed_by"?: string | null
+                    "aircraft_id": string,"approval_request_id"?: string | null,"certification_note"?: string | null,"certified_at"?: string | null,"certified_by"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"est_man_hours"?: number | null,"id"?: string,"number": string,"requested_by": string,"revision"?: number,"scope": string,"snag_id"?: string | null,"status"?: string,"work_completed_at"?: string | null,"work_completed_by"?: string | null
                   }
                   Update: {
-                    "aircraft_id"?: string,"approval_request_id"?: string | null,"certification_note"?: string | null,"certified_at"?: string | null,"certified_by"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"est_man_hours"?: number | null,"id"?: string,"number"?: string,"requested_by"?: string,"scope"?: string,"snag_id"?: string | null,"status"?: string,"work_completed_at"?: string | null,"work_completed_by"?: string | null
+                    "aircraft_id"?: string,"approval_request_id"?: string | null,"certification_note"?: string | null,"certified_at"?: string | null,"certified_by"?: string | null,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"est_man_hours"?: number | null,"id"?: string,"number"?: string,"requested_by"?: string,"revision"?: number,"scope"?: string,"snag_id"?: string | null,"status"?: string,"work_completed_at"?: string | null,"work_completed_by"?: string | null
                   }
                   Relationships: [
                     {
@@ -2887,6 +2926,32 @@ isOneToOne: false
       referencedColumns: ["id"]
     },{
       foreignKeyName: "work_order_entry_work_order_id_fkey"
+      columns: ["work_order_id"]
+isOneToOne: false
+      referencedRelation: "work_order"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"work_order_revision": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"device_time": string | null,"est_man_hours": number | null,"id": string,"previous_est_man_hours": number | null,"previous_scope": string,"previous_status": string,"reason": string,"revised_by": string,"revision": number,"scope": string,"work_order_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"est_man_hours"?: number | null,"id"?: string,"previous_est_man_hours"?: number | null,"previous_scope": string,"previous_status": string,"reason": string,"revised_by": string,"revision": number,"scope": string,"work_order_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"est_man_hours"?: number | null,"id"?: string,"previous_est_man_hours"?: number | null,"previous_scope"?: string,"previous_status"?: string,"reason"?: string,"revised_by"?: string,"revision"?: number,"scope"?: string,"work_order_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "work_order_revision_revised_by_fkey"
+      columns: ["revised_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "work_order_revision_work_order_id_fkey"
       columns: ["work_order_id"]
 isOneToOne: false
       referencedRelation: "work_order"

@@ -14,7 +14,7 @@ import type { ReactNode } from 'react';
 import { Link, NavLink } from 'react-router';
 import { useAuth } from '../lib/auth';
 import { formatDateTime } from '../lib/format';
-import { SnagChip, TailStatusChip } from './StatusChip';
+import { InWorkChip, SnagChip, TailStatusChip } from './StatusChip';
 import type { FleetRow } from '../screens/FleetBoard';
 
 export type Crumb = { label: ReactNode; to?: string };
@@ -47,6 +47,7 @@ export function TailHeader({ row }: { row: FleetRow }) {
       </div>
       <div className="tail-head-status">
         {row.snag_display ? <SnagChip display={row.snag_display} /> : <TailStatusChip status={row.status} />}
+        <InWorkChip workOrder={row.in_work_ref} />
         {row.status_set_by && (
           <span className="small muted">Status set by <span className="mono">{row.status_set_by}</span> · {formatDateTime(row.status_set_at, display)}</span>
         )}

@@ -17,7 +17,7 @@ import { formatDate, formatDateTime, formatPlainDate, formatTime, heldFor, type 
 import { NeedsAttention, dueText } from '../components/NeedsAttention';
 import { usePendingApprovals } from './Approvals';
 import { formatCount, formatHours, useFleetTotals, type AircraftTotals } from './flights/totals';
-import { SnagChip, TAIL_STATUS, TailStatusChip } from '../components/StatusChip';
+import { InWorkChip, SnagChip, TAIL_STATUS, TailStatusChip } from '../components/StatusChip';
 import { cached } from '../lib/offline/cache';
 import { useOutbox } from '../lib/offline/hooks';
 
@@ -39,6 +39,7 @@ export type FleetRow = {
   blocked_ref: string | null;
   blocked_holder: string | null;
   blocked_since: string | null;
+  in_work_ref: string | null;   // open work order, e.g. "WO-000002 R1 +1"; null for pilots
 };
 
 export function useFleetBoard() {
@@ -122,6 +123,7 @@ function TailCard({ r, now, display, provisional, totals }: {
         </div>
         <div className="tcard-status">
           {snag ? <SnagChip display={snag} /> : <TailStatusChip status={r.status} />}
+          <InWorkChip workOrder={r.in_work_ref} />
           {provisional && <span className="chip tone-amber provisional">→ {TAIL_STATUS[provisional]?.short ?? provisional} (provisional)</span>}
           {!snag && r.status_set_by && (
             <span className="tcard-setby">Set by <span className="mono">{r.status_set_by}</span> · {formatDateTime(r.status_set_at, display)}</span>

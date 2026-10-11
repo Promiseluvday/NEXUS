@@ -18,6 +18,7 @@
 //     /sync                   send queue on this tablet
 //     /offline-signatures     Quality review of offline signatures
 //     /admin/users            Users and roles (Super Admins): list, /new, /:personId
+//     /admin/numbering        Numbering formats (Super Admins and Quality, D-220)
 //     /flights?aircraft=…     flight records per tail (&do=log, &do=baseline, &record=…, D-022, D-027)
 //     /people, /people/:id(/qualifications|/authorizations)  people, licences, certifying authorizations (D-032, D-080)
 //     /ads-sbs                ADs and SBs register and compliance (?aircraft=…, ?view=register, D-016)
@@ -33,6 +34,7 @@ import { useAuth } from './lib/auth';
 import { SignIn } from './screens/SignIn';
 import { AccountNotActive, SetPassword, SetPin } from './screens/SetPin';
 import { AdminAccount, AdminCreateAccount, AdminUsers } from './screens/Admin';
+import { AdminNumbering } from './screens/Numbering';
 import { ComingSoon, Home } from './screens/Home';
 import { FleetBoard } from './screens/FleetBoard';
 import { AircraftPage } from './screens/AircraftPage';
@@ -110,6 +112,7 @@ const router = createBrowserRouter([
       { path: 'admin/users', element: <AdminUsers /> },
       { path: 'admin/users/new', element: <AdminCreateAccount /> },
       { path: 'admin/users/:personId', element: <AdminAccount /> },
+      { path: 'admin/numbering', element: <AdminNumbering /> },
       { path: 'ddls', element: <DdlsSheet /> },
       { path: 'nadds', element: <NaddList /> },
       { path: 'cabin-item', element: <CabinItem /> },

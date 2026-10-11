@@ -17,6 +17,7 @@ export type AircraftOption = {
   type: string;
   status: string | null;
   snagDisplay: string | null;
+  inWork: string | null;   // open work order (Engineering and oversight only)
 };
 
 export function useAircraftList(): AircraftOption[] {
@@ -31,6 +32,7 @@ export function useAircraftList(): AircraftOption[] {
             type: r.aircraft_type as string,
             status: r.status,
             snagDisplay: r.snag_display,
+            inWork: r.in_work_ref ?? null,
           })),
         ),
       );

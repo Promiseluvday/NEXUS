@@ -28,6 +28,7 @@ import { SetTailStatus } from '../components/SetTailStatus';
 import { Queries } from '../components/Queries';
 import { BackButton, Crumbs, PageHead, Section, TailHeader, TailTabs, type Crumb } from '../components/PageFrame';
 import { useFleetBoard } from './FleetBoard';
+import { useWorkOrderLabel } from '../lib/settings';
 
 const WO_STATE: Record<string, { label: string; tone: string }> = {
   requested:     { label: 'Awaiting Quality', tone: 'amber' },
@@ -87,7 +88,7 @@ const VIEWS: Record<string, { label: string; statuses: string[] | null }> = {
 };
 
 type ListRow = {
-  id: string; number: string; status: string; scope: string; created_at: string;
+  id: string; number: string; revision: number; status: string; scope: string; created_at: string;
   aircraft: { tail: string } | null; snag: { id: string; number: string; description: string } | null;
   requester: { three_letter_code: string } | null;
 };
@@ -116,10 +117,11 @@ export function WorkOrderList() {
   const [error, setError] = useState('');
   const isEngineer = Boolean(me?.departments.some((d) => d.code === 'ENG'));
   const tailName = aircraft.find((a) => a.id === tail)?.tail ?? '';
+  const label = useWorkOrderLabel();
 
   useEffect(() => {
     let q = db.from('work_order')
-      .select(`id, number, status, scope, created_at, aircraft:aircraft_id (tail),
+      .select(`id, number, revision, status, scope, created_at, aircraft:aircraft_id (tail),
                snag:snag_id (id, number, description), requester:requested_by (three_letter_code)`)
       .order('created_at', { ascending: false }).limit(200);
     const st = VIEWS[view]?.statuses;
@@ -176,7 +178,7 @@ export function WorkOrderList() {
             <tbody>
               {rows.map((r) => (
                 <tr key={r.id} tabIndex={0} onClick={() => open(r.id)} onKeyDown={(e) => e.key === 'Enter' && open(r.id)}>
-                  <td><Link className="mono" to={`/work-orders/${r.id}`} onClick={(e) => e.stopPropagation()}>{r.number}</Link></td>
+                  <td><Link className="mono" to={`/work-orders/${r.id}`} onClick={(e) => e.stopPropagation()}>{label(r.number, r.revision)}</Link></td>
                   {!tail && <td className="tail">{r.aircraft?.tail}</td>}
                   <td>
                     {r.snag
@@ -198,7 +200,7 @@ export function WorkOrderList() {
             {rows.map((r) => (
               <button key={r.id} type="button" className="card tail-card" onClick={() => open(r.id)}>
                 <div className="top">
-                  <span><span className="mono">{r.number}</span>{!tail && <> · <span className="tail">{r.aircraft?.tail}</span></>}</span>
+                  <span><span className="mono">{label(r.number, r.revision)}</span>{!tail && <> · <span className="tail">{r.aircraft?.tail}</span></>}</span>
                   <WorkOrderChip status={r.status} />
                 </div>
                 <div style={{ margin: '6px 0' }}>{r.scope}</div>
@@ -217,7 +219,7 @@ export function WorkOrderList() {
 }
 
 type WO = {
-  id: string; number: string; status: string; scope: string; est_man_hours: number | null;
+  id: string; number: string; revision: number; status: string; scope: string; est_man_hours: number | null;
   created_at: string; work_completed_at: string | null; certified_at: string | null; certification_note: string | null;
   approval_request_id: string | null; aircraft_id: string;
   aircraft: { tail: string; aircraft_type_code: string } | null;
@@ -229,6 +231,11 @@ type WO = {
 type Decision = { step_no: number; decision: string; reason: string | null; created_at: string; decider: { three_letter_code: string } | null };
 type Step = { step_no: number; name: string };
 type Entry = { id: string; entry: string; created_at: string; author: { three_letter_code: string } | null };
+type Revision = {
+  id: string; revision: number; previous_scope: string; scope: string; previous_est_man_hours: number | null;
+  est_man_hours: number | null; previous_status: string; reason: string; created_at: string;
+  author: { three_letter_code: string } | null;
+};
 
 // The scans the completion evidence step lists (WF-WOE). Which of them are
 // required is the operator setting "work_order.required_scans" (D-065, D-069).
@@ -254,6 +261,9 @@ export function WorkOrderPage() {
   const [tailStatus, setTailStatus] = useState<string | null>(null);
   const [canCertify, setCanCertify] = useState(false);
   const [mine, setMine] = useState(false);   // is the pending approval waiting for me?
+  const [revisions, setRevisions] = useState<Revision[]>([]);
+  const [revising, setRevising] = useState(false);
+  const woLabel = useWorkOrderLabel();
   const [message, setMessage] = useState('');
   const [params] = useSearchParams();
   const isEngineer = Boolean(me?.departments.some((d) => d.code === 'ENG'));
@@ -265,7 +275,7 @@ export function WorkOrderPage() {
 
   const load = useCallback(async () => {
     const { data } = await cached(`wo:${id}`, () => db.from('work_order')
-      .select(`id, number, status, scope, est_man_hours, created_at, work_completed_at, certified_at,
+      .select(`id, number, revision, status, scope, est_man_hours, created_at, work_completed_at, certified_at,
                certification_note, approval_request_id, aircraft_id,
                aircraft:aircraft_id (tail, aircraft_type_code),
                snag:snag_id (id, number, description, status, disposition, ata),
@@ -275,7 +285,7 @@ export function WorkOrderPage() {
     const w = data as unknown as WO | null;
     setWo(w);
     if (!w) return;
-    const [st, dec, en, ts, req, pend] = await Promise.all([
+    const [st, dec, en, ts, req, pend, rev] = await Promise.all([
       db.from('approval_chain_step').select('step_no, name').eq('action_type', 'work_order').order('step_no'),
       w.approval_request_id
         ? db.from('approval_decision').select('step_no, decision, reason, created_at, decider:decided_by (three_letter_code)')
@@ -287,7 +297,14 @@ export function WorkOrderPage() {
       cached('setting:work_order.required_scans', () => db.from('operator_setting_current').select('value')
         .eq('key', 'work_order.required_scans').maybeSingle()),
       w.status === 'requested' || w.status === 'pre_approved' ? actions.rpc('my_pending_approvals') : Promise.resolve({ data: [] }),
+      w.revision > 0
+        ? db.from('work_order_revision')
+            .select(`id, revision, previous_scope, scope, previous_est_man_hours, est_man_hours, previous_status, reason,
+                     created_at, author:revised_by (three_letter_code)`)
+            .eq('work_order_id', w.id).order('revision')
+        : Promise.resolve({ data: [] }),
     ]);
+    setRevisions((rev.data ?? []) as unknown as Revision[]);
     setSteps((st.data ?? []) as Step[]);
     setDecisions((dec.data ?? []) as unknown as Decision[]);
     setEntries((en.data ?? []) as unknown as Entry[]);
@@ -308,7 +325,10 @@ export function WorkOrderPage() {
   if (wo === null) return <div className="page"><p>This work order does not exist or is outside what you may see.</p></div>;
 
   const tail = wo.aircraft?.tail ?? '';
-  const done = (m: string) => { setMessage(m); load(); };
+  const number = woLabel(wo.number, wo.revision);
+  const done = (m: string) => { setMessage(m); setRevising(false); load(); };
+  // A work order can be corrected until the work is complete (D-220).
+  const canRevise = isEngineer && ['requested', 'pre_approved', 'open'].includes(wo.status);
   const decided = new Map(decisions.map((d) => [d.step_no, d]));
   const rejection = decisions.find((d) => d.decision !== 'approve');
   const locked = wo.status === 'requested' || wo.status === 'pre_approved';
@@ -324,16 +344,19 @@ export function WorkOrderPage() {
         { label: 'All aircraft', to: '/' },
         { label: <span className="mono">{tail}</span>, to: `/aircraft/${wo.aircraft_id}` },
         { label: 'Work orders', to: listLink },
-        { label: <span className="mono">{wo.number}</span> },
+        { label: <span className="mono">{number}</span> },
       ]} />
       <BackButton to={listLink} label="Work orders" />
       <TailHead aircraftId={wo.aircraft_id} />
       <PageHead
-        title={<>Work order <span className="mono">{wo.number}</span> · <span className="mono">{tail}</span></>}
+        title={<>Work order <span className="mono">{number}</span> · <span className="mono">{tail}</span></>}
         sub={<>One sequence for the fleet · raised{wo.snag && <> from <span className="mono">{wo.snag.number}</span></>} by{' '}
           <span className="mono">{wo.requester?.three_letter_code}</span> · {formatDateTime(wo.created_at, display)}</>}>
         <WorkOrderChip status={wo.status} />
         {HOLDER[wo.status] && <span className="dept-tag">With {HOLDER[wo.status]}</span>}
+        {canRevise && !revising && (
+          <button type="button" className="outline-button" onClick={() => setRevising(true)}>Correct work order</button>
+        )}
       </PageHead>
 
       <WorkOrderSteps status={wo.status} rejectedStep={rejection?.step_no} />
@@ -378,13 +401,36 @@ export function WorkOrderPage() {
         </div>
       )}
 
+      {revising && (
+        <ReviseForm wo={wo} nextLabel={woLabel(wo.number, wo.revision + 1)} onCancel={() => setRevising(false)} onDone={done} />
+      )}
+
       <div className="wo-grid">
-        <Section title="Scope">
+        <Section title={wo.revision ? `Scope (revision ${wo.revision})` : 'Scope'}>
           <p className="wo-scope">{wo.scope}</p>
           <dl className="facts">
             <dt>Estimate</dt><dd>{wo.est_man_hours !== null ? `${wo.est_man_hours} man-hours` : <span className="muted">not given</span>}</dd>
             <dt>Requested</dt><dd><span className="mono">{wo.requester?.three_letter_code}</span> · {formatDateTime(wo.created_at, display)}</dd>
           </dl>
+          {revisions.length > 0 && (
+            <>
+              <h3 className="sub-head">Corrections</h3>
+              <ol className="wo-entries">
+                {revisions.map((r) => (
+                  <li key={r.id}>
+                    <div><strong className="mono">{woLabel(wo.number, r.revision)}</strong> · {r.reason}</div>
+                    <div className="small">Was: {r.previous_scope}
+                      {r.previous_est_man_hours !== r.est_man_hours && <> · estimate {r.previous_est_man_hours ?? '—'} → {r.est_man_hours ?? '—'} man-hours</>}
+                    </div>
+                    <div className="small muted">
+                      <span className="mono">{r.author?.three_letter_code}</span> · {formatDateTime(r.created_at, display)}
+                      {r.previous_status === 'open' && ' · was open for work; sent back for approval'}
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </>
+          )}
         </Section>
         <Section title="Raised from">
           {wo.snag ? (
@@ -523,6 +569,55 @@ function EntryForm({ woId, onDone }: { woId: string; onDone: (m: string) => void
   );
 }
 
+// Correct a work order (D-220): new scope or estimate, the reason, signed
+// with the PIN. It goes back to Quality and the CO; work stops until they
+// approve the revision (D-063).
+function ReviseForm({ wo, nextLabel, onCancel, onDone }: {
+  wo: WO; nextLabel: string; onCancel: () => void; onDone: (m: string) => void;
+}) {
+  const [scope, setScope] = useState(wo.scope);
+  const [hours, setHours] = useState(wo.est_man_hours !== null ? String(wo.est_man_hours) : '');
+  const [reason, setReason] = useState('');
+  const [pin, setPin] = useState('');
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+  async function submit(e: FormEvent) {
+    e.preventDefault();
+    if (!scope.trim()) return setError('Give the scope of work.');
+    if (!reason.trim()) return setError('Give the reason for the correction.');
+    const est = hours.trim() === '' ? null : Number(hours);
+    if (est !== null && (!Number.isFinite(est) || est < 0)) return setError('The estimate is a number of man-hours.');
+    setBusy(true);
+    const { data, error: err } = await actions.rpc('revise_work_order', {
+      p_wo: wo.id, p_scope: scope.trim(), p_est_man_hours: est as number, p_reason: reason.trim(), p_pin: pin,
+    });
+    setBusy(false);
+    if (err) return setError(errorText(err));
+    const label = (data as { label?: string } | null)?.label ?? nextLabel;
+    onDone(`${label} recorded and sent to Quality and the CO. No work until they approve it.`);
+  }
+  return (
+    <FormBox title={`Correct work order · becomes ${nextLabel}`} tone="strong" onSubmit={submit}>
+      <p className="panel-note" style={{ marginTop: 0 }}>
+        The original wording is kept. The corrected work order goes back to Quality and the CO
+        {wo.status === 'open' && <> and is locked again: no entries until they approve it</>}.
+      </p>
+      <label htmlFor="wo-rev-scope">Scope of work</label>
+      <textarea id="wo-rev-scope" value={scope} onChange={(e) => setScope(e.target.value)} />
+      <label htmlFor="wo-rev-hours">Estimated man-hours</label>
+      <input id="wo-rev-hours" inputMode="decimal" value={hours} onChange={(e) => setHours(e.target.value)} />
+      <label htmlFor="wo-rev-reason">Reason for the correction</label>
+      <input id="wo-rev-reason" value={reason} onChange={(e) => setReason(e.target.value)} />
+      <PinField id="wo-rev-pin" value={pin} onChange={setPin} />
+      {error && <div className="error" role="alert">{error}</div>}
+      <div className="action-row">
+        <button type="submit" disabled={busy}>{busy ? 'Saving…' : `Sign and send ${nextLabel}`}</button>
+        <button type="button" className="outline-button" onClick={onCancel}>Cancel</button>
+      </div>
+    </FormBox>
+  );
+}
+
 // A form shown as a titled box, like the other sections.
 function FormBox({ title, onSubmit, tone, children }: { title: string; onSubmit: (e: FormEvent) => void; tone?: 'strong'; children: ReactNode }) {
   return (
@@ -565,13 +660,14 @@ function CertifyForm({ wo, missing, canCertify, onDone }: {
   const [page, setPage] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const number = useWorkOrderLabel()(wo.number, wo.revision);
   async function submit(e: FormEvent) {
     e.preventDefault();
     setError('');
     if (!note.trim()) return setError(nff ? 'Record what was checked and the result.' : 'Write the certification statement.');
     if (!/^[0-9]{4,8}$/.test(pin)) return setError('Enter your PIN (4 to 8 digits) to sign.');
     setBusy(true);
-    const label = `Certify ${wo.number}`;
+    const label = `Certify ${number}`;
     const o = await perform('certify_work_order', {
       p_wo: wo.id, p_pin: pin, p_note: note.trim(), p_no_fault_found: nff,
       p_tlb_book: book.trim() || undefined, p_tlb_page: page.trim() || undefined,
@@ -580,7 +676,7 @@ function CertifyForm({ wo, missing, canCertify, onDone }: {
     setBusy(false);
     if (o.error) return setError(errorText(o.error));
     if (o.queued) return onDone(queuedText(o, label));
-    onDone(`${wo.number} certified${nff ? ' as no fault found' : ''}. ${wo.snag?.number ?? 'The snag'} is closed and any DDLS entry or NADD for it is cleared. Set the tail status if it changes.`);
+    onDone(`${number} certified${nff ? ' as no fault found' : ''}. ${wo.snag?.number ?? 'The snag'} is closed and any DDLS entry or NADD for it is cleared. Set the tail status if it changes.`);
   }
   return (
     <FormBox title="Certify and close" onSubmit={submit} tone="strong">
