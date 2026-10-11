@@ -19,6 +19,7 @@ type Mode = 'queue' | 'sign';
 
 export const OFFLINE_MODE: Record<string, Mode> = {
   report_snag: 'queue',
+  log_flight: 'queue',
   propose_nadd: 'queue',
   attend_snag: 'queue',
   add_work_order_entry: 'queue',

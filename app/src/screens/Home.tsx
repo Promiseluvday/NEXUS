@@ -60,12 +60,22 @@ function NewMenu() {
               Cabin item
             </MenuItem>
           )}
-          {eng && <MenuItem soon>Request part</MenuItem>}
+          {eng && (
+            <MenuItem onSelect={() => { close(); navigate(`/request-work-order${tailId ? `?aircraft=${tailId}` : ''}`); }}>
+              Request work order
+            </MenuItem>
+          )}
+          {eng && (
+            <MenuItem onSelect={() => { close(); navigate(`/part-requests/new${tailId ? `?aircraft=${tailId}` : ''}`); }}>
+              Request part
+            </MenuItem>
+          )}
           <MenuItem onSelect={() => {
             close();
-            // A query is always about a record: raise it on the snag or work order being viewed.
+            // A query is always about a record: raise it on the snag or work order being viewed,
+            // otherwise open the raise form, which first asks which snag or work order (WF-TQ3).
             if (onRecord) navigate(`${location.pathname}?query=new#queries`);
-            else navigate('/queries');
+            else navigate('/queries?raise=1');
           }}>
             Raise technical query
           </MenuItem>
@@ -79,7 +89,7 @@ function NewMenu() {
 // approvals inbox. (Other notifications join it in later phases.)
 function Bell({ count }: { count: number }) {
   return (
-    <Link to="/approvals" className={`bell${count ? "" : " bell-zero"}`} aria-label={`Notifications, ${count} waiting`} title="Approvals waiting for you">
+    <Link to="/notifications" className={`bell${count ? "" : " bell-zero"}`} aria-label={`Notifications, ${count} waiting`} title="Notifications">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg>
       {count > 0 ? <span className="badge">{count}</span> : <span>0</span>}
     </Link>
@@ -154,7 +164,7 @@ export function Home() {
       <nav className="bottom-nav" aria-label="Main">
         <NavLink to="/" end onClick={() => setRailOpen(false)}>Fleet</NavLink>
         <NavLink to="/snags" onClick={() => setRailOpen(false)}>Snags</NavLink>
-        <NavLink to="/section/SUP/stores-search" onClick={() => setRailOpen(false)}>Parts</NavLink>
+        <NavLink to="/stores" onClick={() => setRailOpen(false)}>Parts</NavLink>
         <button type="button" aria-expanded={railOpen} onClick={() => setRailOpen((o) => !o)}>More</button>
       </nav>
     </div>

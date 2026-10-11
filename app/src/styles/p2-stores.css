@@ -1,0 +1,39 @@
+/* Phase 2 · parts and stores (screens/stores/*). Imported by stores/common.tsx.
+   Layout from the wireframes WF-I1..I4, WF-C3, WF-J1..J4, WF-TR1, WF-FWD1
+   and DeptSupply; colours from theme.css. Status colours only with words (D-091). */
+
+.st-page .st-search { display: flex; gap: 10px; flex-wrap: wrap; }
+.st-page .st-search input { flex: 1 1 320px; }
+.st-table td { vertical-align: middle; }
+.st-table td:first-child, .st-table .mono { white-space: nowrap; }
+.st-empty { margin: 0; }
+.st-flags { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+
+/* Stock lots on part detail, quarantine and U/S cards */
+.st-lots { list-style: none; margin: 0; padding: 0; }
+.st-lots li { padding: 10px 0; border-top: 1px solid var(--line-faint); display: flex; flex-direction: column; gap: 6px; }
+.st-lots li:first-child { border-top: 0; padding-top: 0; }
+.st-lot-top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.st-lot-sub { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; color: var(--ink-mid); }
+.st-cards { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+
+/* Forms */
+.st-form { display: flex; flex-direction: column; gap: 16px; }
+.st-form .box-body > label:first-child { margin-top: 0; }
+.st-row { flex-wrap: wrap; }
+.st-row > * { flex: 1 1 220px; min-width: 0; }
+.st-inline { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; padding: 10px 12px;
+  border: 1px dashed var(--ink-soft); border-radius: var(--radius); background: #fff; }
+.st-inline .sign-box { margin-top: 4px; }
+.st-table .st-inline { min-width: 240px; }
+
+/* Release documents on a receipt */
+.st-upload { position: relative; cursor: pointer; min-height: 40px; display: inline-flex; align-items: center; }
+.st-docs .wo-evidence li { gap: 8px 12px; }
+
+.st-tiles { max-width: 900px; }
+
+@media (max-width: 800px) {
+  .st-page .action-row > button, .st-page .action-row > .button { flex: 1 1 100%; justify-content: center; }
+  .st-lot-top { gap: 4px 8px; }
+}

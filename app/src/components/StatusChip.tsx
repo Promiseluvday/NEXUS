@@ -30,6 +30,18 @@ export function SnagChip({ display }: { display: string | null }) {
   return null;
 }
 
+// Amber "In work · WO-000002" beside the status, for as long as a work
+// order on the tail is open (requested to awaiting certification). Option B,
+// 11 Oct. The database leaves it empty for pilots (D-120).
+export function InWorkChip({ workOrder }: { workOrder: string | null | undefined }) {
+  if (!workOrder) return null;
+  return (
+    <span className="chip tone-amber chip-inwork">
+      <span>In work ·</span> <span className="mono">{workOrder}</span>
+    </span>
+  );
+}
+
 // A snag's own state, for snag lists and the snag page.
 const DISPOSITION: Record<string, string> = {
   rectify_now: 'work order', mel: 'MEL', ddls: 'DDLS', nadd: 'NADD', nff: 'no fault found',

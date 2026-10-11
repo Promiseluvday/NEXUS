@@ -17,6 +17,7 @@ import { Link, NavLink } from 'react-router';
 import { useAuth, type Department } from '../lib/auth';
 import { TAIL_STATUS } from './StatusChip';
 import type { AircraftOption } from './AircraftPicker';
+import { mayManageNumbering } from '../screens/Numbering';
 
 type Screen = { label: string; to: string; section?: string };
 type Entry = Screen | { group: string; items: Screen[] };
@@ -31,8 +32,14 @@ const MENU: Record<string, Entry[]> = {
       { label: 'Snags', to: '/snags' },
       { label: 'MEL / DDLS', to: '/ddls' },
       { label: 'NADDs', to: '/nadds' },
+      { label: 'Cabin items to review', to: '/nadds?review=1' },
     ] },
     { label: 'Work orders', to: '/work-orders' },
+    { label: 'ADs and SBs', to: '/ads-sbs' },
+    { group: 'Parts', items: [
+      { label: 'Part requests', to: '/part-requests' },
+      { label: 'Stores search', to: '/stores' },
+    ] },
     { group: 'Workshops', items: [
       { label: 'Tire Bay', to: '/section/ENG/tire-bay', section: 'TIRE' },
       { label: 'Battery Workshop', to: '/section/ENG/battery-workshop', section: 'BATT' },
@@ -48,20 +55,30 @@ const MENU: Record<string, Entry[]> = {
     ] },
   ],
   SUP: [
-    { label: 'Stores search', to: '/section/SUP/stores-search' },
-    { group: 'Stores', items: [
-      { label: 'Main Store', to: '/section/SUP/main-store' },
-      { label: 'Forward Store', to: '/section/SUP/forward-store' },
+    { label: 'Supply board', to: '/supply' },
+    { label: 'Stores search', to: '/stores' },
+    { label: 'Requisitions', to: '/procurement/requisitions' },
+    { group: 'Stock movements', items: [
+      { label: 'Issue parts', to: '/stores/issue' },
+      { label: 'Receiving', to: '/stores/receiving' },
+      { label: 'Transfers', to: '/stores/transfers' },
     ] },
-    { label: 'Receiving', to: '/section/SUP/receiving' },
+    { group: 'Held stock', items: [
+      { label: 'Quarantine', to: '/stores/quarantine' },
+      { label: 'U/S returns', to: '/stores/us-returns' },
+    ] },
   ],
   PRO: [
-    { label: 'Requisitions', to: '/section/PRO/requisitions' },
-    { label: 'Purchase orders', to: '/section/PRO/purchase-orders' },
-    { label: 'Outside-MRO jobs', to: '/section/PRO/outside-mro' },
+    { label: 'Procurement board', to: '/procurement' },
+    { label: 'Requisitions', to: '/procurement/requisitions' },
+    { label: 'Purchase orders', to: '/procurement/purchase-orders' },
+    { label: 'Suppliers', to: '/procurement/suppliers' },
+    { label: 'Outside-MRO jobs', to: '/procurement/outside-mro' },
   ],
   QUA: [
     { label: 'Offline signatures', to: '/offline-signatures' },
+    { label: 'ADs and SBs to verify', to: '/ads-sbs?status=awaiting' },
+    { label: 'Approved suppliers', to: '/procurement/suppliers' },
     { label: 'MEL revisions', to: '/section/QUA/mel' },
     { label: 'Audit trail', to: '/section/QUA/audit' },
   ],
@@ -160,7 +177,10 @@ function FleetLink({ aircraft, onNavigate }: { aircraft: AircraftOption[]; onNav
             return (
               <Link key={a.id} to={`/aircraft/${a.id}`} className="rail-tail" onClick={() => { setOpen(false); onNavigate(); }}>
                 <span><span className="tail">{a.tail}</span><span className="type">{a.type}</span></span>
-                <span className={`st st-${snag ? 'snag' : a.status ?? ''}`}>{label}</span>
+                <span className="st-group">
+                  <span className={`st st-${snag ? 'snag' : a.status ?? ''}`}>{label}</span>
+                  {a.inWork && <span className="st st-inwork" title={`In work · ${a.inWork}`}>In work</span>}
+                </span>
               </Link>
             );
           })}
@@ -197,6 +217,22 @@ export function Rail({ aircraft, open, onNavigate, approvals }: Props) {
         <DepartmentBlock key={d.code} d={d} home={false} viewOnly open={openDept === d.code}
           onToggle={() => toggle(d.code)} onNavigate={onNavigate} />
       ))}
+
+      {mayManageNumbering(me) && (
+        <>
+          <div className="rail-heading">Administration</div>
+          {(me?.adminDepartments?.length ?? 0) > 0 && (
+            <NavLink to="/admin/users" className="rail-link" onClick={onNavigate}>Users and roles</NavLink>
+          )}
+          <NavLink to="/admin/numbering" className="rail-link" onClick={onNavigate}>Numbering</NavLink>
+        </>
+      )}
+      {/* People, licences and certifying authorizations (D-032, D-080).
+          Quality, Command, Super Admins and the CO/ECO see everyone; others
+          see their own record (the database decides, D-122). */}
+      <NavLink to="/people" end className="rail-link" onClick={onNavigate}>
+        {me?.isOversight || (me?.adminDepartments?.length ?? 0) > 0 ? 'People and authorizations' : 'My record'}
+      </NavLink>
 
       <div className="rail-rule" />
       <NavLink to="/approvals" className="rail-link" onClick={onNavigate}>

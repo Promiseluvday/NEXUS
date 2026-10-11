@@ -1,0 +1,54 @@
+/* Phase 2 area C: ADs and SBs (screens/AdsSbs.tsx, screens/adsb/*).
+   Layout from the Claude Design wireframe WF-S1 and the ADs / SBs panel in
+   Home.dc.html; colours from theme.css only (status colours carry meaning,
+   D-090 to D-094). Imported by the screen itself, not by main.tsx. */
+
+.adsb-page .page-actions select { width: auto; min-width: 150px; }
+.adsb-tight { margin: 0; }
+
+/* Table rows: tap anywhere to open (D-098) */
+.adsb-table tbody tr.click-row { cursor: pointer; }
+.adsb-table tbody tr.click-row:hover { background: #f7fbfe; }
+.adsb-table tbody tr.adsb-reached td:first-child { box-shadow: inset 3px 0 0 var(--red); }
+.adsb-old { color: var(--ink-soft); background: var(--grey-bg); }
+
+/* Next due / last complied: stacked figures, as entered */
+.adsb-due { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.adsb-warn-text { color: var(--red); font-weight: 600; }
+
+/* The summary buttons above the list (whole box clickable, D-098) */
+.adsb-counts { display: flex; flex-wrap: wrap; gap: 8px; }
+.adsb-count {
+  display: inline-flex; align-items: baseline; gap: 6px;
+  border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--card);
+  color: var(--ink); font-weight: 500; padding: 8px 12px; min-height: var(--touch);
+}
+.adsb-count:hover { background: var(--ground); }
+.adsb-count.on { background: var(--select); border-color: var(--link); }
+.adsb-count.warn .adsb-count-n { color: var(--red); }
+.adsb-count.static { cursor: default; }
+.adsb-count.static:hover { background: var(--card); }
+.adsb-count-n { font-family: var(--mono); font-weight: 600; font-size: 18px; }
+
+/* Notices on the entry page */
+.adsb-banner {
+  border: 1px solid var(--amber-bg); background: #fffbe6; color: var(--ink);
+  border-left: 4px solid var(--mark); border-radius: var(--radius); padding: 10px 12px;
+}
+.adsb-banner-red { background: var(--red-bg); border-color: var(--red-bg); border-left-color: var(--red); }
+
+/* Forms */
+.adsb-form { display: flex; flex-direction: column; gap: 8px; }
+.adsb-form label { margin-top: 4px; }
+.adsb-fieldset { border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; margin: 4px 0; min-width: 0; }
+.adsb-fieldset legend { font-weight: 600; padding: 0 4px; }
+.adsb-fieldset .row { gap: 16px; flex-wrap: wrap; }
+.adsb-grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.adsb-grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+
+.adsb-plain-list { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+
+@media (max-width: 720px) {
+  .adsb-grid2, .adsb-grid3 { grid-template-columns: minmax(0, 1fr); }
+  .adsb-page .page-actions select { min-width: 0; width: 100%; }
+}

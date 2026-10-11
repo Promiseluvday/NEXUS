@@ -14,7 +14,7 @@
 
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(100);
+select plan(107);
 
 \set KDO '''20000000-0000-0000-0000-000000000005'''
 \set TMB '''20000000-0000-0000-0000-000000000006'''
@@ -101,16 +101,35 @@ select lives_ok(format($$ select app.attend_snag(%L, 'Checked oven circuit') $$,
 select is((select snag_display from app.fleet_board() where tail = 'NX-201'), 'snag_attended',
   'D-200: an attended snag shows amber "Snag attended"');
 select throws_like(format($$ select app.close_snag_no_fault_found(%L, 'Tested, no fault', '1357') $$, :'snag1'),
-  '%certifying authorization%', 'D-043: a non-certifying engineer cannot close a snag');
+  '%needs an approved work order%', 'D-218: no fault found cannot be closed without a work order');
 select pg_temp.admin();
 
 select pg_temp.act_as(:TMB);
-select throws_like(format($$ select app.close_snag_no_fault_found(%L, 'Tested, no fault', '0000') $$, :'snag1'),
-  '%PIN not accepted%', 'D-094: closing needs the right PIN');
-select lives_ok(format($$ select app.close_snag_no_fault_found(%L, 'Oven tested on ground, no fault', '2468') $$, :'snag1'),
-  'D-040: a certifying engineer closes as no fault found');
+select throws_like(format($$ select app.close_snag_no_fault_found(%L, 'Tested, no fault', '2468') $$, :'snag1'),
+  '%needs an approved work order%', 'D-218: not even by a certifying engineer with the right PIN');
+select lives_ok(format($$ select app.request_work_order(%L, 'Troubleshoot oven circuit', 1) $$, :'snag1'),
+  'D-218: troubleshooting starts with a work order request');
+select pg_temp.admin();
+select id as wo_nff, approval_request_id as req_nff from public.work_order where snag_id = :'snag1' \gset
+select pg_temp.act_as(:QAR);
+select app.decide_approval(:'req_nff', 'approve', '1111');
+select pg_temp.admin();
+select pg_temp.act_as(:ABE);
+select app.decide_approval(:'req_nff', 'approve', '2222');
+select pg_temp.admin();
+select pg_temp.act_as(:KDO);
+select app.add_work_order_entry(:'wo_nff', 'Oven run on ground power for 20 minutes, no fault');
+select app.complete_work_order(:'wo_nff', 'Ready for certification');
+select pg_temp.admin();
+insert into public.attachment (record_table, record_id, kind, file_name, mime_type, size_bytes, storage_path, uploaded_by)
+values ('work_order', :'wo_nff', 'sign_off_card', 'nff.pdf', 'application/pdf', 1000,
+        'work_order/' || :'wo_nff' || '/nff.pdf', '10000000-0000-0000-0000-000000000006');
+select pg_temp.act_as(:TMB);
+select lives_ok(format($$ select app.certify_work_order(%L, '2468', 'Oven tested on ground, no fault', true, '15', '0101') $$, :'wo_nff'),
+  'D-218: the certifying engineer certifies the work order as no fault found');
 select pg_temp.admin();
 select is((select status from public.snag where id = :'snag1'), 'closed', 'D-040: the snag is closed');
+select is((select disposition from public.snag where id = :'snag1'), 'nff', 'D-218: recorded as no fault found');
 
 -- =============================================================== WORK ORDERS ===
 select id as snag2 from public.snag where aircraft_id = :NX203 and status = 'reported' limit 1 \gset
@@ -275,9 +294,34 @@ select ok((select count(*) > 0 from public.ddls_entry), 'D-120: Operations can s
 select pg_temp.admin();
 
 select pg_temp.act_as(:TMB);
-select lives_ok(format($$ select app.clear_ddls_entry(%L, 'Indicator replaced, tested serviceable', '2468', '15', '0102') $$, :'ddls_c'),
-  'D-164: a certifying engineer clears the DDLS entry');
+select throws_like(format($$ select app.clear_ddls_entry(%L, 'Indicator replaced, tested serviceable', '2468', '15', '0102') $$, :'ddls_c'),
+  '%needs an approved work order%', 'D-218: a DDLS entry cannot be cleared without a work order');
+select lives_ok(format($$ select app.request_work_order(%L, 'Replace cabin pressure indicator', 2) $$, :'snag3'),
+  'D-218: a work order can be requested on a deferred snag');
+select throws_like(format($$ select app.request_work_order(%L, 'Again', 1) $$, :'snag3'),
+  '%already has work order%', 'D-218: only one active work order per snag');
 select pg_temp.admin();
+select is((select status from public.snag where id = :'snag3'), 'deferred',
+  'D-218: the snag stays deferred until its work order is certified');
+select id as wo_ddls, approval_request_id as req_ddls from public.work_order where snag_id = :'snag3' \gset
+select pg_temp.act_as(:QAR);
+select app.decide_approval(:'req_ddls', 'approve', '1111');
+select pg_temp.admin();
+select pg_temp.act_as(:ABE);
+select app.decide_approval(:'req_ddls', 'approve', '2222');
+select pg_temp.admin();
+select pg_temp.act_as(:TMB);
+select app.add_work_order_entry(:'wo_ddls', 'Indicator replaced, tested serviceable');
+select app.complete_work_order(:'wo_ddls', 'Ready for certification');
+select pg_temp.admin();
+insert into public.attachment (record_table, record_id, kind, file_name, mime_type, size_bytes, storage_path, uploaded_by)
+values ('work_order', :'wo_ddls', 'sign_off_card', 'ddls.pdf', 'application/pdf', 1000,
+        'work_order/' || :'wo_ddls' || '/ddls.pdf', '10000000-0000-0000-0000-000000000006');
+select pg_temp.act_as(:TMB);
+select lives_ok(format($$ select app.certify_work_order(%L, '2468', 'Indicator replaced, tested serviceable', false, '15', '0102') $$, :'wo_ddls'),
+  'D-218: certifying the work order is the clearing signature');
+select pg_temp.admin();
+select is((select status from public.ddls_entry where id = :'ddls_c'), 'cleared', 'D-164: the DDLS entry is cleared');
 select is((select status from public.snag where id = :'snag3'), 'closed', 'D-164: clearing the DDLS entry closes the snag');
 
 -- DDLS, not MEL: manual reference required

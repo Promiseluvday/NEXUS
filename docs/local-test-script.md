@@ -18,7 +18,7 @@
    npm run db:reset
    npm run db:test
    ```
-   `db:test` must end with **Result: PASS** (160 checks).
+   `db:test` must end with **Result: PASS** (438 checks).
 3. First time only (and after any `db:stop`/`db:start` that shows a new key): `npm run env:local`. It writes `app\.env.local` with the database address and key for you.
 4. Start the screens: `npm run dev`, then open **http://localhost:5173** in Chrome.
 
@@ -53,7 +53,7 @@
 | ✓ | Step | Expected | Found |
 |---|---|---|---|
 | ☐ | `kdo`: Snags ▸ open SNAG-000001 ▸ **Attend** | Board chip for NX-203 turns amber "Snag attended" | |
-| ☐ | Disposition ▸ Rectify now ▸ request work order | WO-000001, "locked until Quality, then the CO" | |
+| ☐ | Disposition ▸ **Request work order** (or ＋ New ▸ Request work order ▸ NX-203) | WO-000001, "locked until Quality, then the CO" | |
 | ☐ | `abe`: top bar | **No** Approvals button yet (Quality first) | |
 | ☐ | `qar`: **Approvals (1)** ▸ approve with wrong PIN, then right PIN | Wrong PIN refused; then "moves to the next approver" | |
 | ☐ | `abe`: Approvals ▸ approve | "approved: work can start" | |
@@ -61,6 +61,7 @@
 | ☐ | Try attaching a `.txt` or `.docx` | Refused: PDF and images only | |
 | ☐ | `kdo`: Certify | Refused: not certifying for the G550 | |
 | ☐ | `tmb`: Certify with PIN | Certified; snag closed; offers "Set tail status" | |
+| ☐ | On another attended snag: is there any way to close it as "no fault found" without a work order? | No: NFF is a tick when certifying a work order (D-218) | |
 | ☐ | Open the sign-off card from the file list | The PDF opens in a new tab | |
 
 ## 3. Deferrals
@@ -72,7 +73,8 @@
 | ☐ | Tick all, "Also set to Serviceable · MEL" ticked, sign | DDLS page/entry given; NX-202 now **Serviceable · MEL** | |
 | ☐ | Snags & deferrals ▸ DDLS ▸ NX-204 ▸ ▸ ▸ Request extension | "Extension requested" chip | |
 | ☐ | `qar`: approve the extension | New due time on the DDLS | |
-| ☐ | `tmb`: clear the entry with PIN; **Print DDLS** | Entry cleared; print shows deferral, extension and clearing | |
+| ☐ | `tmb`: open the entry ▸ **Request work order** (clearing needs one, D-218) ▸ `qar` and `abe` approve ▸ entry, complete, attach sign-off card ▸ certify with PIN | Certifying clears the DDLS entry and closes the snag | |
+| ☐ | **Print DDLS** | Print shows deferral, extension and clearing | |
 
 ## 4. Cabin items, NADDs, queries
 
@@ -108,7 +110,39 @@ Open **http://localhost:4173**.
 | ☐ | Go back online | Queue sends itself; Send queue shows **Accepted** | |
 | ☐ | `qar`: Quality ▸ Offline signatures | Your offline signatures, accepted | |
 
-## 6. What to send back
+## 6. Users and roles (Super Admin)
+
+| ✓ | Step | Expected | Found |
+|---|---|---|---|
+| ☐ | `abe`: rail ▸ Administration ▸ Users and roles ▸ Create account; fill in, home Engineering, scope G550, reason, PIN | Account page shows a temporary password once | |
+| ☐ | Sign out; sign in as the new username with the temporary password | "Set your own password", then "Set your PIN" | |
+| ☐ | Sign-in page ▸ Request an account (department Operations) | "Account waiting for approval" | |
+| ☐ | `abe`: Users and roles | The Operations request is **not** listed (not his department) | |
+| ☐ | `zem`: open the request ▸ reason, PIN ▸ Approve | Active, home department Operations | |
+| ☐ | `abe`: open your own account | "Nobody can change their own account"; no Change buttons | |
+| ☐ | `zem`: give `qar` "View cost" | Refused: Quality never sees cost (D-127) | |
+
+## 7. Phase 2 (flights, authorizations, ADs/SBs, parts, procurement)
+
+Extra sample users (password `nexus-dev-only`): `sbk` Main storekeeper, `fsk` Forward storekeeper, `sco` Supply CO, `fao` procurement officer.
+
+| ✓ | Step | Expected | Found |
+|---|---|---|---|
+| ☐ | `pla`: NX-203 ▸ Quick bar **Log hours** ▸ 2.4 h, 1 cycle | Dashboard card and Totals go up | |
+| ☐ | `tmb`: Flight records ▸ correct that flight (reason, PIN) | Version 2 counts; version 1 kept | |
+| ☐ | `qar`: People and authorizations ▸ TMB ▸ Issue authorization (A330-200, PIN) | Waiting for CO / ECO | |
+| ☐ | `abe`: Approvals ▸ Certifying authorizations ▸ approve (PIN) | Active | |
+| ☐ | `kdo`: NX-203 ▸ Quick bar **AD / SB entry** ▸ record an entry (PIN) | Awaiting verification | |
+| ☐ | `qar`: rail ▸ ADs and SBs to verify ▸ verify (PIN) | Verified | |
+| ☐ | `kdo`: on an approved work order ▸ **Request part** [SAMPLE-FL-02] | Reserved | |
+| ☐ | `sbk`: Issue parts ▸ sign (PIN) | Issued; stock 10 → 9 | |
+| ☐ | `kdo`: Request part [SAMPLE-HP-01] | "Not in stock · requisition needed" | |
+| ☐ | `sbk`: Requisitions ▸ raise it; `fsk` then `sco` approve (PIN) | Approved · sourcing | |
+| ☐ | `fao`: create PO, price, place (PIN), shipped → in clearing | PO in clearing | |
+| ☐ | `sbk`: register arrival ▸ receiving ▸ attach certificate and tag ▸ accept (PIN) | Part reserved for the request, then issue | |
+| ☐ | `fao` opens the receipt; `qar` opens the PO | Both refused (buyer ≠ receiver; Quality no cost) | |
+
+## 8. What to send back
 
 - Any row where "Found" differs from "Expected" (a screenshot helps).
 - Anything confusing to an engineer on the line: wording, too many taps, hard to read.

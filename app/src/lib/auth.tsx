@@ -32,6 +32,8 @@ export type Me = {
   isOversight: boolean;        // Command or Quality: read-only across all (D-122)
   canReportSnags: boolean;     // pilots (Operations) and engineers only (D-041)
   pinSet: boolean;
+  adminDepartments: string[];  // departments this person is Super Admin for; ['*'] = all (D-035)
+  mustChangePassword: boolean; // a Super Admin set a temporary password (D-219)
 };
 
 type AuthState = {
@@ -40,8 +42,14 @@ type AuthState = {
   me: Me | null;
   display: DisplaySettings;
   signIn: (username: string, password: string) => Promise<string | null>;
+  requestAccount: (r: AccountRequest) => Promise<string | null>;
   signOut: () => Promise<void>;
   reload: () => Promise<void>;
+};
+
+// What a person fills in to ask for an account (D-206, D-123).
+export type AccountRequest = {
+  fullName: string; rank: string; username: string; tlc: string; department: string; password: string;
 };
 
 const AuthContext = createContext<AuthState | null>(null);
@@ -67,7 +75,7 @@ async function loadDisplay(): Promise<DisplaySettings> {
 async function loadMe(userId: string): Promise<Me | null> {
   const { data: account, error } = await db
     .from('user_account')
-    .select('status, username, person_id, person:person_id (full_name, three_letter_code)')
+    .select('status, username, person_id, must_change_password, person:person_id (full_name, three_letter_code)')
     .eq('id', userId)
     .maybeSingle();
   if (isNetworkError(error)) throw new Error('offline');
@@ -86,6 +94,7 @@ async function loadMe(userId: string): Promise<Me | null> {
     (secs ?? []).map((s) => actions.rpc('has_section', { p_section: s.code })),
   );
   const { data: pinSet } = await actions.rpc('my_pin_is_set');
+  const { data: adminDepts } = await actions.rpc('my_admin_departments');
 
   const departments = allDepartments.filter((_, i) => held[i].data === true);
   const person = account.person as unknown as { full_name: string; three_letter_code: string } | null;
@@ -102,6 +111,8 @@ async function loadMe(userId: string): Promise<Me | null> {
     isOversight: departments.some((d) => d.code === 'CMD' || d.code === 'QUA'),
     canReportSnags: departments.some((d) => d.code === 'ENG' || d.code === 'OPS'),
     pinSet: pinSet === true,
+    adminDepartments: (adminDepts ?? []) as string[],
+    mustChangePassword: Boolean((account as { must_change_password?: boolean }).must_change_password),
   };
 }
 
@@ -179,8 +190,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await load(data.session);
   }, [load]);
 
+  // Ask for an account: make the sign-in, then the PENDING account. It has
+  // no rights until a Super Admin of the requested department approves it.
+  const requestAccount = useCallback(async (r: AccountRequest) => {
+    const { error } = await db.auth.signUp({ email: signInEmail(r.username, usernameDomain), password: r.password });
+    if (error) return errorText(error);
+    const { error: err } = await actions.rpc('request_account', {
+      p_full_name: r.fullName, p_username: r.username.trim().toLowerCase(), p_three_letter_code: r.tlc.toUpperCase(),
+      p_requested_department: r.department, p_rank_or_title: r.rank || undefined,
+    });
+    if (err) {
+      await db.auth.signOut();
+      return errorText(err);
+    }
+    await reload();
+    return null;
+  }, [reload]);
+
   return (
-    <AuthContext.Provider value={{ loading, session, me, display, signIn, signOut, reload }}>
+    <AuthContext.Provider value={{ loading, session, me, display, signIn, requestAccount, signOut, reload }}>
       {children}
     </AuthContext.Provider>
   );

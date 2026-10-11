@@ -8,7 +8,7 @@
 ## 1. Summary
 
 1. A snag is logged. An engineer assesses it (D-040).
-2. If work is needed, the engineer raises a **work order request**.
+2. If work is needed, the engineer raises a **work order request**. Any rectification, troubleshooting or "no fault found" needs one; only deferral (MEL, DDLS, NADD) is allowed without (D-218). A deferred snag can get a work order later; certifying it clears the DDLS entry (and NADD, if any) in the same signature. A NADD on its own may still be rectified with PIN and no work order (fixed at another MRO, D-218).
 3. **Quality pre-approves**, then the **Commanding Officer (CO) gives final approval**.
 4. Only then does the work order open. **No updates, task entries or sign-offs** can be added before approval.
 5. When the job is done, the engineer attaches **scanned copies** of the signed sign-off card and/or the technical log page, and the aircraft or engine logbook entry.
@@ -25,7 +25,7 @@
 | WO-2 | **Pre-approved – awaiting CO** | CO (or acting deputy, D-036) | CO approves or rejects |
 | WO-3 | **Open** | Engineering | Work starts; tasks, part requests and updates are now allowed |
 | WO-4 | **Work complete – evidence required** | Engineering | Scanned sign-off card / tech log / logbook pages attached |
-| WO-5 | **Certified – closed** | — | Certifying engineer signs (D-043), PIN, online (D-104) |
+| WO-5 | **Certified – closed** | — | Certifying engineer signs (D-043), PIN (online, or provisional offline D-217). Closes the snag; clears its DDLS entry / NADD; "no fault found" is a tick here (D-218) |
 | WO-6 | **Rejected** | Requester | Revised (new version) or cancelled |
 | WO-7 | **Cancelled** | — | End. Soft cancel with who, when, why (D-023) |
 

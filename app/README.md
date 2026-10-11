@@ -59,11 +59,22 @@ app/
     │   ├── …0021_api_access.sql      Locks internal helpers; opens only the user actions
     │   ├── …0022_signing_and_inbox.sql  PIN on tail status and approvals; SVC · MEL at deferral; approvals inbox
     │   └── …0023_offline_signing.sql    Tablets, offline keys, checking offline signatures (D-217)
+    │   └── …0024_work_order_rule.sql    No work without an approved work order (D-218)
+    │   └── …0025_admin_accounts.sql     Users and roles: Super Admin account screens (D-219)
+    │   └── …0026_authorizations_people.sql  Qualifications and certifying authorizations (D-032, D-080)
+    │   └── …0027_flight_records.sql     Flight records: hours, cycles, landings (D-022, D-027)
+    │   └── …0028_ads_sbs.sql            ADs and SBs compliance, Quality verified (D-016)
+    │   └── …0029_parts_stores.sql       Parts and stores (D-068, D-070 to D-074, D-140 to D-153)
+    │   └── …0030_procurement.sql        Requisitions, approvals by value, POs, cost (D-075 to D-077, D-144 to D-149)
+    │   └── …0031_procurement_refusals.sql  Clear "not in your view" refusals
+    │   └── …0032_promise_answers_11oct.sql  AOG self-confirmation, 90-day warning, flight corrections
+    │   └── …0033_numbering_revisions_in_work.sql  Operator number formats, WO revisions R1/R2, "In work" chip (D-220)
     ├── seed.sql            Fictional sample data (NX tails, invented people, sample MEL)
     └── tests/
         ├── foundations.test.sql      37 checks of the Phase 0 rules
         ├── phase1.test.sql           100 checks of the snag workflow rules
-        └── offline.test.sql          23 checks of offline signing
+        ├── offline.test.sql          23 checks of offline signing
+        └── numbering.test.sql        38 checks of number formats and work order revisions
 ```
 
 Each migration file starts with a plain-English explanation of what it does and which decisions (D-xxx) it implements.
@@ -129,7 +140,7 @@ Then, in PowerShell:
 cd C:\Users\USER\Downloads\NEXUS\app
 npm install          # downloads the tools (first time, and after a pull that adds tools)
 npm run db:start     # starts the database (first time downloads ~2 GB; later it's quick)
-npm run db:test      # runs all 160 database checks; should end with "Result: PASS"
+npm run db:test      # runs all 476 database checks; should end with "Result: PASS"
 ```
 
 ### Trying offline (Phase 1C)

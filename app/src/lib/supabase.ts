@@ -25,3 +25,11 @@ export function errorText(error: { message?: string } | null | undefined): strin
   if (m.includes('Invalid login credentials')) return 'Username or password not recognised.';
   return m;
 }
+
+// The same connection without the generated type list. Used by screens whose
+// database functions are newer than src/lib/database.types.ts; once
+// `npm run types` is run they can switch back to `actions` / `db`.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const anyActions = actions as any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const anyDb = db as any;

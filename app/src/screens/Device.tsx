@@ -5,15 +5,16 @@
 //   3. Each engineer who may sign offline switches it on for themselves,
 //      online, with a PIN of at least 6 digits
 // Also here: change your PIN, and (Super Admins) enrol, revoke or report a
-// tablet lost.
+// tablet lost. Laid out in the shared page frame (breadcrumb, Back, heading,
+// titled boxes), like the other Phase C screens.
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
-import { Link } from 'react-router';
 import { useAuth } from '../lib/auth';
 import { actions, db, errorText } from '../lib/supabase';
 import { formatDateTime } from '../lib/format';
 import { useDevice, useOnline } from '../lib/offline/hooks';
 import { checkIn, registerDevice } from '../lib/offline/device';
 import { enableOfflineSigning, offlineSigningProblem } from '../lib/offline/signing';
+import { BackButton, Crumbs, PageHead, Section } from '../components/PageFrame';
 
 export function DevicePage() {
   const { me } = useAuth();
@@ -42,13 +43,14 @@ export function DevicePage() {
 
   return (
     <div className="page">
-      <div className="breadcrumb"><Link to="/">Home</Link> › This tablet</div>
-      <h1>This tablet and offline signing</h1>
+      <Crumbs items={[{ label: 'All aircraft', to: '/' }, { label: 'This tablet' }]} />
+      <BackButton to="/" label="All aircraft" />
+      <PageHead title="This tablet and offline signing"
+        sub={online ? 'Online' : 'Offline: registering, switching on and changing your PIN need a connection.'} />
       {message && <div className={/provisional|queued/.test(message) ? 'offline-banner' : 'success'} role="status">{message}</div>}
       {error && <div className="error" role="alert">{error}</div>}
 
-      <section className="card">
-        <h2>This tablet</h2>
+      <Section title="This tablet">
         {!dev.deviceId ? (
           <form onSubmit={register}>
             <p className="small muted">Only line tablets enrolled by a Super Admin can sign offline (D-217). Phones can still report and view offline.</p>
@@ -64,16 +66,15 @@ export function DevicePage() {
             <dt>Offline limit</dt><dd>{dev.maxHours} hours without contact</dd>
           </dl>
         )}
-      </section>
+      </Section>
 
       {isEngineer && dev.deviceId && (
-        <section className="card">
-          <h2>Offline signing for {me?.fullName} <span className="mono">{me?.tlc}</span></h2>
+        <Section title={<>Offline signing for {me?.fullName} <span className="mono">{me?.tlc}</span></>}>
           {signProblem === null
             ? <p><span className="chip tone-green">Ready</span> You can sign dispositions, clearances, certifications and tail status here without a connection. They stay provisional until the server checks them.</p>
             : <p className="small">{signProblem}</p>}
           {!dev.problem && <EnableSigning onDone={(m) => { setMessage(m); refresh(); }} />}
-        </section>
+        </Section>
       )}
 
       <ChangePin onDone={setMessage} />
@@ -126,17 +127,18 @@ function ChangePin({ onDone }: { onDone: (m: string) => void }) {
     onDone('PIN changed. If you sign offline, switch offline signing on again with the new PIN.');
   }
   return (
-    <form className="card" id="pin" onSubmit={submit}>
-      <h2>Change your PIN</h2>
-      <div className="row">
-        <div><label htmlFor="new-pin">New PIN</label>
-          <input id="new-pin" type="password" inputMode="numeric" maxLength={8} value={pin} onChange={(e) => setPin(e.target.value.replace(/[^0-9]/g, ''))} /></div>
-        <div><label htmlFor="new-pin2">New PIN again</label>
-          <input id="new-pin2" type="password" inputMode="numeric" maxLength={8} value={again} onChange={(e) => setAgain(e.target.value.replace(/[^0-9]/g, ''))} /></div>
-      </div>
-      {error && <div className="error" role="alert">{error}</div>}
-      <p><button type="submit">Change PIN</button></p>
-    </form>
+    <Section title="Change your PIN" id="pin">
+      <form onSubmit={submit}>
+        <div className="row">
+          <div><label htmlFor="new-pin">New PIN</label>
+            <input id="new-pin" type="password" inputMode="numeric" maxLength={8} value={pin} onChange={(e) => setPin(e.target.value.replace(/[^0-9]/g, ''))} /></div>
+          <div><label htmlFor="new-pin2">New PIN again</label>
+            <input id="new-pin2" type="password" inputMode="numeric" maxLength={8} value={again} onChange={(e) => setAgain(e.target.value.replace(/[^0-9]/g, ''))} /></div>
+        </div>
+        {error && <div className="error" role="alert">{error}</div>}
+        <p><button type="submit">Change PIN</button></p>
+      </form>
+    </Section>
   );
 }
 
@@ -173,32 +175,31 @@ function DeviceAdmin() {
   }
   if (rows.length === 0) return null;
   return (
-    <section className="card">
-      <h2>Tablets (Super Admin)</h2>
+    <Section title="Tablets (Super Admin)">
       {error && <div className="error" role="alert">{error}</div>}
-      <table className="board sheet-table">
+      <table className="board sq-table">
         <thead><tr><th>Tablet</th><th>Status</th><th>Registered</th><th>Last contact</th><th aria-label="Actions" /></tr></thead>
         <tbody>
           {rows.map((d) => (
             <tr key={d.id}>
-              <td>{d.label}</td>
-              <td>
+              <td data-label="Tablet">{d.label}</td>
+              <td data-label="Status">
                 <span className={`chip tone-${d.status === 'enrolled' && !d.blocked_at ? 'green' : d.status === 'pending' ? 'blue' : 'red'}`}>
                   {d.reported_lost_at ? 'Reported lost' : d.blocked_at ? 'Blocked' : d.status === 'enrolled' ? 'Enrolled' : d.status === 'pending' ? 'Waiting' : 'Revoked'}
                 </span>
                 {d.revoke_reason && <div className="small muted">{d.revoke_reason}</div>}
               </td>
-              <td className="small">{formatDateTime(d.requested_at, display)} · <span className="mono">{d.requester?.three_letter_code}</span></td>
-              <td className="small">{d.last_seen_at ? formatDateTime(d.last_seen_at, display) : '—'}</td>
-              <td className="row" style={{ gap: 6 }}>
+              <td data-label="Registered" className="small">{formatDateTime(d.requested_at, display)} · <span className="mono">{d.requester?.three_letter_code}</span></td>
+              <td data-label="Last contact" className="small">{d.last_seen_at ? formatDateTime(d.last_seen_at, display) : '—'}</td>
+              <td data-label=""><div className="action-row">
                 {d.status === 'pending' && <button type="button" onClick={() => enrol(d.id)}>Enrol</button>}
-                {d.status !== 'revoked' && <button type="button" className="secondary" onClick={() => revoke(d.id, false)}>Revoke</button>}
-                {d.status !== 'revoked' && <button type="button" className="secondary" onClick={() => revoke(d.id, true)}>Report lost</button>}
-              </td>
+                {d.status !== 'revoked' && <button type="button" className="outline-button" onClick={() => revoke(d.id, false)}>Revoke</button>}
+                {d.status !== 'revoked' && <button type="button" className="outline-button" onClick={() => revoke(d.id, true)}>Report lost</button>}
+              </div></td>
             </tr>
           ))}
         </tbody>
       </table>
-    </section>
+    </Section>
   );
 }
