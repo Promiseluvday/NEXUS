@@ -171,6 +171,11 @@ export function AircraftPage() {
   const toggle = (p: PanelId) => setOpen((o) => ({ ...o, [p]: !o[p] }));
   const setAll = (v: boolean) => setOpen(Object.fromEntries(PANELS.map((p) => [p, v])) as Record<PanelId, boolean>);
   const isEngineer = Boolean(me?.departments.some((x) => x.code === 'ENG'));
+  // Work orders, part requests and ADs/SBs are Engineering and oversight
+  // records (D-120). Other departments don't see those tiles and panels at
+  // all, rather than a misleading "0" (docs/ui-rules.md: never hide status
+  // behind an empty box).
+  const seesEngineering = isEngineer || Boolean(me?.isOversight);
   const r = rows.find((x) => x.aircraft_id === id);
   const now = loadedAt ?? new Date();
 
@@ -252,12 +257,14 @@ export function AircraftPage() {
           tone={r.next_nadd_due && new Date(r.next_nadd_due).getTime() - now.getTime() < margin * DAY ? 'warn' : undefined} />
         <Tile n={r.open_snags} label="Open snags" to={`/snags?aircraft=${id}`} />
         <Tile n={mel} label="MEL deferrals" to={`/ddls?aircraft=${id}`} />
-        <Tile n={d?.wos.length ?? '…'} label="Work orders open" to={`/work-orders?aircraft=${id}`} />
+        {seesEngineering && <Tile n={d?.wos.length ?? '…'} label="Work orders open" to={`/work-orders?aircraft=${id}`} />}
         <Tile n={due.filter((x) => flag(x.due)).length + adsb.flagged} label="Due items flagged" to={`/aircraft/${id}#panel-due`}
           tone={due.some((x) => flag(x.due)) || adsb.flagged > 0 ? 'warn' : undefined} />
-        <Tile n={parts.open ?? '…'} label="Part requests" to={`/part-requests?aircraft=${id}`} />
-        <Tile n={adsb.loading ? '…' : adsb.adsRecurring} label="ADs recurring" to={`/ads-sbs?aircraft=${id}&status=recurring&type=AD`} />
-        <Tile n={adsb.loading ? '…' : adsb.sbsOpen} label="SBs open" to={`/ads-sbs?aircraft=${id}&status=open&type=SB`} />
+        {seesEngineering && <>
+          <Tile n={parts.open ?? '…'} label="Part requests" to={`/part-requests?aircraft=${id}`} />
+          <Tile n={adsb.loading ? '…' : adsb.adsRecurring} label="ADs recurring" to={`/ads-sbs?aircraft=${id}&status=recurring&type=AD`} />
+          <Tile n={adsb.loading ? '…' : adsb.sbsOpen} label="SBs open" to={`/ads-sbs?aircraft=${id}&status=open&type=SB`} />
+        </>}
       </div>
 
       <Panel id="record" title="Aircraft record" open={open.record} onToggle={() => toggle('record')}>
@@ -298,6 +305,7 @@ export function AircraftPage() {
       </Panel>
 
       <Panel id="open" title="Open items" link={isEngineer ? { to: `/request-work-order?aircraft=${id}`, label: 'Request work order' } : { to: `/snags?aircraft=${id}`, label: 'All snags' }} open={open.open} onToggle={() => toggle('open')}>
+        {!seesEngineering && <p className="panel-note" style={{ margin: 0 }}>Snags listed are the ones you reported; Engineering sees all of them (D-120).</p>}
         {r.blocked_by && (
           <div className={`block${down ? ' down' : ''}`}>
             <div className="block-label">Blocked by</div>
@@ -349,9 +357,11 @@ export function AircraftPage() {
         </div>
       </Panel>
 
-      <Panel id="adsb" title="ADs and SBs" link={{ to: `/ads-sbs?aircraft=${id}`, label: 'All ADs and SBs' }} open={open.adsb} onToggle={() => toggle('adsb')}>
-        <AdSbPanelBody aircraftId={id} />
-      </Panel>
+      {seesEngineering && (
+        <Panel id="adsb" title="ADs and SBs" link={{ to: `/ads-sbs?aircraft=${id}`, label: 'All ADs and SBs' }} open={open.adsb} onToggle={() => toggle('adsb')}>
+          <AdSbPanelBody aircraftId={id} />
+        </Panel>
+      )}
 
       <Panel id="due" title="Due items, entered by engineers" link={{ to: `/ddls?aircraft=${id}`, label: 'DDLS sheet' }} open={open.due} onToggle={() => toggle('due')}>
         <div className="table-scroll">

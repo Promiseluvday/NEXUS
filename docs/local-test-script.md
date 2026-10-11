@@ -18,7 +18,7 @@
    npm run db:reset
    npm run db:test
    ```
-   `db:test` must end with **Result: PASS** (194 checks).
+   `db:test` must end with **Result: PASS** (438 checks).
 3. First time only (and after any `db:stop`/`db:start` that shows a new key): `npm run env:local`. It writes `app\.env.local` with the database address and key for you.
 4. Start the screens: `npm run dev`, then open **http://localhost:5173** in Chrome.
 
@@ -122,7 +122,27 @@ Open **http://localhost:4173**.
 | ☐ | `abe`: open your own account | "Nobody can change their own account"; no Change buttons | |
 | ☐ | `zem`: give `qar` "View cost" | Refused: Quality never sees cost (D-127) | |
 
-## 7. What to send back
+## 7. Phase 2 (flights, authorizations, ADs/SBs, parts, procurement)
+
+Extra sample users (password `nexus-dev-only`): `sbk` Main storekeeper, `fsk` Forward storekeeper, `sco` Supply CO, `fao` procurement officer.
+
+| ✓ | Step | Expected | Found |
+|---|---|---|---|
+| ☐ | `pla`: NX-203 ▸ Quick bar **Log hours** ▸ 2.4 h, 1 cycle | Dashboard card and Totals go up | |
+| ☐ | `tmb`: Flight records ▸ correct that flight (reason, PIN) | Version 2 counts; version 1 kept | |
+| ☐ | `qar`: People and authorizations ▸ TMB ▸ Issue authorization (A330-200, PIN) | Waiting for CO / ECO | |
+| ☐ | `abe`: Approvals ▸ Certifying authorizations ▸ approve (PIN) | Active | |
+| ☐ | `kdo`: NX-203 ▸ Quick bar **AD / SB entry** ▸ record an entry (PIN) | Awaiting verification | |
+| ☐ | `qar`: rail ▸ ADs and SBs to verify ▸ verify (PIN) | Verified | |
+| ☐ | `kdo`: on an approved work order ▸ **Request part** [SAMPLE-FL-02] | Reserved | |
+| ☐ | `sbk`: Issue parts ▸ sign (PIN) | Issued; stock 10 → 9 | |
+| ☐ | `kdo`: Request part [SAMPLE-HP-01] | "Not in stock · requisition needed" | |
+| ☐ | `sbk`: Requisitions ▸ raise it; `fsk` then `sco` approve (PIN) | Approved · sourcing | |
+| ☐ | `fao`: create PO, price, place (PIN), shipped → in clearing | PO in clearing | |
+| ☐ | `sbk`: register arrival ▸ receiving ▸ attach certificate and tag ▸ accept (PIN) | Part reserved for the request, then issue | |
+| ☐ | `fao` opens the receipt; `qar` opens the PO | Both refused (buyer ≠ receiver; Quality no cost) | |
+
+## 8. What to send back
 
 - Any row where "Found" differs from "Expected" (a screenshot helps).
 - Anything confusing to an engineer on the line: wording, too many taps, hard to read.
