@@ -608,7 +608,19 @@ a.pill { text-decoration: none; }
 .login-line { font-size: 30px; font-weight: 600; line-height: 1.25; }
 .login-pitch p { font-size: 15px; color: #e5e7eb; line-height: 1.6; }
 .login-foot { font-size: 13px; color: #b8bec6; line-height: 1.6; }
-.login-side { flex: 999 1 480px; display: flex; align-items: center; justify-content: center; padding: 48px 32px; }
+.login-side { flex: 999 1 480px; display: flex; align-items: center; justify-content: center; padding: 48px 32px;
+  position: relative; overflow: hidden; }
+/* The watermark video: faint, behind the card, never clickable. */
+.login-watermark {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  opacity: 0.16; filter: grayscale(0.35); pointer-events: none; z-index: 0;
+}
+.login-side > :not(.login-watermark) { position: relative; z-index: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .login-watermark { display: none; }
+  .login-side { background: url('/login-watermark.jpg') center / cover no-repeat; }
+  .login-side::before { content: ''; position: absolute; inset: 0; background: var(--ground); opacity: 0.84; }
+}
 .login-card {
   background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 36px; width: 100%; max-width: 500px;
 }
@@ -621,6 +633,7 @@ a.pill { text-decoration: none; }
   .login-panel { padding: 24px; gap: 16px; }
   .login-pitch, .login-foot { display: none; }
   .login-side { padding: 16px; }
+  .login-watermark { display: none; }
   .login-card { padding: 20px; }
 }
 

@@ -1,6 +1,13 @@
 // Sign in with a username or email and a password (D-206).
 // Layout from the Claude Design canvas (Login.dc.html). Also: request an
 // account (D-206), which stays pending until a Super Admin approves (D-123).
+//
+// Behind the sign-in card a faint looping video plays as a watermark: one
+// snag on NX-101 travelling through Engineering, Quality, Supply,
+// Procurement and Operations. It is a placeholder (Gemini draft, 11 Oct) to
+// be replaced by the final animation: swap public/login-watermark.webm,
+// .mp4 and .jpg. No sound; hidden on phones (saves data) and replaced by a still
+// frame when the device asks for reduced motion.
 import { useState, type FormEvent } from 'react';
 import { useAuth } from '../lib/auth';
 import { configMissing } from '../lib/supabase';
@@ -40,6 +47,11 @@ export function SignIn() {
         <div className="login-foot">Authorised users only · every sign-in is logged.</div>
       </div>
       <div className="login-side">
+        <video className="login-watermark" autoPlay muted loop playsInline aria-hidden="true" tabIndex={-1}
+          poster="/login-watermark.jpg">
+          <source src="/login-watermark.webm" type="video/webm" />
+          <source src="/login-watermark.mp4" type="video/mp4" />
+        </video>
         {requesting ? <RequestAccount onBack={() => setRequesting(false)} /> : (
         <form className="login-card" onSubmit={submit}>
           <h1>Sign in</h1>
