@@ -62,6 +62,9 @@ export type Database = {
 "access_summary":
 { Args: { "p_category": string,"p_person": string }; Returns: string
                            },
+"acknowledge_notice":
+{ Args: { "p_note"?: string,"p_notification": string }; Returns: number
+                           },
 "acknowledge_receipt":
 { Args: { "p_receipt": string }; Returns: string
                            },
@@ -193,6 +196,9 @@ export type Database = {
                            },
 "can_see_aircraft":
 { Args: { "p_aircraft": string }; Returns: boolean
+                           },
+"can_see_notice":
+{ Args: { "p_notification": string }; Returns: boolean
                            },
 "can_see_outside_mro":
 { Args: { "p_aircraft": string }; Returns: boolean
@@ -369,6 +375,9 @@ export type Database = {
 "holds_store":
 { Args: { "p_store": string }; Returns: boolean
                            },
+"holds_target":
+{ Args: { "p_appointment": string,"p_department": string }; Returns: boolean
+                           },
 "involved_in_query":
 { Args: { "p_department": string,"p_person": string,"p_raised_by": string }; Returns: boolean
                            },
@@ -424,6 +433,11 @@ export type Database = {
 "my_must_change_password":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
+"my_notices":
+{ Args: { "p_done_limit"?: number }; Returns: {
+              "aircraft_id": string,"body": string,"created_at": string,"id": string,"kind": string,"record_id": string,"record_table": string,"steps": Json,"tail": string,"title": string,"waiting_for_me": boolean
+            }[]
+                           },
 "my_pending_approvals":
 { Args: Record<PropertyKey, never>; Returns: {
               "action_type": string,"chain_name": string,"id": string,"raised_at": string,"raised_by": string,"record_id": string,"record_table": string,"step_name": string,"step_no": number,"summary": string,"waiting_since": string
@@ -434,6 +448,9 @@ export type Database = {
                            },
 "my_procurement_rights":
 { Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"my_unacknowledged_count":
+{ Args: Record<PropertyKey, never>; Returns: number
                            },
 "nadd_for_engineer":
 { Args: { "p_allowed_status": (string)[],"p_nadd": string }; Returns: Database["public"]['Tables']["nadd"]['Row']
@@ -450,6 +467,9 @@ export type Database = {
 { Args: { "p_default_format": string,"p_series": string }; Returns: string
                            } |
 { Args: { "p_default_format": string,"p_series": string,"p_tail": string }; Returns: string
+                           },
+"notice_steps":
+{ Args: { "p_notification": string }; Returns: Json
                            },
 "number_counter":
 { Args: { "p_at": string,"p_format": string,"p_series": string }; Returns: string
@@ -586,6 +606,9 @@ export type Database = {
 "raise_approval":
 { Args: { "p_action": string,"p_record_id": string,"p_record_table": string,"p_summary": string }; Returns: string
                            },
+"raise_rectified_notice":
+{ Args: { "p_aircraft": string,"p_body": string,"p_record": string,"p_snag": string,"p_table": string,"p_title": string }; Returns: string
+                           },
 "raise_requisition":
 { Args: { "p_device_time"?: string,"p_estimated_value"?: number,"p_kind": string,"p_part"?: string,"p_part_number_text"?: string,"p_priority"?: string,"p_purpose"?: string,"p_qty"?: number,"p_remarks"?: string,"p_request_line"?: string,"p_required_by"?: string,"p_store"?: string,"p_us_return"?: string }; Returns: Json
                            },
@@ -612,6 +635,9 @@ export type Database = {
                            },
 "record_mro_technical_acceptance":
 { Args: { "p_job": string,"p_note": string,"p_pin": string }; Returns: undefined
+                           },
+"record_notice":
+{ Args: { "p_record": string,"p_table": string }; Returns: Json
                            },
 "record_part_fitted":
 { Args: { "p_line": string,"p_note"?: string,"p_removed_serial"?: string }; Returns: string
@@ -1699,6 +1725,90 @@ isOneToOne: false
       columns: ["requested_by"]
 isOneToOne: false
       referencedRelation: "person"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"notification": {
+                  Row: {
+                    "aircraft_id": string,"body": string,"created_at": string,"created_by": string | null,"device_time": string | null,"id": string,"kind": string,"record_id": string,"record_table": string,"snag_id": string | null,"title": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "aircraft_id": string,"body": string,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"id"?: string,"kind": string,"record_id": string,"record_table": string,"snag_id"?: string | null,"title": string
+                  }
+                  Update: {
+                    "aircraft_id"?: string,"body"?: string,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"id"?: string,"kind"?: string,"record_id"?: string,"record_table"?: string,"snag_id"?: string | null,"title"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "notification_aircraft_id_fkey"
+      columns: ["aircraft_id"]
+isOneToOne: false
+      referencedRelation: "aircraft"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "notification_snag_id_fkey"
+      columns: ["snag_id"]
+isOneToOne: false
+      referencedRelation: "snag"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"notification_ack": {
+                  Row: {
+                    "acknowledged_by": string,"created_at": string,"created_by": string | null,"device_time": string | null,"id": string,"note": string | null,"target_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "acknowledged_by": string,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"id"?: string,"note"?: string | null,"target_id": string
+                  }
+                  Update: {
+                    "acknowledged_by"?: string,"created_at"?: string,"created_by"?: string | null,"device_time"?: string | null,"id"?: string,"note"?: string | null,"target_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "notification_ack_acknowledged_by_fkey"
+      columns: ["acknowledged_by"]
+isOneToOne: false
+      referencedRelation: "person"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "notification_ack_target_id_fkey"
+      columns: ["target_id"]
+isOneToOne: true
+      referencedRelation: "notification_target"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"notification_target": {
+                  Row: {
+                    "appointment_id": string | null,"created_at": string,"created_by": string | null,"department_code": string | null,"device_time": string | null,"id": string,"name": string,"notification_id": string,"step_no": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "appointment_id"?: string | null,"created_at"?: string,"created_by"?: string | null,"department_code"?: string | null,"device_time"?: string | null,"id"?: string,"name": string,"notification_id": string,"step_no": number
+                  }
+                  Update: {
+                    "appointment_id"?: string | null,"created_at"?: string,"created_by"?: string | null,"department_code"?: string | null,"device_time"?: string | null,"id"?: string,"name"?: string,"notification_id"?: string,"step_no"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "notification_target_appointment_id_fkey"
+      columns: ["appointment_id"]
+isOneToOne: false
+      referencedRelation: "appointment"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "notification_target_department_code_fkey"
+      columns: ["department_code"]
+isOneToOne: false
+      referencedRelation: "department"
+      referencedColumns: ["code"]
+    },{
+      foreignKeyName: "notification_target_notification_id_fkey"
+      columns: ["notification_id"]
+isOneToOne: false
+      referencedRelation: "notification"
       referencedColumns: ["id"]
     }
                   ]

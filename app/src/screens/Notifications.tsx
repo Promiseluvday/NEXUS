@@ -9,12 +9,15 @@
 //   Send queue       your items on this device that the server refused
 //   Due soon         DDLS deferrals and NADDs whose recorded due time is within
 //                    the operator's margin (attention.approaching_days) or past
+//   Rectified        (stored notices, migration 0034) a snag's rectification
+//                    was certified: Quality and the CO each acknowledge it.
+//                    Acknowledging records who and when; it approves nothing.
 // Nothing is worked out by Nexus: "due in 1 day" is the recorded due time
-// minus now (D-020, D-021). Nothing is marked read or unread yet.
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+// minus now (D-020, D-021).
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { useAuth } from '../lib/auth';
-import { db } from '../lib/supabase';
+import { actions, db, errorText } from '../lib/supabase';
 import { cached } from '../lib/offline/cache';
 import { useOutbox } from '../lib/offline/hooks';
 import { useApproachingDays } from '../lib/settings';
@@ -25,6 +28,113 @@ import { BackButton, Crumbs, PageHead, Section } from '../components/PageFrame';
 import { usePendingApprovals } from './Approvals';
 
 const DAY = 86_400_000;
+
+// ------------------------------------------------ rectified notices
+export type NoticeStep = { step_no: number; name: string; acknowledged_by: string | null; acknowledged_at: string | null; note: string | null };
+type Notice = {
+  id: string; kind: string; aircraft_id: string; tail: string; record_table: string; record_id: string;
+  title: string; body: string; created_at: string; waiting_for_me: boolean; steps: NoticeStep[];
+};
+
+// The bell's share: notices waiting for my acknowledgement. Refreshed every
+// minute and when a notice is acknowledged ("nexus:notices").
+export function useNoticeCount(): number {
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    const load = () => actions.rpc('my_unacknowledged_count').then(({ data }) => setN(typeof data === 'number' ? data : 0));
+    load();
+    const t = setInterval(load, 60_000);
+    window.addEventListener('nexus:notices', load);
+    return () => { clearInterval(t); window.removeEventListener('nexus:notices', load); };
+  }, []);
+  return n;
+}
+
+const recordLink = (n: { record_table: string; record_id: string; aircraft_id: string }) =>
+  n.record_table === 'work_order' ? `/work-orders/${n.record_id}` : `/nadds?aircraft=${n.aircraft_id}`;
+
+// Who has acknowledged, step by step: "Quality ✓ QAR 12 Oct 09:14 · CO waiting".
+export function NoticeSteps({ steps }: { steps: NoticeStep[] }) {
+  const { display } = useAuth();
+  return (
+    <span className="nt-steps">
+      {steps.map((s) => (
+        <span key={s.step_no} className={`chip tone-${s.acknowledged_by ? 'green' : 'amber'}`}>
+          {s.name.replace(/ (pre-|final )?approval$/i, '')}{' '}
+          {s.acknowledged_by
+            ? <>✓ <span className="mono">{s.acknowledged_by}</span> · {formatDateTime(s.acknowledged_at, display)}</>
+            : 'to acknowledge'}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+function RectifiedNotices() {
+  const { display } = useAuth();
+  const [rows, setRows] = useState<Notice[] | null>(null);
+  const [notes, setNotes] = useState<Record<string, string>>({});
+  const [busy, setBusy] = useState('');
+  const [error, setError] = useState('');
+  const load = useCallback(() => {
+    actions.rpc('my_notices', { p_done_limit: 10 }).then(({ data }) => setRows((data ?? []) as unknown as Notice[]));
+  }, []);
+  useEffect(() => { load(); }, [load]);
+
+  async function acknowledge(id: string) {
+    setBusy(id); setError('');
+    const { error: err } = await actions.rpc('acknowledge_notice', { p_notification: id, p_note: notes[id]?.trim() || undefined });
+    setBusy('');
+    if (err) return setError(errorText(err));
+    window.dispatchEvent(new Event('nexus:notices'));
+    load();
+  }
+
+  if (rows === null) return null;
+  const waiting = rows.filter((r) => r.waiting_for_me);
+  const done = rows.filter((r) => !r.waiting_for_me);
+  if (!rows.length) return null;   // only Quality and the CO receive these
+
+  const item = (n: Notice) => (
+    <li key={n.id} className="nt-notice">
+      <div className="nt-item nt-item-static">
+        <span className={`chip tone-${n.waiting_for_me ? 'amber' : 'green'}`}>Rectified</span>
+        <span className="nt-text"><Link to={recordLink(n)}>{n.title}</Link></span>
+        <span className="nt-meta">{n.body} · {formatDateTime(n.created_at, display)}</span>
+        <NoticeSteps steps={n.steps} />
+        {n.waiting_for_me && (
+          <span className="nt-ack">
+            <input aria-label="Note (optional)" placeholder="Note (optional)" value={notes[n.id] ?? ''}
+              onChange={(e) => setNotes((m) => ({ ...m, [n.id]: e.target.value }))} />
+            <button type="button" disabled={busy === n.id} onClick={() => acknowledge(n.id)}>
+              {busy === n.id ? 'Saving…' : 'Acknowledge'}
+            </button>
+          </span>
+        )}
+      </div>
+    </li>
+  );
+
+  return (
+    <>
+      <Section title={`Rectified, to acknowledge (${waiting.length})`} tone={waiting.length ? 'strong' : undefined}>
+        {error && <div className="error" role="alert">{error}</div>}
+        {waiting.length === 0
+          ? <p className="small muted nt-empty">Nothing waiting for your acknowledgement.</p>
+          : <ul className="nt-list">{waiting.map(item)}</ul>}
+        <p className="panel-note">
+          Sent when a snag's rectification is certified. Acknowledging records that you have seen it, with your name and
+          the time; the certifying engineer's signature is the release.
+        </p>
+      </Section>
+      {done.length > 0 && (
+        <Section title={`Rectified, acknowledged (latest ${done.length})`}>
+          <ul className="nt-list">{done.map(item)}</ul>
+        </Section>
+      )}
+    </>
+  );
+}
 
 type Item = { key: string; to: string; text: ReactNode; meta: ReactNode; at: number; tone?: string; tag?: string };
 
@@ -68,6 +178,7 @@ export function Notifications() {
   const queries = useMyQueries();
   const outbox = useOutbox();
   const { ddls, nadds } = useDueSoon(margin);
+  const notices = useNoticeCount();   // rectified notices waiting for my acknowledgement
 
   // ---- approvals waiting for your PIN
   const approvalItems: Item[] = (approvals ?? []).map((p) => ({
@@ -129,7 +240,7 @@ export function Notifications() {
 
   const newestFirst = (list: Item[]) => list.slice().sort((a, b) => b.at - a.at);
   const loading = approvals === null || queries === null || ddls === null || nadds === null;
-  const total = approvalItems.length + queryItems.length + refusedItems.length + dueItems.length;
+  const total = notices + approvalItems.length + queryItems.length + refusedItems.length + dueItems.length;
 
   return (
     <div className="page">
@@ -137,9 +248,11 @@ export function Notifications() {
       <BackButton to="/" label="All aircraft" />
       <PageHead title="Notifications" sub={loading ? 'Loading…' : `${total} item${total === 1 ? ' needs' : 's need'} you`} />
       <p className="small muted nt-note">
-        Built from current records: what is waiting for you right now. Items disappear when the record moves on.
-        There is no read / unread yet <span className="rail-tag">Soon</span>
+        What is waiting for you right now. Rectified notices stay until acknowledged; the other items disappear when the
+        record moves on.
       </p>
+
+      <RectifiedNotices />
 
       <Group title="Approvals waiting for you" items={newestFirst(approvalItems)} empty="No approvals waiting for you."
         more={approvalItems.length > 0 ? { to: '/approvals', label: 'Open approvals' } : undefined} />

@@ -55,6 +55,10 @@
 .nt-item .chip { grid-row: span 2; justify-self: start; }
 .nt-text { font-weight: 500; }
 .nt-meta { font-size: 13px; color: var(--ink-soft); }
+/* Rectified notices: who has acknowledged, and the Acknowledge button. */
+.nt-item-static:hover { background: none; }
+.nt-steps, .nt-ack { grid-column: 2; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 4px; }
+.nt-ack input { flex: 1 1 220px; min-height: 44px; }
 
 /* Phone: tables become stacked cards, each cell labelled (data-label). */
 @media (max-width: 800px) {
@@ -75,6 +79,7 @@
   .tq-notes { font-size: 14px; }
   .nt-item { grid-template-columns: 1fr; }
   .nt-item .chip { grid-row: auto; }
+  .nt-steps, .nt-ack { grid-column: auto; }
   .tq-inline-select { width: 100%; }
 }
 

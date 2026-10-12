@@ -29,6 +29,7 @@ import { Queries } from '../components/Queries';
 import { BackButton, Crumbs, PageHead, Section, TailHeader, TailTabs, type Crumb } from '../components/PageFrame';
 import { useFleetBoard } from './FleetBoard';
 import { useWorkOrderLabel } from '../lib/settings';
+import { NoticeSteps, type NoticeStep } from './Notifications';
 
 const WO_STATE: Record<string, { label: string; tone: string }> = {
   requested:     { label: 'Awaiting Quality', tone: 'amber' },
@@ -513,6 +514,7 @@ export function WorkOrderPage() {
         <Section title="Certified">
           <p style={{ margin: 0 }}>By <span className="mono">{wo.certifier?.three_letter_code}</span> · {formatDateTime(wo.certified_at, display)}</p>
           {wo.certification_note && <p style={{ margin: 0 }}>{wo.certification_note}</p>}
+          <Acknowledgements woId={wo.id} />
           {isEngineer && (
             <>
               <p className="small muted" style={{ margin: 0 }}>The snag is closed. The tail status is unchanged until you set it (D-046).</p>
@@ -566,6 +568,23 @@ function EntryForm({ woId, onDone }: { woId: string; onDone: (m: string) => void
       {error && <div className="error" role="alert">{error}</div>}
       <div className="action-row"><button type="submit" disabled={busy}>{busy ? 'Saving…' : 'Record entry'}</button></div>
     </form>
+  );
+}
+
+// After certification Quality and the CO are told; each acknowledges
+// (migration 0034). Shows who has, and who is still to.
+function Acknowledgements({ woId }: { woId: string }) {
+  const [steps, setSteps] = useState<NoticeStep[] | null>(null);
+  useEffect(() => {
+    actions.rpc('record_notice', { p_table: 'work_order', p_record: woId })
+      .then(({ data }) => setSteps(((data as { steps?: NoticeStep[] } | null)?.steps) ?? null));
+  }, [woId]);
+  if (!steps?.length) return null;
+  return (
+    <div className="chip-row" style={{ marginTop: 0 }}>
+      <span className="small muted">Acknowledged:</span>
+      <NoticeSteps steps={steps} />
+    </div>
   );
 }
 

@@ -14,6 +14,7 @@ import { Rail } from '../components/Rail';
 import { TailSearch, useAircraftList } from '../components/AircraftPicker';
 import { Menu, MenuItem } from '../components/Menu';
 import { usePendingApprovals } from './Approvals';
+import { useNoticeCount } from './Notifications';
 import { useOnline, useOutbox } from '../lib/offline/hooks';
 import { startAutoSync } from '../lib/offline/outbox';
 import { getCurrentUser } from '../lib/perform';
@@ -85,8 +86,8 @@ function NewMenu() {
   );
 }
 
-// The bell: how many approvals are waiting for this person. Tap for the
-// approvals inbox. (Other notifications join it in later phases.)
+// The bell: approvals waiting for this person plus "rectified" notices
+// waiting for their acknowledgement. Tap for Notifications.
 function Bell({ count }: { count: number }) {
   return (
     <Link to="/notifications" className={`bell${count ? "" : " bell-zero"}`} aria-label={`Notifications, ${count} waiting`} title="Notifications">
@@ -126,6 +127,7 @@ export function Home() {
     return () => window.removeEventListener('nexus:approvals', loadPending);
   }, [loadPending]);
   const approvals = pending?.length ?? 0;
+  const notices = useNoticeCount();   // rectified notices to acknowledge (Quality and the CO)
   // Send waiting actions whenever the connection allows (D-102).
   useEffect(() => startAutoSync(getCurrentUser), []);
   // Save the MEL and cabin zones for offline use (D-102, D-217).
@@ -151,7 +153,7 @@ export function Home() {
           <TailSearch aircraft={aircraft} onPick={(id) => navigate(`/aircraft/${id}`)} />
         </div>
         <SyncPill />
-        <Bell count={approvals} />
+        <Bell count={approvals + notices} />
         <NewMenu />
         <span className="spacer" />
         <UserMenu />
