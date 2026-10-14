@@ -69,7 +69,7 @@ export function PeopleList() {
     <div className="page pp-page">
       <Crumbs items={[{ label: 'All aircraft', to: '/' }, { label: 'People' }]} />
       <BackButton to="/" label="All aircraft" />
-      <PageHead title="People" sub="One record per person across all departments (D-085). Quality, Command, department COs and Super Admins.">
+      <PageHead title="People" sub="One record per person across all departments. Quality, Command, department COs and Super Admins.">
         {me.adminDepartments.length > 0 && <Link className="button outline-button" to="/admin/users">Users and roles</Link>}
       </PageHead>
       {error && <div className="error" role="alert">{error}</div>}
@@ -86,7 +86,7 @@ export function PeopleList() {
               </li>
             ))}
           </ul>
-          <p className="small muted" style={{ margin: 0 }}>Quality issues; the CO or ECO approves with PIN (D-032). Also in the Approvals inbox.</p>
+          <p className="small muted" style={{ margin: 0 }}>Quality issues; the CO or ECO approves with PIN. Also in the Approvals inbox.</p>
         </Section>
       )}
 
@@ -138,7 +138,7 @@ export function PeopleList() {
           </div>
         )}
         <p className="small muted" style={{ margin: 0 }}>
-          Accounts are created and changed in Users and roles (Super Admins, D-219). Licences, ratings, medicals and certifying authorizations are recorded by Quality.
+          Accounts are created and changed in Users and roles (Super Admins). Licences, ratings, medicals and certifying authorizations are recorded by Quality.
         </p>
       </Section>
     </div>
@@ -187,7 +187,7 @@ export function PersonPage({ tab }: { tab: PersonTab }) {
         <Crumbs items={[{ label: 'All aircraft', to: '/' }, { label: 'People', to: '/people' }, { label: 'Person record' }]} />
         <BackButton to="/" label="All aircraft" />
         <Section title="Person record">
-          <p style={{ margin: 0 }}>{error || 'This record is not available to you. Quality, Command, department COs and Super Admins see everyone; anyone else sees their own record (D-122, D-125).'}</p>
+          <p style={{ margin: 0 }}>{error || 'This record is not available to you. Quality, Command, department COs and Super Admins see everyone; anyone else sees their own record.'}</p>
           <Link to={`/people/${me.personId}`}>Open my own record</Link>
         </Section>
       </div>
@@ -226,7 +226,7 @@ export function PersonPage({ tab }: { tab: PersonTab }) {
 
       {message && <div className="success" role="status">{message}</div>}
       {own && tab !== 'record' && (
-        <div className="notice">This is your own record. Nobody records or approves their own qualifications or authorizations (D-033).</div>
+        <div className="notice">This is your own record. Nobody records or approves their own qualifications or authorizations.</div>
       )}
 
       {tab === 'record' && <RecordTab data={data} />}
@@ -252,7 +252,7 @@ function RecordTab({ data }: { data: PersonRecordData }) {
         <dl className="facts pp-facts">
           <dt>Name</dt><dd>{p.full_name}{p.rank_or_title && <span className="muted"> · {p.rank_or_title}</span>}</dd>
           <dt>3LC <span className="hint">(three-letter code)</span></dt>
-          <dd><span className="mono pp-tlc-big">{p.three_letter_code}</span> <span className="small muted">unique · printed in Name columns (D-162)</span></dd>
+          <dd><span className="mono pp-tlc-big">{p.three_letter_code}</span> <span className="small muted">unique · printed in Name columns</span></dd>
           {p.service_number && <><dt>Service number</dt><dd className="mono">{p.service_number}</dd></>}
           <dt>Departments</dt><dd>{data.departments ?? <span className="muted">None</span>}</dd>
           <dt>Appointment</dt><dd>{data.appointments ?? <span className="muted">None</span>}</dd>
@@ -264,11 +264,11 @@ function RecordTab({ data }: { data: PersonRecordData }) {
       <Section title="Account">
         <div className="action-row">
           <span className={`chip ${account.tone}`}>{account.text}</span>
-          <span className="small muted">Accounts are deactivated, never deleted (D-030).</span>
+          <span className="small muted">Accounts are deactivated, never deleted.</span>
         </div>
         {data.can.manage_account
           ? <Link to={`/admin/users/${p.id}`}>Manage in Users and roles (Super Admins)</Link>
-          : <p className="small muted" style={{ margin: 0 }}>Departments, permissions and aircraft scope are set by a Super Admin in Users and roles (D-123).</p>}
+          : <p className="small muted" style={{ margin: 0 }}>Departments, permissions and aircraft scope are set by a Super Admin in Users and roles.</p>}
       </Section>
 
       <div className="pp-tiles">
@@ -295,7 +295,7 @@ function RecordTab({ data }: { data: PersonRecordData }) {
           )}
         </Tile>
       </div>
-      <p className="panel-note">Crew scheduling will read these dates when it is built (D-017, D-085) <span className="rail-tag">Soon</span></p>
+      <p className="panel-note">Crew scheduling will read these dates when it is built <span className="rail-tag">Soon</span></p>
     </>
   );
 }

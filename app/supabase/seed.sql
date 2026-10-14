@@ -158,12 +158,12 @@ update public.certifying_authorization
 -- ---------------------------------------------------------- operator settings -----
 insert into public.operator_setting (key, value, reason) values
   ('operator.name',                   '"[Sample operator]"', 'Initial set-up'),
-  ('counting.days_per_month',         '30',                  'Initial set-up (D-166)'),
-  ('nadd.default_limit_days',         '120',                 'Initial set-up (D-048, D-166)'),
-  ('ddls.extension_categories',       '["B","C","D"]',       'Initial set-up (D-163)'),
-  ('work_order.number_format',        '"WO-{000000}"',       'Initial set-up (D-064)'),
-  ('scheduling.show_flight_coming_soon', 'true',             'Initial set-up (D-017)'),
-  ('scheduling.show_crew_coming_soon',   'true',             'Initial set-up (D-017)');
+  ('counting.days_per_month',         '30',                  'Initial set-up'),
+  ('nadd.default_limit_days',         '120',                 'Initial set-up'),
+  ('ddls.extension_categories',       '["B","C","D"]',       'Initial set-up'),
+  ('work_order.number_format',        '"WO-{000000}"',       'Initial set-up'),
+  ('scheduling.show_flight_coming_soon', 'true',             'Initial set-up'),
+  ('scheduling.show_crew_coming_soon',   'true',             'Initial set-up');
 
 -- =============================================================================
 -- Phase 1 sample data (fictional, D-112)
@@ -176,9 +176,9 @@ update public.user_account ua set username = lower(p.three_letter_code)
 
 -- ------------------------------------------------------- approval chains -----
 insert into public.approval_chain (action_type, name) values
-  ('work_order',     'Work order (D-063)'),
-  ('ddls_extension', 'DDLS / MEL extension (D-056, D-163)'),
-  ('nadd_extension', 'NADD extension (D-160)');
+  ('work_order',     'Work order'),
+  ('ddls_extension', 'DDLS / MEL extension'),
+  ('nadd_extension', 'NADD extension');
 
 insert into public.approval_chain_step (action_type, step_no, name, department_code, appointment_id) values
   ('work_order',     1, 'Quality pre-approval', 'QUA', null),
@@ -188,23 +188,23 @@ insert into public.approval_chain_step (action_type, step_no, name, department_c
 
 -- ------------------------------------------------------------- settings -----
 insert into public.operator_setting (key, value, reason) values
-  ('operator.time_zone',            '"Africa/Lagos"',      'Initial set-up (D-055)'),
-  ('mel.discovery_day_counts',      'false',               'Initial set-up (D-055)'),
-  ('ddls.entries_per_page',         '4',                   'Initial set-up (D-163)'),
+  ('operator.time_zone',            '"Africa/Lagos"',      'Initial set-up'),
+  ('mel.discovery_day_counts',      'false',               'Initial set-up'),
+  ('ddls.entries_per_page',         '4',                   'Initial set-up'),
   ('attention.approaching_days',    '3',                   'Initial set-up: days before a recorded due time to flag it'),
-  ('nadds.rows_per_sheet',          '8',                   'Initial set-up (D-161)'),
-  ('repeat.threshold',              '3',                   'Initial set-up (D-208)'),
-  ('repeat.window_days',            '30',                  'Initial set-up (D-208)'),
-  ('work_order.required_scans',     '["sign_off_card"]',   'Initial set-up (D-065)'),
-  ('snag.number_format',            '"SNAG-{000000}"',     'Initial set-up (D-213)'),
-  ('nadd.number_format',            '"NADD-{000000}"',     'Initial set-up (D-048)'),
-  ('technical_query.number_format', '"TQ-{000000}"',       'Initial set-up (D-207)'),
-  ('auth.username_email_domain',    '"users.nexus.local"', 'Initial set-up (D-206)'),
-  ('display.date_format',           '"DD Mmm YYYY"',       'Initial set-up (D-204)'),
-  ('display.time_format',           '"HH:MM"',             'Initial set-up (D-204)'),
+  ('nadds.rows_per_sheet',          '8',                   'Initial set-up'),
+  ('repeat.threshold',              '3',                   'Initial set-up'),
+  ('repeat.window_days',            '30',                  'Initial set-up'),
+  ('work_order.required_scans',     '["sign_off_card"]',   'Initial set-up'),
+  ('snag.number_format',            '"SNAG-{000000}"',     'Initial set-up'),
+  ('nadd.number_format',            '"NADD-{000000}"',     'Initial set-up'),
+  ('technical_query.number_format', '"TQ-{000000}"',       'Initial set-up'),
+  ('auth.username_email_domain',    '"users.nexus.local"', 'Initial set-up'),
+  ('display.date_format',           '"DD Mmm YYYY"',       'Initial set-up'),
+  ('display.time_format',           '"HH:MM"',             'Initial set-up'),
   ('print.nadds_remarks',
    '["Convenience items only.", "Rectify before the A-check and not later than 4 months after entry."]',
-   'Initial set-up (D-161, D-166)');
+   'Initial set-up');
 
 -- --------------------------------------------------- MEL (fictional items) -----
 insert into public.mel_revision (id, aircraft_type_code, revision, approval_date, approval_reference, loaded_by) values

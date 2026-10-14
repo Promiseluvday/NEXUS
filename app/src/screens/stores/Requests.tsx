@@ -13,7 +13,7 @@
 import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import { useAuth } from '../../lib/auth';
-import { anyActions, anyDb, errorText } from '../../lib/supabase';
+import { anyActions, anyDb, errorText, hideRefs } from '../../lib/supabase';
 import { enqueue } from '../../lib/offline/outbox';
 import { isNetworkError, isOnline } from '../../lib/offline/net';
 import { useOutbox } from '../../lib/offline/hooks';
@@ -120,9 +120,9 @@ export function PartRequestForm() {
     if (!part && !(freeText && partText.trim())) return setError('Choose a part from the catalogue, or type its part number.');
     const n = Number(qty);
     if (!(n > 0)) return setError('Enter a quantity above zero.');
-    if (type === 'aircraft_part' && (!tail || !wo)) return setError('An aircraft part needs a tail and a work order (D-143).');
+    if (type === 'aircraft_part' && (!tail || !wo)) return setError('An aircraft part needs a tail and a work order.');
     if (type === 'consumable' && !wo && !(generalUse && purpose.trim())) {
-      return setError('A consumable needs a work order, or "General use" with a stated purpose (D-143).');
+      return setError('A consumable needs a work order, or "General use" with a stated purpose.');
     }
     const args = {
       p_request_type: type, p_store: store, p_qty: n,
@@ -159,11 +159,11 @@ export function PartRequestForm() {
                  : [{ label: 'Stores search', to: '/stores' }]),
         { label: 'Part request form' }]} />
       <BackButton to={back} label={tail ? 'Part requests' : 'Stores search'} />
-      <PageHead title="Part request" sub="Stock is reserved by the server the moment it receives the request (D-071)" />
+      <PageHead title="Part request" sub="Stock is reserved by the server the moment it receives the request" />
 
       {myQueued.length > 0 && (
         <div className="offline-banner" role="status">
-          {myQueued.map((i) => <div key={i.id}>{i.label} · <strong>Queued, not reserved</strong>{i.status === 'failed' && ` · refused: ${i.error}`}</div>)}
+          {myQueued.map((i) => <div key={i.id}>{i.label} · <strong>Queued, not reserved</strong>{i.status === 'failed' && ` · refused: ${hideRefs(i.error ?? '')}`}</div>)}
         </div>
       )}
       {queued && <div className="offline-banner" role="status">{queued}</div>}
@@ -240,7 +240,7 @@ export function PartRequestForm() {
                 {wos.map((w) => <option key={w.id} value={w.id}>{w.number} · {w.scope.slice(0, 50)}{['requested', 'pre_approved'].includes(w.status) ? ' (awaiting approval)' : ''}</option>)}
               </select>
               {wo && ['requested', 'pre_approved'].includes(wos.find((w) => w.id === wo)?.status ?? '') && (
-                <div className="small muted">Not approved yet: the part can be reserved now and is issued after approval (D-068).</div>
+                <div className="small muted">Not approved yet: the part can be reserved now and is issued after approval.</div>
               )}
             </div>
           </div>
@@ -269,7 +269,7 @@ export function PartRequestForm() {
                 <option value="URGENT">Urgent</option>
                 <option value="AOG">AOG</option>
               </select>
-              {priority === 'AOG' && <div className="small muted">Confirmed if the tail is set U/S or AOG; otherwise a certifying engineer confirms it (D-147).</div>}
+              {priority === 'AOG' && <div className="small muted">Confirmed if the tail is set U/S or AOG; otherwise a certifying engineer confirms it.</div>}
             </div>
             <div>
               <label htmlFor="pr-by">Required by</label>
@@ -433,7 +433,7 @@ export function PartRequestsForWorkOrder({ workOrderId, aircraftId, status }: {
         </ul>
       )}
       {(status === 'requested' || status === 'pre_approved') && lines && lines.some((l) => l.state === 'reserved') && (
-        <p className="small muted">Reserved parts are issued once Quality and the CO approve this work order (D-068).</p>
+        <p className="small muted">Reserved parts are issued once Quality and the CO approve this work order.</p>
       )}
       {canRequest && (
         <div className="action-row">
@@ -547,7 +547,7 @@ export function PartRequestPage() {
           {h.required_by && <><dt>Required by</dt><dd>{formatDateTime(h.required_by, display)}</dd></>}
           {h.priority === 'AOG' && <><dt>AOG</dt><dd>{h.aog_confirmed_at
             ? `Confirmed ${h.aog_confirmed_how === 'tail_status' ? 'by the tail status (U/S or AOG)' : `by ${h.confirmer?.three_letter_code ?? 'a certifying engineer'}`} · ${formatDateTime(h.aog_confirmed_at, display)}`
-            : 'Not confirmed yet (D-147)'}</dd></>}
+            : 'Not confirmed yet'}</dd></>}
           {first?.fit_position && <><dt>Position</dt><dd>{first.fit_position}</dd></>}
           {first?.ipc_ref && <><dt>IPC reference</dt><dd>{first.ipc_ref}</dd></>}
           {h.remarks && <><dt>Remarks</dt><dd>{h.remarks}</dd></>}
@@ -565,8 +565,8 @@ export function PartRequestPage() {
           {l.state_reason && <div className="small muted">{l.state_reason}</div>}
           {l.lot_id && <div className="small">Stock: <span className="mono">{l.serial_no ? `SN ${l.serial_no}` : l.batch_no ? `Batch ${l.batch_no}` : ''}</span>{l.bin && <> · Bin <span className="mono">{l.bin}</span></>}</div>}
           {l.issue_voucher && <div className="small">Issue voucher <span className="mono">{l.issue_voucher}</span></div>}
-          {l.lot_problem && <div className="note warn">This stock cannot be issued: {l.lot_problem} (D-148). Supply moves it to quarantine and reserves again.</div>}
-          {l.state === 'needs_requisition' && <div className="small muted">Supply raises a requisition; Procurement then orders it (D-073).</div>}
+          {l.lot_problem && <div className="note warn">This stock cannot be issued: {l.lot_problem}. Supply moves it to quarantine and reserves again.</div>}
+          {l.state === 'needs_requisition' && <div className="small muted">Supply raises a requisition; Procurement then orders it.</div>}
 
           <div className="action-row">
             {canIssue && l.state === 'reserved' && <button type="button" onClick={() => setMode({ kind: 'issue', line: l })}>Issue</button>}
@@ -644,7 +644,7 @@ export function PartRequestPage() {
           if (mode.kind === 'cancel') act('cancel_part_request', { p_request: h.id, p_reason: reason }, 'Request cancelled; reservations released');
         }}>
           <div className="box-body">
-            {mode.kind === 'aog' && <><p className="small">You confirm, as a certifying engineer, that this part is needed to return an aircraft on ground to service (D-147).</p><PinField value={pin} onChange={setPin} /></>}
+            {mode.kind === 'aog' && <><p className="small">You confirm, as a certifying engineer, that this part is needed to return an aircraft on ground to service.</p><PinField value={pin} onChange={setPin} /></>}
             {mode.kind === 'cancel' && <><label htmlFor="cx-reason">Reason for cancelling</label><input id="cx-reason" value={reason} onChange={(e) => setReason(e.target.value)} required /></>}
             <div className="action-row">
               <button type="submit">Confirm</button>

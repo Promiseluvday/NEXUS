@@ -41,7 +41,7 @@ function newId(): string {
 
 // Problems with a chosen file, in words, before anything is sent (D-026).
 export function fileProblem(file: { type: string; size: number }): string | null {
-  if (!ALLOWED.includes(file.type)) return 'Only PDF and images (JPEG, PNG, WEBP, HEIC) can be attached (D-026).';
+  if (!ALLOWED.includes(file.type)) return 'Only PDF and images (JPEG, PNG, WEBP, HEIC) can be attached.';
   if (file.size > MAX_BYTES) return 'The file is larger than 20 MB.';
   if (file.size === 0) return 'The file is empty.';
   return null;

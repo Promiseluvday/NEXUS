@@ -38,7 +38,7 @@ export function OfflineReview() {
     <div className="page">
       <Crumbs items={[{ label: 'All aircraft', to: '/' }, { label: 'Quality' }, { label: 'Offline signatures' }]} />
       <BackButton to="/" label="All aircraft" />
-      <PageHead title="Offline signatures" sub="Signed on a tablet without a connection, checked by the server on arrival (D-217).">
+      <PageHead title="Offline signatures" sub="Signed on a tablet without a connection, checked by the server on arrival.">
         <div className="tq-inline-select">
           <label htmlFor="os-view">Show</label>
           <select id="os-view" value={view} onChange={(e) => setView(e.target.value)}>

@@ -181,7 +181,7 @@ export function SnagDetail() {
       <div className="box-body">
         <div className="repeat-line">
           <span><strong className="repeat-word">Repeat defect.</strong> {repeat.reports_in_window} reports on <span className="mono">{tail}</span> in
-            ATA <span className="mono">{repeat.ata_sub_chapter}</span> within {repeat.window_days} days. Alert only: the engineer decides what it means (D-208).</span>
+            ATA <span className="mono">{repeat.ata_sub_chapter}</span> within {repeat.window_days} days. Alert only: the engineer decides what it means.</span>
           <button type="button" className="outline-button" onClick={showSimilar} aria-expanded={Boolean(similar)}>
             {similar ? 'Hide similar defects' : 'See similar defects'}
           </button>
@@ -227,7 +227,7 @@ export function SnagDetail() {
             Starting this assessment changes the tail chip from <span className="chip tone-blue">Snag open</span> to{' '}
             <span className="chip tone-amber">Snag attended</span>. Neither is a serviceability status: the last
             engineer-set status (<TailStatusChip status={nowStatus} short />{row?.status_set_by && <> set by <span className="mono">{row.status_set_by}</span></>})
-            stays until an engineer sets a new one (D-200, D-045, D-046).
+            stays until an engineer sets a new one.
           </div>
           {repeatBanner}
           <ReportBox snag={snag} who={who} display={display} />
@@ -236,7 +236,7 @@ export function SnagDetail() {
             onDone={async (m) => { setMessage(m); await load(); loadBoard(); go('disposition'); }} />
           <Section title="Set aircraft status (engineer only; signed with your PIN)">
             <p className="small muted" style={{ margin: 0 }}>
-              The status is the engineer's decision (D-046, D-215). Assessing or deferring a snag does not change it.
+              The status is the engineer's decision. Assessing or deferring a snag does not change it.
             </p>
             <SetTailStatus aircraftId={snag.aircraft_id} tail={tail} current={tailStatus}
               onDone={(m) => { setMessage(m ?? `Status of ${tail} recorded.`); load(); loadBoard(); }} />
@@ -248,7 +248,7 @@ export function SnagDetail() {
       {view === 'disposition' && snag.aircraft && (
         <>
           <PageHead title={<>Disposition · <span className="mono">{snag.number}</span></>}
-            sub="Choose one path. Without an approved work order, a snag can only be deferred (D-218)." />
+            sub="Choose one path. Without an approved work order, a snag can only be deferred." />
           {repeatBanner}
           <Disposition
             snag={{ ...snag, aircraft_type: snag.aircraft.aircraft_type_code, tail, tail_status: nowStatus }}
@@ -343,7 +343,7 @@ export function SnagDetail() {
           {isEngineer && (
             <Section title="Tail status">
               <p className="small muted" style={{ margin: 0 }}>
-                The status is the engineer's decision (D-046), signed with your PIN (D-215). Reporting or deferring a snag does not change it.
+                The status is the engineer's decision, signed with your PIN. Reporting or deferring a snag does not change it.
               </p>
               <SetTailStatus aircraftId={snag.aircraft_id} tail={tail} current={tailStatus}
                 onDone={(m) => { setMessage(m ?? `Status of ${tail} recorded.`); load(); loadBoard(); }} />
@@ -390,7 +390,7 @@ function ReportBox({ snag, who, display, extra }: {
     <Section title={`${whose} (original, never edited)`}>
       <p className="report-text" style={{ margin: 0 }}>{snag.description}</p>
       <dl className="facts" style={{ margin: 0 }}>
-        {snag.is_soft_observation && <><dt>Type</dt><dd>Soft observation (D-041)</dd></>}
+        {snag.is_soft_observation && <><dt>Type</dt><dd>Soft observation</dd></>}
         <dt>ATA</dt><dd className="mono">{snag.ata ?? '—'}</dd>
         <dt>Tech log</dt>
         <dd className="mono">{[snag.tlb_book && `Book ${snag.tlb_book}`, snag.tlb_page && `p.${snag.tlb_page}`, snag.tlb_item && `item ${snag.tlb_item}`].filter(Boolean).join(' · ') || '—'}</dd>
@@ -447,7 +447,7 @@ function WorkOrderBox({ snag, status, linked, activeWo, isEngineer, woOpen, setW
       {status !== 'closed' && (
         <p className="small muted" style={{ margin: 0 }}>
           No work is recorded on a snag until its work order is approved by Quality, then the CO. Only a deferral under the MEL,
-          on the DDLS or as a NADD can be made without one. A deferred snag is cleared by certifying its work order (D-218).
+          on the DDLS or as a NADD can be made without one. A deferred snag is cleared by certifying its work order.
         </p>
       )}
 
@@ -481,7 +481,7 @@ function WorkOrderBox({ snag, status, linked, activeWo, isEngineer, woOpen, setW
       )}
 
       {!isEngineer && snag.status !== 'closed' && (
-        <p className="small muted" style={{ margin: 0 }}>An engineer assesses and dispositions this snag. A pilot cannot close an entry (D-042).</p>
+        <p className="small muted" style={{ margin: 0 }}>An engineer assesses and dispositions this snag. A pilot cannot close an entry.</p>
       )}
     </>
   );
@@ -504,7 +504,7 @@ function AttendForm({ snagId, snagNumber, aircraftId, onDone, onCancel }: {
     setBusy(false);
     if (o.error) return setError(errorText(o.error));
     if (o.queued) return onDone(queuedText(o, `Attend ${snagNumber}`) + ' You can choose the disposition now.');
-    onDone('Snag attended. The tail now shows amber "Snag attended" (D-200). Choose a disposition below.');
+    onDone('Snag attended. The tail now shows amber "Snag attended". Choose a disposition below.');
   }
   return (
     <form onSubmit={submit}>

@@ -42,7 +42,7 @@ export function QualificationsTab({ data, onDone }: { data: PersonRecordData; on
   if (data.qualifications === null) {
     return (
       <Section title="Licences, type ratings, medicals">
-        <p style={{ margin: 0 }}>Shown to the person, Quality, Command, Super Admins and the CO / ECO only (D-127).</p>
+        <p style={{ margin: 0 }}>Shown to the person, Quality, Command, Super Admins and the CO / ECO only.</p>
       </Section>
     );
   }
@@ -61,8 +61,8 @@ export function QualificationsTab({ data, onDone }: { data: PersonRecordData; on
       <Section title="Licences, type ratings, medicals"
         actions={can && !draft && <button type="button" className="outline-button" onClick={() => start(EMPTY)}>Record a qualification</button>}>
         <p className="small muted" style={{ margin: 0 }}>
-          Medical: class and expiry only (D-084). Flags: <FlagChip flag="approaching" /> within {data.approaching_days} days of expiry,{' '}
-          <FlagChip flag="reached" /> once expired (operator setting, D-028).
+          Medical: class and expiry only. Flags: <FlagChip flag="approaching" /> within {data.approaching_days} days of expiry,{' '}
+          <FlagChip flag="reached" /> once expired (operator setting).
         </p>
         <div className="table-scroll">
           <table className="ptable pp-table">
@@ -80,7 +80,7 @@ export function QualificationsTab({ data, onDone }: { data: PersonRecordData; on
                   <td colSpan={can ? 5 : 4}>
                     {data.medical_required
                       ? <span className="chip tone-red">Required for this role · none on record</span>
-                      : <span className="muted">Not required for this role (operator setting, D-082)</span>}
+                      : <span className="muted">Not required for this role (operator setting)</span>}
                   </td>
                 </tr>
               )}
@@ -89,7 +89,7 @@ export function QualificationsTab({ data, onDone }: { data: PersonRecordData; on
           </table>
         </div>
         <p className="small muted" style={{ margin: 0 }}>
-          Which qualifications each role needs is set in Operator settings (D-081). Certifying also needs an approved authorization (D-043).
+          Which qualifications each role needs is set in Operator settings. Certifying also needs an approved authorization.
         </p>
       </Section>
 
@@ -117,7 +117,7 @@ export function QualificationsTab({ data, onDone }: { data: PersonRecordData; on
               </tbody>
             </table>
           </div>
-          <p className="small muted" style={{ margin: 0 }}>Records are never edited or deleted (D-023).</p>
+          <p className="small muted" style={{ margin: 0 }}>Records are never edited or deleted.</p>
         </Section>
       )}
     </>
@@ -226,7 +226,7 @@ function RecordForm({ personId, draft, setDraft, onDone }: {
     <form onSubmit={submit}>
       <Section title={draft.replaces ? `Renew ${KIND_TEXT[draft.kind].toLowerCase()} (Quality)` : 'Record a qualification (Quality)'} tone="strong">
         {draft.replaces
-          ? <p className="small" style={{ margin: 0 }}>Replaces <span className="mono">{detail(draft.replaces)}</span>. The old record stays in History (D-023).</p>
+          ? <p className="small" style={{ margin: 0 }}>Replaces <span className="mono">{detail(draft.replaces)}</span>. The old record stays in History.</p>
           : (
             <div>
               <label htmlFor="qf-kind" style={{ marginTop: 0 }}>Kind</label>
@@ -240,7 +240,7 @@ function RecordForm({ personId, draft, setDraft, onDone }: {
 
         {medical ? (
           <>
-            <div className="notice">Medical: class and expiry date only. No diagnoses, limitations or other details are stored (D-084).</div>
+            <div className="notice">Medical: class and expiry date only. No diagnoses, limitations or other details are stored.</div>
             <div className="pp-grid">
               <div>
                 <label htmlFor="qf-class">Medical class</label>

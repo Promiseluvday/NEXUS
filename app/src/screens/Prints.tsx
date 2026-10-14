@@ -86,7 +86,7 @@ function Provisional({ aircraftId, actionNames }: { aircraftId: string; actionNa
   if (items.length === 0) return null;
   return (
     <div className="pr-provisional">
-      <strong>Signed offline · awaiting server check (D-217):</strong> {items.map((i) => i.label).join(' · ')}
+      <strong>Signed offline · awaiting server check:</strong> {items.map((i) => i.label).join(' · ')}
     </div>
   );
 }
@@ -177,7 +177,7 @@ export function DdlsPrint() {
                 </table>
               );
             })}
-            <p className="pr-small">Signatures are the PIN signatures recorded in Nexus (D-094), shown by three-letter code.</p>
+            <p className="pr-small">Signatures are the PIN signatures recorded in Nexus, shown by three-letter code.</p>
             <PrintFoot printedAt={printedAt} page={i + 1} pages={pages.length} note="When all entries are closed, return the completed page to CAMO." />
           </section>
         );

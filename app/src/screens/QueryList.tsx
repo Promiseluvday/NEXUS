@@ -146,9 +146,9 @@ function QueryTable({ rows }: { rows: QueryRow[] | null }) {
 
       <Section title="Rules">
         <ul className="tq-rules">
-          <li>Anyone can raise a query on a record they can see; the query shows only to people involved who can see that record (D-125).</li>
+          <li>Anyone can raise a query on a record they can see; the query shows only to people involved who can see that record.</li>
           <li>A query goes to a department queue; anyone in that department can add notes.</li>
-          <li>Only the person who raised it closes it (D-207).</li>
+          <li>Only the person who raised it closes it.</li>
           <li>A query never changes the record it is about.</li>
           <li>Notes are added, never edited or deleted; each carries the three-letter code and time.</li>
         </ul>
@@ -186,7 +186,7 @@ function QueryPage({ q, loaded, onChange }: { q: QueryRow | null; loaded: boolea
       <Section title="Question and notes">
         <QueryDetail q={q} onChange={onChange} />
       </Section>
-      <p className="small muted">Whoever is waiting on the record sees this query on it, so nobody has to chase it by phone. The query never changes the record (D-207).</p>
+      <p className="small muted">Whoever is waiting on the record sees this query on it, so nobody has to chase it by phone. The query never changes the record.</p>
     </div>
   );
 }

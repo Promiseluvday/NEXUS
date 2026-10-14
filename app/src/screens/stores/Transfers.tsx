@@ -129,7 +129,7 @@ export function Transfers() {
       <Crumbs items={[{ label: 'All aircraft', to: '/' }, { label: 'Stores search', to: '/stores' }, { label: 'Transfers' }]} />
       <BackButton to="/stores/issue" label="Issue parts" />
       <StoresTabs />
-      <PageHead title="Transfers" sub="Main Store to Forward Store, and returns Forward → Main (D-142, D-151)" />
+      <PageHead title="Transfers" sub="Main Store to Forward Store, and returns Forward → Main" />
       {message && <div className="success" role="status">{message}</div>}
       {error && <div className="error" role="alert">{error}</div>}
 
@@ -179,7 +179,7 @@ export function Transfers() {
             </div>
             {from !== record && (
               <>
-                <label htmlFor="tr-ret">Reverses transfer (optional, D-151)</label>
+                <label htmlFor="tr-ret">Reverses transfer (optional)</label>
                 <select id="tr-ret" value={returnOf} onChange={(e) => setReturnOf(e.target.value)}>
                   <option value="">Not linked</option>
                   {reversible.map((t) => <option key={t.id} value={t.id}>{t.number} · {qtyText(t.qty)} · {formatDateTime(t.raised_at, display)}</option>)}

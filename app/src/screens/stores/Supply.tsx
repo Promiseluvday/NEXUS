@@ -38,7 +38,7 @@ function IssueButton({ line, onDone }: { line: RequestLine; onDone: (msg: string
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const waitingApproval = line.work_order_status === 'requested' || line.work_order_status === 'pre_approved';
-  if (waitingApproval) return <span className="small muted">After WO approval (D-068)</span>;
+  if (waitingApproval) return <span className="small muted">After WO approval</span>;
   if (line.lot_problem) return <span className="small danger-text">Cannot issue: {line.lot_problem}</span>;
   if (!open) return <button type="button" onClick={() => setOpen(true)}>Issue</button>;
   async function submit(e: FormEvent) {
@@ -95,7 +95,7 @@ export function IssueParts() {
                 done(err ? errorText(err) : `${l.request_number}: ${data === 'reserved' ? 'reserved' : 'still not in stock'}`);
               }}>Check stock</button>
             )} />
-            <p className="small muted">Not in stock: a requisition is raised for Procurement (D-073, D-145).</p>
+            <p className="small muted">Not in stock: a requisition is raised for Procurement.</p>
           </>
         )}
       </Section>
@@ -185,7 +185,7 @@ export function Quarantine() {
                 )}
                 {open === r.id && (
                   <form className="st-inline" onSubmit={(e) => release(e, r)}>
-                    <p className="small">Release documents must be on the receipt (D-153); the certificate type must be on Quality's list (D-148).</p>
+                    <p className="small">Release documents must be on the receipt; the certificate type must be on Quality's list.</p>
                     <div className="row st-row">
                       <div>
                         <label htmlFor={`ct-${r.id}`}>Certificate type</label>
@@ -350,7 +350,7 @@ export function SupplyBoard() {
   async function quarantine(a: Alert) {
     const reason = ALERT_TEXT[a.alert];
     const { error } = await anyActions.rpc('quarantine_lot', { p_lot: a.lot_id, p_reason: reason });
-    setMessage(error ? errorText(error) : `${a.part_number}: moved to quarantine (D-148)`);
+    setMessage(error ? errorText(error) : `${a.part_number}: moved to quarantine`);
     loadAlerts(); reload();
   }
 

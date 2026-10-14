@@ -82,7 +82,7 @@ export function Disposition({ snag, canCertify, onDone, onChoose, initialKind = 
     <>
       <Section title="Choose one path">
         <p className="small muted" style={{ margin: 0 }}>
-          Any work on this snag, including troubleshooting and "no fault found", needs an approved work order (D-218).
+          Any work on this snag, including troubleshooting and "no fault found", needs an approved work order.
           Without one, it can only be deferred.
         </p>
         <div className="disposition-choice">
@@ -111,7 +111,7 @@ export function Disposition({ snag, canCertify, onDone, onChoose, initialKind = 
 
       {chosen?.signs && !canCertify && (
         <div className="notice">
-          This needs a certifying engineer for the {snag.aircraft_type} (D-043). You do not hold a valid
+          This needs a certifying engineer for the {snag.aircraft_type}. You do not hold a valid
           authorization for this type, so the database will refuse your signature. Ask a certifying engineer,
           or request a work order.
         </div>
@@ -250,7 +250,7 @@ export function WorkOrderForm({ snag, onDone, deferred = false, onCancel }: {
         });
         if (err) return { error: err };
         const { data: wo } = await db.from('work_order').select('number').eq('id', data as string).maybeSingle();
-        return { error: null, message: `${wo?.number ?? 'Work order'} requested. It is locked until Quality, then the CO, approve it (D-063).` };
+        return { error: null, message: `${wo?.number ?? 'Work order'} requested. It is locked until Quality, then the CO, approve it.` };
       },
     );
   }
@@ -333,14 +333,14 @@ function MelForm({ snag, onDone, onCancel }: FormProps) {
 
       {item && (
         <>
-          <Section title="Confirmations (D-053)">
+          <Section title="Confirmations">
             {item.m_procedure && <Check checked={mDone} onChange={setMDone}>(M) maintenance procedure done</Check>}
             {item.o_procedure && <Check checked={oPassed} onChange={setOPassed}>(O) procedure passed to Operations</Check>}
             <Check checked={placard} onChange={setPlacard}>Placard fitted</Check>
           </Section>
           <TlbFields book={tlb.book} page={tlb.page} item={tlb.item} onChange={change} />
           <Section title="Sign">
-            <p className="small" style={{ margin: 0 }}>Applying the item places it on the DDLS automatically (D-053, D-163).</p>
+            <p className="small" style={{ margin: 0 }}>Applying the item places it on the DDLS automatically.</p>
             <label htmlFor="mel-remarks" style={{ margin: 0 }}>Remarks <span className="hint">(optional)</span></label>
             <input id="mel-remarks" value={remarks} onChange={(e) => setRemarks(e.target.value)} />
             <SvcMelOption snag={snag} checked={svcMel} onChange={setSvcMel} />
@@ -371,7 +371,7 @@ function DdlsForm({ snag, onDone, onCancel }: FormProps) {
     run(
       () => {
         if (!/^[0-9]+$/.test(days) || Number(days) < 1) return 'Enter the days allowed (a whole number).';
-        if (!ref.trim()) return 'Days allowed must carry a manual reference (AMM, SRM…) (D-163).';
+        if (!ref.trim()) return 'Days allowed must carry a manual reference (AMM, SRM…).';
         return pinOk(pin);
       },
       async () => {
@@ -453,7 +453,7 @@ function NaddForm({ snag, onDone, onCancel }: FormProps) {
     run(
       () => {
         if (limit && !/^[0-9]+$/.test(limit)) return 'The limit is a whole number of days.';
-        if (!declared) return 'Confirm the item is not covered by the MEL and has no airworthiness effect (D-160).';
+        if (!declared) return 'Confirm the item is not covered by the MEL and has no airworthiness effect.';
         return pinOk(pin);
       },
       async () => {
@@ -492,11 +492,11 @@ function NaddForm({ snag, onDone, onCancel }: FormProps) {
         </div>
         <label htmlFor="nadd-limit">Limit in days <span className="hint">(leave blank for the operator default; shorter only)</span></label>
         <input id="nadd-limit" className="mono" inputMode="numeric" value={limit} onChange={(e) => setLimit(e.target.value.replace(/[^0-9]/g, ''))} />
-        <p className="small muted" style={{ margin: 0 }}>Counted from when the defect was reported (D-048).</p>
+        <p className="small muted" style={{ margin: 0 }}>Counted from when the defect was reported.</p>
       </Section>
       <Section title="Sign">
         <Check checked={declared} onChange={setDeclared}>
-          I confirm this item is not covered by the MEL and has no effect on airworthiness (D-160).
+          I confirm this item is not covered by the MEL and has no effect on airworthiness.
         </Check>
         <PinField value={pin} onChange={setPin} />
         <Submit busy={busy} error={error} label="Sign and defer as NADD" onCancel={onCancel} />

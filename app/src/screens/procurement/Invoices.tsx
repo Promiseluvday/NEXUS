@@ -139,7 +139,7 @@ export function InvoicesSection({ invoices, currency, canRecord, purchaseOrderId
           {error && <div className="error" role="alert">{error}</div>}
           <div className="action-row"><button type="submit">Record invoice</button>
             <button type="button" className="secondary" onClick={() => setOpen(false)}>Cancel</button></div>
-          <p className="small muted">Then attach the scan to it (PDF or image, D-026).</p>
+          <p className="small muted">Then attach the scan to it (PDF or image).</p>
         </form>
       )}
     </div>

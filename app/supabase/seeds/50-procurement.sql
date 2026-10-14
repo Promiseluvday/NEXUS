@@ -66,10 +66,10 @@ select v.* from (values
   ('10000000-0000-0000-0000-0000000000e1'::uuid, 'department', 'SUP', true,  null,                   null,   'Initial set-up', '10000000-0000-0000-0000-000000000002'::uuid),
   ('10000000-0000-0000-0000-0000000000e1'::uuid, 'store',      null,  false, null,                   'MAIN', 'Initial set-up', '10000000-0000-0000-0000-000000000002'::uuid),
   ('10000000-0000-0000-0000-0000000000e1'::uuid, 'store',      null,  false, null,                   'FWD',  'Initial set-up', '10000000-0000-0000-0000-000000000002'::uuid),
-  ('10000000-0000-0000-0000-0000000000e1'::uuid, 'permission', null,  false, 'VIEW_COST',            null,   'Initial set-up (D-077)', '10000000-0000-0000-0000-000000000002'::uuid),
-  ('10000000-0000-0000-0000-000000000008'::uuid, 'permission', null,  false, 'RAISE_REQUISITION',    null,   'Raises requisitions (D-073)', '10000000-0000-0000-0000-000000000002'::uuid),
-  ('10000000-0000-0000-0000-000000000009'::uuid, 'permission', null,  false, 'RAISE_PURCHASE_ORDER', null,   'Buyer (D-073)', '10000000-0000-0000-0000-000000000002'::uuid),
-  ('10000000-0000-0000-0000-000000000009'::uuid, 'permission', null,  false, 'MANAGE_OUTSIDE_MRO',   null,   'Outside-MRO oversight (D-144)', '10000000-0000-0000-0000-000000000002'::uuid),
+  ('10000000-0000-0000-0000-0000000000e1'::uuid, 'permission', null,  false, 'VIEW_COST',            null,   'Initial set-up', '10000000-0000-0000-0000-000000000002'::uuid),
+  ('10000000-0000-0000-0000-000000000008'::uuid, 'permission', null,  false, 'RAISE_REQUISITION',    null,   'Raises requisitions', '10000000-0000-0000-0000-000000000002'::uuid),
+  ('10000000-0000-0000-0000-000000000009'::uuid, 'permission', null,  false, 'RAISE_PURCHASE_ORDER', null,   'Buyer', '10000000-0000-0000-0000-000000000002'::uuid),
+  ('10000000-0000-0000-0000-000000000009'::uuid, 'permission', null,  false, 'MANAGE_OUTSIDE_MRO',   null,   'Outside-MRO oversight', '10000000-0000-0000-0000-000000000002'::uuid),
   ('10000000-0000-0000-0000-000000000003'::uuid, 'store',      null,  false, null,                   'MAIN', 'Requests parts for any tail', '10000000-0000-0000-0000-000000000002'::uuid)
 ) as v(person_id, grant_type, department_code, is_home, permission_code, store_code, reason, granted_by)
 where not exists (select 1 from public.access_grant g
@@ -94,10 +94,10 @@ where not exists (select 1 from public.approval_chain_step s where s.action_type
 -- ------------------------------------------------------------- settings -----
 insert into public.operator_setting (key, value, reason) values
   ('procurement.currency', '{"code": "SMP", "symbol": "SMP ", "decimals": 2, "name": "[SAMPLE] currency"}',
-   'Sample data: invented currency (D-112)'),
+   'Sample data: invented currency'),
   ('requisition.approval_bands',
    '[{"priority": "AOG", "chain": "requisition_aog"}, {"max_value": 500000, "chain": "requisition"}, {"chain": "requisition_high"}]',
-   'Sample data: invented threshold of 500 000 SMP (D-146)');
+   'Sample data: invented threshold of 500 000 SMP');
 
 -- ------------------------------------------------------------- suppliers -----
 -- Quality's approved list (D-148), added by QAR.

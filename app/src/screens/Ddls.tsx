@@ -213,7 +213,7 @@ export function DdlsSheet() {
     if (e.status !== 'open') return 'This entry is cleared.';
     if (e.extensions.some((x) => x.status === 'pending')) return 'An extension is already waiting for approval.';
     if (!e.due_at) return 'Only calendar-day limits can be extended here.';
-    if (e.kind === 'mel' && !extCats.includes(e.mel_category ?? '')) return `MEL category ${e.mel_category} items cannot be extended (D-163).`;
+    if (e.kind === 'mel' && !extCats.includes(e.mel_category ?? '')) return `MEL category ${e.mel_category} items cannot be extended.`;
     return null;
   };
 
@@ -242,8 +242,8 @@ export function DdlsSheet() {
               title={doing === 'clear' ? <>Clear DDLS entry {e.page_no}/{e.entry_no} · <span className="mono">{tail?.tail}</span></>
                 : doing === 'extend' ? <>Extension request · {name} · <span className="mono">{tail?.tail}</span></>
                 : <>{e.kind === 'mel' ? <span className="mono">MEL {e.mel_ref}</span> : name} · <span className="mono">{tail?.tail}</span></>}
-              sub={doing === 'clear' ? 'Clearing needs an approved work order (D-218); certifying it clears this entry'
-                : doing === 'extend' ? `Only for categories the operator allows (${extCats.join(', ')}) · separate approval (D-056)`
+              sub={doing === 'clear' ? 'Clearing needs an approved work order; certifying it clears this entry'
+                : doing === 'extend' ? `Only for categories the operator allows (${extCats.join(', ')}) · separate approval`
                 : `Deferral detail · DDLS page ${e.page_no}, entry ${e.entry_no}`}>
               {!doing && isEngineer && e.status === 'open' && (
                 <>
@@ -309,7 +309,7 @@ export function DdlsSheet() {
       <PageHead
         title={view === 'mel' ? <>MEL deferrals · <span className="mono">{tail?.tail}</span></>
           : <>DDLS · <span className="mono">{tail?.tail}</span>{lastPage !== null && !showCleared && <> · page <span className="mono">{String(lastPage).padStart(2, '0')}</span></>}</>}
-        sub={view === 'mel' ? 'MEL deferrals on this tail, soonest due first · they are also on the DDLS (D-163)'
+        sub={view === 'mel' ? 'MEL deferrals on this tail, soonest due first · they are also on the DDLS'
           : 'Deferred defects that concern airworthiness · MEL deferrals appear here automatically'}>
         <div className="dd-toggle" role="group" aria-label="What to show">
           <button type="button" className={view === 'sheet' ? 'on' : ''} aria-pressed={view === 'sheet'} onClick={() => go({})}>Whole sheet</button>
@@ -376,7 +376,7 @@ export function DdlsSheet() {
           </Section>
         );
       })}
-      <p className="small muted">DDLS and NADD entries never change the aircraft status (D-057). Cat A items show their own limit and have no extension button.</p>
+      <p className="small muted">DDLS and NADD entries never change the aircraft status. Cat A items show their own limit and have no extension button.</p>
     </div>
   );
 }
@@ -450,7 +450,7 @@ function EntrySummary({ e, now, margin, compact }: { e: DdlsEntry; now: Date; ma
           {e.kind === 'mel' && <span>{e.placard_fitted ? '☑' : '☐'} Placard fitted</span>}
         </div>
       )}
-      {!compact && c && <p className="small muted" style={{ margin: 0 }}>Countdown is the recorded due time minus now (D-054). Nexus does not ground the aircraft; the certifying engineer decides (D-057).</p>}
+      {!compact && c && <p className="small muted" style={{ margin: 0 }}>Countdown is the recorded due time minus now. Nexus does not ground the aircraft; the certifying engineer decides.</p>}
     </Section>
   );
 }
@@ -501,7 +501,7 @@ function ClearForm({ entry, onDone, requestLink }: { entry: DdlsEntry; onDone: (
     return (
       <>
         <div className="dd-wo">
-          <span className="dd-k">Work order (required to clear, D-218)</span>
+          <span className="dd-k">Work order (required to clear)</span>
           <span><Link className="mono" to={`/work-orders/${active.id}`}>{active.number}</Link> <WorkOrderChip status={active.status} /></span>
         </div>
         <p style={{ margin: 0 }}>
@@ -516,7 +516,7 @@ function ClearForm({ entry, onDone, requestLink }: { entry: DdlsEntry; onDone: (
   if (requestLink) {
     return (
       <>
-        <p style={{ margin: 0 }}>No work order yet. Clearing needs an approved work order (D-218); certifying it clears this entry.</p>
+        <p style={{ margin: 0 }}>No work order yet. Clearing needs an approved work order; certifying it clears this entry.</p>
         <p className="action-row" style={{ margin: 0 }}><Link className="button" to={requestLink}>Request work order</Link></p>
       </>
     );
@@ -524,7 +524,7 @@ function ClearForm({ entry, onDone, requestLink }: { entry: DdlsEntry; onDone: (
   return (
     <>
       <p className="small muted" style={{ margin: 0 }}>
-        No work order yet. Clearing needs an approved work order (D-218): request it here; Quality, then the CO, approve it.
+        No work order yet. Clearing needs an approved work order: request it here; Quality, then the CO, approve it.
       </p>
       <WorkOrderForm snag={{ id: entry.snag_id }} deferred onDone={onDone} />
     </>
@@ -550,7 +550,7 @@ function ExtendForm({ entry, onDone, onCancel }: { entry: DdlsEntry; onDone: (m:
     });
     setBusy(false);
     if (err) return setError(errorText(err));
-    onDone(`Extension of ${days} days requested for entry ${entry.page_no}/${entry.entry_no}. It goes to the approver; the limit is unchanged until approved (D-056).`);
+    onDone(`Extension of ${days} days requested for entry ${entry.page_no}/${entry.entry_no}. It goes to the approver; the limit is unchanged until approved.`);
   }
   // The requested due time: the recorded due plus the days asked for. The
   // server sets the real one only when the extension is approved.

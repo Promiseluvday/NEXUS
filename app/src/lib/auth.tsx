@@ -32,7 +32,7 @@ export type Me = {
   isOversight: boolean;        // Command or Quality: read-only across all (D-122)
   canReportSnags: boolean;     // pilots (Operations) and engineers only (D-041)
   pinSet: boolean;
-  adminDepartments: string[];  // departments this person is Super Admin for; ['*'] = all (D-035)
+  adminDepartments: string[];  // departments this person is Super Admin for; ['*'] = all
   mustChangePassword: boolean; // a Super Admin set a temporary password (D-219)
 };
 

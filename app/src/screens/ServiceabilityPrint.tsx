@@ -68,7 +68,7 @@ function statusWord(r: FleetRow): string {
 // Operations words, one fixed wording per status as drawn in WF-PRS2. It is
 // NOT a judgement by Nexus (D-020, D-046).
 function tasking(r: FleetRow): string {
-  if (r.snag_display) return 'Not until Engineering assesses the snag (D-045)';
+  if (r.snag_display) return 'Not until Engineering assesses the snag';
   switch (r.status) {
     case 'SVC': return 'Yes';
     case 'SVC_MEL': return 'Yes, with restrictions';
@@ -221,7 +221,7 @@ export function ServiceabilityPrint() {
         <p className="prs-note">
           Statuses are as set by Engineering at the time above; changes after that time are not shown. Expected return to
           service dates are as entered by Engineering, never calculated. Hours and cycles arrive with flight records.
-          {ops && ' The Operations copy leaves out part numbers, snag technical detail and MEL (M) procedures (D-120).'}
+          {ops && ' The Operations copy leaves out part numbers, snag technical detail and MEL (M) procedures.'}
           {' '}Uncontrolled when printed: the electronic record is the master.
         </p>
         <div className="prs-signs">

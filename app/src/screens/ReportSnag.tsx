@@ -107,7 +107,7 @@ export function ReportSnag() {
         ) : (
           <div className="success" role="status" style={{ margin: 0 }}>
             <Link className="mono" to={`/snags/${done.id}`}>{done.number}</Link> reported on <span className="mono">{done.tail}</span>.
-            The tail now shows <strong>Snag open</strong> until an engineer attends it. Its status is unchanged (D-045).
+            The tail now shows <strong>Snag open</strong> until an engineer attends it. Its status is unchanged.
           </div>
         )}
         {!done.queued && (
@@ -129,7 +129,7 @@ export function ReportSnag() {
       <Crumbs items={crumbs} />
       <BackButton to={back.to} label={back.label} />
       <PageHead title={<>Report snag{tail && <> · <span className="mono">{tail}</span></>}</>}
-        sub={'Pilot or engineer · a pilot report shows "Snag open" only; it never changes the tail status (D-045, D-200)'} />
+        sub={'Pilot or engineer · a pilot report shows "Snag open" only; it never changes the tail status'} />
 
       <form className="disp-form report-form" onSubmit={submit}>
         <Section title="Aircraft">
@@ -171,12 +171,12 @@ export function ReportSnag() {
             </label>
             <label className="check">
               <input type="radio" name="snag-type" checked={form.soft} onChange={() => setForm((f) => ({ ...f, soft: true }))} />
-              <span>Observation: not a defect, but please check (D-041)</span>
+              <span>Observation: not a defect, but please check</span>
             </label>
           </fieldset>
           <p className="small muted" style={{ margin: 0 }}>
             A cabin item with no airworthiness effect?{' '}
-            <Link to={aircraftId ? `/cabin-item?aircraft=${aircraftId}` : '/cabin-item'}>Propose it as a NADD on the cabin map</Link> (D-209).
+            <Link to={aircraftId ? `/cabin-item?aircraft=${aircraftId}` : '/cabin-item'}>Propose it as a NADD on the cabin map</Link>.
           </p>
 
           <label htmlFor="description">Description</label>

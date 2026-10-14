@@ -141,7 +141,7 @@ export function Receiving() {
       <Crumbs items={[{ label: 'All aircraft', to: '/' }, { label: 'Stores search', to: '/stores' }, { label: 'Receiving inspection' }]} />
       <BackButton to="/stores/issue" label="Issue parts" />
       <StoresTabs />
-      <PageHead title="Receiving inspection and part registration" sub="Release documents are attached before a part is accepted (D-153)" />
+      <PageHead title="Receiving inspection and part registration" sub="Release documents are attached before a part is accepted" />
       {message && <div className="success" role="status">{message}</div>}
       {error && <div className="error" role="alert">{error}</div>}
 
@@ -154,7 +154,7 @@ export function Receiving() {
                 <select id="rc-store" value={store} onChange={(e) => setStore(e.target.value)}>
                   {receivingStores.map((s) => <option key={s.code} value={s.code}>{s.name}</option>)}
                 </select>
-                {store && store !== record && <div className="small muted">Direct receipt at {store}: the Main Store is told and acknowledges it before it counts (D-142).</div>}
+                {store && store !== record && <div className="small muted">Direct receipt at {store}: the Main Store is told and acknowledges it before it counts.</div>}
               </div>
               <div>
                 <label htmlFor="rc-against">Delivered against</label>
@@ -389,7 +389,7 @@ export function ReceiptPage() {
     });
     if (err) return setError(errorText(err));
     if (data === 'accepted') return navigate(`/stores/parts/${r!.part_id}`);
-    setMessage('Accepted at the Forward Store. The Main Store acknowledges it before it counts as stock (D-142).');
+    setMessage('Accepted at the Forward Store. The Main Store acknowledges it before it counts as stock.');
     load();
   }
   async function quarantine(e: FormEvent) {
@@ -453,7 +453,7 @@ export function ReceiptPage() {
               <label className="check"><input type="checkbox" checked={check.cond} onChange={(e) => setCheck({ ...check, cond: e.target.checked })} /> Condition acceptable</label>
               <div className="row st-row">
                 <div>
-                  <label htmlFor="rc-ct">Certificate type (Quality's list, D-148)</label>
+                  <label htmlFor="rc-ct">Certificate type (Quality's list)</label>
                   <select id="rc-ct" value={check.type} onChange={(e) => setCheck({ ...check, type: e.target.value })} required>
                     <option value="">Choose</option>
                     {certs.map((c) => <option key={c} value={c}>{c}</option>)}
@@ -465,13 +465,13 @@ export function ReceiptPage() {
                 </div>
               </div>
               {missing.length > 0 && (
-                <div className="note warn">Attach first: {missing.map((k) => DOC_LABEL[k] ?? k).join(', ')} (D-153).</div>
+                <div className="note warn">Attach first: {missing.map((k) => DOC_LABEL[k] ?? k).join(', ')}.</div>
               )}
               <PinField value={check.pin} onChange={(pin) => setCheck({ ...check, pin })} />
               <div className="action-row">
                 <button type="submit" disabled={missing.length > 0}>Accept to stock{r.store_code !== record ? ' (report to Main)' : ''}</button>
               </div>
-              <p className="small muted">Accepting records what you checked; the part becomes available only through this step, by Supply (D-074).</p>
+              <p className="small muted">Accepting records what you checked; the part becomes available only through this step, by Supply.</p>
             </form>
           ) : (
             <form onSubmit={quarantine}>

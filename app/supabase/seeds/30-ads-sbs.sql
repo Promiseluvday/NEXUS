@@ -14,12 +14,12 @@
 
 -- --------------------------------------------------------- settings (D-025)
 insert into public.operator_setting (key, value, reason) values
-  ('adsb.approaching_days',   '30', 'Initial set-up: days before an entered AD / SB due date to flag Approaching (D-028)'),
-  ('adsb.approaching_hours',  '50', 'Initial set-up: flight hours before an entered AD / SB due figure (D-028)'),
-  ('adsb.approaching_cycles', '25', 'Initial set-up: cycles before an entered AD / SB due figure (D-028)'),
+  ('adsb.approaching_days',   '30', 'Initial set-up: days before an entered AD / SB due date to flag Approaching'),
+  ('adsb.approaching_hours',  '50', 'Initial set-up: flight hours before an entered AD / SB due figure'),
+  ('adsb.approaching_cycles', '25', 'Initial set-up: cycles before an entered AD / SB due figure'),
   ('adsb.compliance_methods',
    '["Modification embodied", "Repetitive inspection", "Terminating action", "Inspection, no findings", "Alternative method (AMOC)"]',
-   'Initial set-up: suggestions on the AD / SB entry form; engineers may type their own (D-016)');
+   'Initial set-up: suggestions on the AD / SB entry form; engineers may type their own');
 
 -- ------------------------------------------------------------- register
 -- ids 60000000-...-0000000000NN: document versions; document_key = id for version 1.

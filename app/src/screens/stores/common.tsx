@@ -62,7 +62,7 @@ export function PriorityChip({ priority, confirmed }: { priority: string; confir
   if (priority === 'AOG') {
     return confirmed
       ? <span className="chip tone-aog">AOG</span>
-      : <span className="chip tone-red" title="Waiting for the tail to be set U/S or AOG, or a certifying engineer (D-147)">AOG · unconfirmed</span>;
+      : <span className="chip tone-red" title="Waiting for the tail to be set U/S or AOG, or a certifying engineer">AOG · unconfirmed</span>;
   }
   if (priority === 'URGENT') return <span className="chip tone-amber">Urgent</span>;
   return <span className="chip tone-grey">Routine</span>;

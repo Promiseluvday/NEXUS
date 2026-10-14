@@ -123,7 +123,7 @@ export function EntryForm({ aircraftId, tail, documents, documentKey, entry, onD
       )}
 
       <fieldset className="adsb-fieldset">
-        <legend>Applicability (you decide, D-016)</legend>
+        <legend>Applicability (you decide)</legend>
         <div className="row">
           <label className="check"><input type="radio" name="adsb-app" checked={f.applicability === 'applicable'} onChange={() => setApplicability('applicable')} /> Applicable to {tail}</label>
           <label className="check"><input type="radio" name="adsb-app" checked={na} onChange={() => setApplicability('not_applicable')} /> Not applicable</label>
@@ -173,7 +173,7 @@ export function EntryForm({ aircraftId, tail, documents, documentKey, entry, onD
       {!closed && f.status && (
         <fieldset className="adsb-fieldset">
           <legend>Next due, as you work it out from the document</legend>
-          <p className="small muted adsb-tight">Nexus does not calculate it (D-021). Enter a date, hours, cycles and/or the limit in words.</p>
+          <p className="small muted adsb-tight">Nexus does not calculate it. Enter a date, hours, cycles and/or the limit in words.</p>
           <div className="adsb-grid3">
             <div><label htmlFor="adsb-nd">Due date</label><DateField id="adsb-nd" value={f.next_due_on} onChange={(v) => set('next_due_on', v)} /></div>
             <div><label htmlFor="adsb-nh">Due at flight hours</label>
@@ -202,7 +202,7 @@ export function EntryForm({ aircraftId, tail, documents, documentKey, entry, onD
           <label htmlFor="adsb-why">Reason for the correction</label>
           <textarea id="adsb-why" value={reason} onChange={(e) => setReason(e.target.value)}
             placeholder={entry?.verification_state === 'rejected' ? `Quality: ${entry.verification_note ?? ''}` : 'What was wrong and what you changed'} />
-          <p className="small muted">The current version stays in history (D-023). The new version needs Quality's verification again.</p>
+          <p className="small muted">The current version stays in history. The new version needs Quality's verification again.</p>
         </>
       )}
 
@@ -281,10 +281,10 @@ export function DocumentForm({ types, doc, defaultType, onDone, onCancel }: {
         <>
           <label htmlFor="d-why">Reason for the correction</label>
           <input id="d-why" value={reason} placeholder='e.g. "Revision 2 issued" or "Title mistyped"' onChange={(e) => setReason(e.target.value)} />
-          <p className="small muted">Version {doc.version} stays in history (D-023).</p>
+          <p className="small muted">Version {doc.version} stays in history.</p>
         </>
       )}
-      <p className="small muted">The register is typed in by engineers from the operator's own copy. Nexus imports nothing (D-016, D-112).</p>
+      <p className="small muted">The register is typed in by engineers from the operator's own copy. Nexus imports nothing.</p>
       {error && <div className="error" role="alert">{error}</div>}
       <p className="action-row">
         <button type="submit" disabled={busy}>{busy ? 'Saving…' : doc ? 'Save correction' : 'Add to register'}</button>

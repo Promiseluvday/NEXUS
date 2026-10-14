@@ -125,7 +125,7 @@ function NaddSheet() {
       <TailTop aircraftId={tailId} tail={tail?.tail} here={[{ label: 'NADD list' }]}
         back={{ to: `/aircraft/${tailId}`, label: `${tail?.tail ?? 'aircraft'} overview` }} />
       <PageHead title={<>NADD · <span className="mono">{tail?.tail}</span></>}
-        sub="Non-airworthiness deferred defects · sorted by days remaining · countdown from the report date (D-160)">
+        sub="Non-airworthiness deferred defects · sorted by days remaining · countdown from the report date">
         <Link className="button" to={`/cabin-item?aircraft=${tailId}`}>Log NADD</Link>
         <Link className="button outline-button" to={`/print/nadds/${tailId}`} target="_blank">Print NADDS</Link>
         <select aria-label="Which NADDs" className="dd-select" value={view} onChange={(e) => setView(e.target.value)}>
@@ -237,7 +237,7 @@ function NaddDetail({ id }: { id: string }) {
           <p style={{ margin: 0 }}>Reclassified as a snag. <Link to={`/snags/${n.reclassified_snag_id}`}>Open the snag</Link>. The NADD record stays in history.</p>
         ) : n.status === 'proposed' && isEngineer ? (
           <>
-            <p className="small muted" style={{ margin: 0 }}>Proposed by <span className="mono">{tlc(n.reporter)}</span>. A certifying engineer confirms it (online, or provisional offline on an enrolled tablet, D-217).</p>
+            <p className="small muted" style={{ margin: 0 }}>Proposed by <span className="mono">{tlc(n.reporter)}</span>. A certifying engineer confirms it (online, or provisional offline on an enrolled tablet).</p>
             <ConfirmForm nadd={n} onDone={done} />
           </>
         ) : (
@@ -265,7 +265,7 @@ function NaddDetail({ id }: { id: string }) {
                 </tbody>
               </table>
             </div>
-          ) : <p className="small muted" style={{ margin: 0 }}>No extensions. Extensions are a separate approval (Quality by default, D-160).</p>}
+          ) : <p className="small muted" style={{ margin: 0 }}>No extensions. Extensions are a separate approval (Quality by default).</p>}
           {other === 'extend' && <ExtendForm nadd={n} onDone={done} onCancel={() => setOther('')} />}
         </Section>
       )}
@@ -283,7 +283,7 @@ function NaddDetail({ id }: { id: string }) {
 
       {isEngineer && n.status === 'open' && (
         <Section title="Rectify (certifying engineer, PIN)">
-          <p className="small muted" style={{ margin: 0 }}>A NADD can be rectified directly, without a work order: it may be fixed at another MRO (D-218).</p>
+          <p className="small muted" style={{ margin: 0 }}>A NADD can be rectified directly, without a work order: it may be fixed at another MRO.</p>
           <RectifyForm nadd={n} onDone={done} />
         </Section>
       )}
@@ -412,7 +412,7 @@ function CabinReview() {
       )}
       <Section title="Rules">
         <ul className="dd-rules">
-          <li>Accept or reject: engineers who may confirm NADDs. A reason is required to reject, and the reporter sees it (D-209).</li>
+          <li>Accept or reject: engineers who may confirm NADDs. A reason is required to reject, and the reporter sees it.</li>
           <li>Anything touching emergency equipment, exits, oxygen or emergency lighting goes to the snag workflow, never NADD.</li>
           <li>Decided items from the last 14 days are shown below the waiting ones.</li>
         </ul>
@@ -464,10 +464,10 @@ function ConfirmForm({ nadd, onDone }: { nadd: Nadd; onDone: (m: string) => void
   const { error, busy, run } = useAction(onDone);
   function submit(e: FormEvent) {
     e.preventDefault();
-    run(!declared ? 'Confirm the item is not covered by the MEL and has no airworthiness effect (D-160).' : pinProblem(pin),
+    run(!declared ? 'Confirm the item is not covered by the MEL and has no airworthiness effect.' : pinProblem(pin),
       () => perform('confirm_nadd', { p_nadd: nadd.id, p_pin: pin, p_declaration: declared, p_limit_days: limit ? Number(limit) : undefined },
         { label: `Confirm ${nadd.number} as NADD`, aircraftId: nadd.aircraft_id }),
-      `${nadd.number} confirmed. Its countdown runs from the report date (D-160).`);
+      `${nadd.number} confirmed. Its countdown runs from the report date.`);
   }
   return (
     <form onSubmit={submit}>
@@ -475,7 +475,7 @@ function ConfirmForm({ nadd, onDone }: { nadd: Nadd; onDone: (m: string) => void
         <input id={`lim-${nadd.id}`} className="mono dd-short" inputMode="numeric" value={limit} onChange={(e) => setLimit(e.target.value.replace(/[^0-9]/g, ''))} />
       </Labelled>
       <label className="check"><input type="checkbox" checked={declared} onChange={(e) => setDeclared(e.target.checked)} />
-        <span>I confirm this item is not covered by the MEL and has no effect on airworthiness (D-160).</span></label>
+        <span>I confirm this item is not covered by the MEL and has no effect on airworthiness.</span></label>
       <PinField id={`pin-${nadd.id}`} value={pin} onChange={setPin} />
       <Foot error={error} busy={busy} label="Sign and confirm" />
     </form>
@@ -487,7 +487,7 @@ function RejectForm({ nadd, onDone }: { nadd: Nadd; onDone: (m: string) => void 
   const { error, busy, run } = useAction(onDone);
   function submit(e: FormEvent) {
     e.preventDefault();
-    run(reason.trim() ? null : 'Give a reason the reporter will see (D-209).',
+    run(reason.trim() ? null : 'Give a reason the reporter will see.',
       () => actions.rpc('reject_nadd', { p_nadd: nadd.id, p_reason: reason.trim() }),
       `${nadd.number} rejected. The reporter sees your reason.`);
   }

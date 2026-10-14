@@ -68,7 +68,7 @@ export function AuthorizationsTab({ data, onDone }: { data: PersonRecordData; on
         </div>
         {blocked.map((b) => (
           <div key={b.type} className="notice">
-            The {b.type} authorization is approved, but the records show {b.why || 'a missing licence or rating'}, so certifying is refused until Quality records it (D-043).{' '}
+            The {b.type} authorization is approved, but the records show {b.why || 'a missing licence or rating'}, so certifying is refused until Quality records it.{' '}
             <Link to={`/people/${data.person.id}/qualifications`}>Licences, ratings, medicals</Link>
           </div>
         ))}
@@ -82,7 +82,7 @@ export function AuthorizationsTab({ data, onDone }: { data: PersonRecordData; on
           </table>
         </div>
         <p className="small muted" style={{ margin: 0 }}>
-          Scope is by aircraft type (D-032). Quality issues; the CO or ECO approves with PIN. Every step is logged with who and when (D-033).
+          Scope is by aircraft type. Quality issues; the CO or ECO approves with PIN. Every step is logged with who and when.
         </p>
       </Section>
 
@@ -105,7 +105,7 @@ export function AuthorizationsTab({ data, onDone }: { data: PersonRecordData; on
               </tbody>
             </table>
           </div>
-          <p className="small muted" style={{ margin: 0 }}>Authorizations are never deleted (D-023): rejected, withdrawn and revoked ones stay here with who, when and why.</p>
+          <p className="small muted" style={{ margin: 0 }}>Authorizations are never deleted: rejected, withdrawn and revoked ones stay here with who, when and why.</p>
         </Section>
       )}
     </>
@@ -127,7 +127,7 @@ function AuthRow({ a, data, onDone }: { a: Authorization; data: PersonRecordData
   async function decide(decision: 'approve' | 'reject', e?: FormEvent) {
     e?.preventDefault();
     setError('');
-    if (decision === 'reject' && !reason.trim()) return setError('A rejection needs a reason; Quality sees it (D-079).');
+    if (decision === 'reject' && !reason.trim()) return setError('A rejection needs a reason; Quality sees it.');
     if (!pinLooksRight(pin)) return setError('Enter your PIN to sign.');
     setBusy(true);
     const { data: r, error: err } = await anyActions.rpc('decide_certifying_authorization', {
@@ -136,7 +136,7 @@ function AuthRow({ a, data, onDone }: { a: Authorization; data: PersonRecordData
     setBusy(false);
     setPin('');
     if (err) return setError(errorText(err));
-    onDone(r === 'approved' ? `${a.reference} approved. It counts from ${formatPlainDate(a.valid_from, display)} (D-043 also needs a current licence and type rating).`
+    onDone(r === 'approved' ? `${a.reference} approved. It counts from ${formatPlainDate(a.valid_from, display)}. Certifying also needs a current licence and type rating.`
       : r === 'rejected' ? `${a.reference} rejected. Quality sees your reason.`
       : `${a.reference} approved at your step; it moves to the next approver.`);
   }
@@ -144,7 +144,7 @@ function AuthRow({ a, data, onDone }: { a: Authorization; data: PersonRecordData
   async function revoke(e: FormEvent) {
     e.preventDefault();
     setError('');
-    if (!reason.trim()) return setError('Give a reason (D-033).');
+    if (!reason.trim()) return setError('Give a reason.');
     if (!pinLooksRight(pin)) return setError('Enter your PIN to sign.');
     setBusy(true);
     const { data: r, error: err } = await anyActions.rpc('revoke_certifying_authorization', { p_authorization: a.id, p_reason: reason.trim(), p_pin: pin });
@@ -172,7 +172,7 @@ function AuthRow({ a, data, onDone }: { a: Authorization; data: PersonRecordData
               {mayRevoke && <button type="button" className="outline-button danger-button" onClick={() => setOpen(open === 'revoke' ? '' : 'revoke')}>{pending ? 'Withdraw' : 'Revoke'}</button>}
             </div>
           )}
-          {pending && data.can.approve && iIssued && <div className="small muted">You issued it, so another approver decides (D-032).</div>}
+          {pending && data.can.approve && iIssued && <div className="small muted">You issued it, so another approver decides.</div>}
         </td>
       </tr>
       {open && (
@@ -231,7 +231,7 @@ function IssueForm({ data, onCancel, onDone }: { data: PersonRecordData; onCance
     setBusy(false);
     setPin('');
     if (err) return setError(errorText(err));
-    onDone(`${reference.trim()} issued and sent to the CO / ECO for approval. It does not count until approved (D-032).`);
+    onDone(`${reference.trim()} issued and sent to the CO / ECO for approval. It does not count until approved.`);
   }
 
   return (

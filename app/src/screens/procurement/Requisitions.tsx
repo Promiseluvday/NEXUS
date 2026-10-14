@@ -156,7 +156,7 @@ export function RequisitionList() {
       <Crumbs items={[{ label: 'All aircraft', to: '/' }, { label: label('requisition', true) }]} />
       <BackButton to="/" label="All aircraft" />
       <ProcurementTabs />
-      <PageHead title={label('requisition', true)} sub="AOG first · each step held by the person or office shown (D-076, D-146)">
+      <PageHead title={label('requisition', true)} sub="AOG first · each step held by the person or office shown">
         {rights.raise_requisition && <Link className="button" to="/procurement/requisitions/new?kind=replenishment">New stock replenishment</Link>}
       </PageHead>
       {error && <div className="error" role="alert">{error}</div>}
@@ -276,7 +276,7 @@ export function RaiseRequisitionForm({ kind, lineId, usReturnId, onDone, onCance
         <div className="mel-chosen">
           For <span className="mono">{line.request_number}</span>{line.tail && <> · <span className="tail">{line.tail}</span></>}:{' '}
           {qtyText(line.qty)} × {line.description ?? ''} <span className="mono">{line.part_number}</span> · {line.store_code}
-          <div className="small muted">One request line, one requisition (D-145). Quantity and part come from the request.</div>
+          <div className="small muted">One request line, one requisition. Quantity and part come from the request.</div>
         </div>
       ) : lineId ? <p className="muted">Loading the request line…</p> : <p className="danger-text">Open this from a part request line.</p>)}
       {kind === 'repair' && (us ? (
@@ -326,15 +326,15 @@ export function RaiseRequisitionForm({ kind, lineId, usReturnId, onDone, onCance
           <label htmlFor="rq-prio">Priority</label>
           <select id="rq-prio" value={f.priority} onChange={(e) => setF({ ...f, priority: e.target.value })}>
             <option value="ROUTINE">Routine</option>
-            {aogAllowed && <option value="AOG">AOG (confirmed on the request, D-147)</option>}
+            {aogAllowed && <option value="AOG">AOG (confirmed on the request)</option>}
           </select>
           {kind === 'part_request' && line?.priority === 'AOG' && !line.aog_confirmed &&
-            <div className="small muted">The request's AOG is not confirmed yet, so this goes as Routine (D-147).</div>}
+            <div className="small muted">The request's AOG is not confirmed yet, so this goes as Routine.</div>}
         </div>
         <div>
           <label htmlFor="rq-val">Estimated value ({rights.currency.code})</label>
           <input id="rq-val" inputMode="decimal" value={f.value} onChange={(e) => setF({ ...f, value: e.target.value.replace(/[^0-9.]/g, '') })} />
-          <div className="small muted">Chooses the approval chain (D-146). Left empty, the strictest chain applies.
+          <div className="small muted">Chooses the approval chain. Left empty, the strictest chain applies.
             {!rights.view_cost && ' You will not see it again without “View cost”.'}</div>
         </div>
         <div>
@@ -349,7 +349,7 @@ export function RaiseRequisitionForm({ kind, lineId, usReturnId, onDone, onCance
         <button type="submit" disabled={busy}>{busy ? 'Raising…' : 'Raise requisition'}</button>
         {onCancel && <button type="button" className="secondary" onClick={onCancel}>Cancel</button>}
       </div>
-      <p className="small muted">It goes straight into the approval chain. You cannot approve any step of a requisition you raised (D-146).</p>
+      <p className="small muted">It goes straight into the approval chain. You cannot approve any step of a requisition you raised.</p>
     </form>
   );
 }
@@ -367,7 +367,7 @@ export function NewRequisition() {
     <div className="page pq-page">
       <Crumbs items={[{ label: 'All aircraft', to: '/' }, { label: label('requisition', true), to: '/procurement/requisitions' }, { label: 'New' }]} />
       <BackButton to="/procurement/requisitions" label={label('requisition', true)} />
-      <PageHead title={title} sub="Supply raises; the approval chain decides; Procurement then orders (D-073)" />
+      <PageHead title={title} sub="Supply raises; the approval chain decides; Procurement then orders" />
       <Section title="Requisition">
         <RaiseRequisitionForm kind={kind} lineId={lineId} usReturnId={usReturnId}
           onDone={(r) => navigate(`/procurement/requisitions/${r.id}`, { state: { message: `${r.number} raised · ${r.chain_name}` } })}
@@ -403,7 +403,7 @@ export function RequisitionPage() {
   useEffect(() => { load(); }, [load]);
 
   if (r === undefined) return <div className="page muted">Loading…</div>;
-  if (r === null) return <div className="page"><p>This requisition does not exist or you may not see it (D-125, D-127).</p></div>;
+  if (r === null) return <div className="page"><p>This requisition does not exist or you may not see it.</p></div>;
 
   async function decide(e: FormEvent) {
     e.preventDefault();
@@ -413,7 +413,7 @@ export function RequisitionPage() {
     });
     if (err) return setError(errorText(err));
     setPin(''); setReason('');
-    setMessage(mode === 'reject' ? 'Rejected · returned to the raiser with your reason (D-079)'
+    setMessage(mode === 'reject' ? 'Rejected · returned to the raiser with your reason'
       : data === 'approved' ? 'Approved · all steps done; Procurement sources it' : `Approved · now at ${String(data)}`);
     window.dispatchEvent(new Event('nexus:approvals'));
     load();
@@ -473,7 +473,7 @@ export function RequisitionPage() {
         </dl>
       </Section>
 
-      <Section title={<>Approval chain <span className="small muted">· {r.chain_name} · set up per operator (D-076)</span></>}>
+      <Section title={<>Approval chain <span className="small muted">· {r.chain_name} · set up per operator</span></>}>
         <ol className="pq-chain">
           {r.steps.map((s) => {
             const state = s.decision === 'approve' ? 'done' : s.decision === 'reject' ? 'rejected' : s.current ? 'now' : 'todo';
@@ -490,7 +490,7 @@ export function RequisitionPage() {
             );
           })}
         </ol>
-        {r.status === 'rejected' && r.rejected_reason && <div className="note warn">Rejected: {r.rejected_reason} (D-079)</div>}
+        {r.status === 'rejected' && r.rejected_reason && <div className="note warn">Rejected: {r.rejected_reason}</div>}
 
         {r.can.approve && (
           <form className="pq-form pq-decide" onSubmit={decide}>
@@ -500,7 +500,7 @@ export function RequisitionPage() {
             </div>
             {mode === 'reject' && (
               <>
-                <label htmlFor="rq-reason">Reason (the raiser sees it, D-079)</label>
+                <label htmlFor="rq-reason">Reason (the raiser sees it)</label>
                 <input id="rq-reason" value={reason} onChange={(e) => setReason(e.target.value)} required />
               </>
             )}
@@ -512,7 +512,7 @@ export function RequisitionPage() {
           </form>
         )}
         {!r.can.approve && r.status === 'in_approval' && (
-          <p className="small muted">Waiting for {r.step_name}. The raiser cannot approve, and nobody approves two steps (D-146).</p>
+          <p className="small muted">Waiting for {r.step_name}. The raiser cannot approve, and nobody approves two steps.</p>
         )}
       </Section>
 
@@ -550,14 +550,14 @@ export function RequisitionPage() {
       </div>
 
       {resub.open && (
-        <Section title="Resubmit (new version, D-079)">
+        <Section title="Resubmit (new version)">
           <form className="pq-form" onSubmit={resubmit}>
             <div className="row pq-row">
               <div><label htmlFor="rs-val">Estimated value ({rights.currency.code})</label>
                 <input id="rs-val" inputMode="decimal" value={resub.value} onChange={(e) => setResub({ ...resub, value: e.target.value.replace(/[^0-9.]/g, '') })} /></div>
               <div><label htmlFor="rs-prio">Priority</label>
                 <select id="rs-prio" value={resub.priority} onChange={(e) => setResub({ ...resub, priority: e.target.value })}>
-                  <option value="ROUTINE">Routine</option><option value="AOG">AOG (confirmed request only, D-147)</option>
+                  <option value="ROUTINE">Routine</option><option value="AOG">AOG (confirmed request only)</option>
                 </select></div>
             </div>
             <label htmlFor="rs-rem">What changed</label>
@@ -570,7 +570,7 @@ export function RequisitionPage() {
       {cancelOpen && (
         <Section title="Cancel requisition">
           <form className="pq-form" onSubmit={cancel}>
-            <label htmlFor="rq-cancel">Reason (kept on record, D-023)</label>
+            <label htmlFor="rq-cancel">Reason (kept on record)</label>
             <input id="rq-cancel" value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} required />
             <div className="action-row"><button type="submit" className="danger-button">Cancel requisition</button>
               <button type="button" className="secondary" onClick={() => setCancelOpen(false)}>Keep it</button></div>

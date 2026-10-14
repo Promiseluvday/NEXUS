@@ -114,7 +114,7 @@ export function PurchaseOrderList() {
       <Crumbs items={[{ label: 'All aircraft', to: '/' }, { label: label('purchase_order', true) }]} />
       <BackButton to="/procurement" label="Procurement board" />
       <ProcurementTabs />
-      <PageHead title={label('purchase_order', true)} sub="Overdue first · ETA entered by Procurement, never predicted (D-020)">
+      <PageHead title={label('purchase_order', true)} sub="Overdue first · ETA entered by Procurement, never predicted">
         {rights.raise_po && <Link className="button" to="/procurement/purchase-orders/new">Raise purchase order</Link>}
       </PageHead>
       {error && <div className="error" role="alert">{error}</div>}
@@ -180,7 +180,7 @@ export function NewPurchaseOrder() {
     <div className="page pq-page">
       <Crumbs items={[{ label: 'All aircraft', to: '/' }, { label: label('purchase_order', true), to: '/procurement/purchase-orders' }, { label: 'New' }]} />
       <BackButton to="/procurement/purchase-orders" label={label('purchase_order', true)} />
-      <PageHead title={`Raise ${label('purchase_order').toLowerCase()}`} sub="Only approved requisitions, only suppliers on Quality's approved list (D-076, D-148)" />
+      <PageHead title={`Raise ${label('purchase_order').toLowerCase()}`} sub="Only approved requisitions, only suppliers on Quality's approved list" />
       {!rights.raise_po && <div className="note warn">You need Procurement with “Raise purchase orders” to raise a PO.</div>}
       <form className="pq-form" onSubmit={create}>
         <Section title="Approved requisitions to order">
@@ -203,7 +203,7 @@ export function NewPurchaseOrder() {
         </Section>
         <Section title="Supplier and order">
           <div className="row pq-row">
-            <div><label htmlFor="po-sup">Supplier (approved list, D-148)</label>
+            <div><label htmlFor="po-sup">Supplier (approved list)</label>
               <select id="po-sup" value={f.supplier} onChange={(e) => setF({ ...f, supplier: e.target.value })} required>
                 <option value="">Choose</option>
                 {suppliers.map((s) => <option key={s.id} value={s.id}>{s.name} ({s.code})</option>)}
@@ -400,7 +400,7 @@ export function PurchaseOrderPage() {
                     <div className="action-row"><button type="button" onClick={() => setRecv({ line: l.id, qty: String(l.qty - l.open_receipt_qty), serial: '', batch: '', expiry: '', bin: '' })}>Mark arrived (to receiving)</button></div>
                   )
                 ) : p.can.i_am_buyer && rights.receive ? (
-                  <p className="small muted">You bought this, so another storekeeper receives it (D-075).</p>
+                  <p className="small muted">You bought this, so another storekeeper receives it.</p>
                 ) : null
               )}
             </li>
@@ -417,14 +417,14 @@ export function PurchaseOrderPage() {
           </div>
         )}
         {!['closed', 'cancelled'].includes(p.status) && !p.can.receive && !canBuy && (
-          <p className="small muted">Supply registers the arrival and does the receiving inspection (D-074).</p>
+          <p className="small muted">Supply registers the arrival and does the receiving inspection.</p>
         )}
       </Section>
 
       {draft && canBuy && (
         <Section title="Place the order">
           <form className="pq-form" onSubmit={place}>
-            <p className="small">Every line needs its agreed price; the supplier must still be on Quality's approved list (D-148).</p>
+            <p className="small">Every line needs its agreed price; the supplier must still be on Quality's approved list.</p>
             <PinField value={pin} onChange={setPin} id="po-pin" />
             <div className="action-row"><button type="submit">Sign and place order</button></div>
           </form>
@@ -439,7 +439,7 @@ export function PurchaseOrderPage() {
                 <select id="sh-st" value={ship.status} onChange={(e) => setShip({ ...ship, status: e.target.value })}>
                   <option value="">(no change)</option>
                   {p.status === 'ordered' && <option value="shipped">Shipped</option>}
-                  {p.status !== 'in_clearing' && <option value="in_clearing">In clearing (customs, D-149)</option>}
+                  {p.status !== 'in_clearing' && <option value="in_clearing">In clearing (customs)</option>}
                 </select></div>
               <div><label htmlFor="sh-eta">ETA</label><input id="sh-eta" type="date" value={ship.eta} onChange={(e) => setShip({ ...ship, eta: e.target.value })} /></div>
             </div>

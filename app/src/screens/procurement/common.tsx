@@ -83,7 +83,7 @@ export function Money({ value, currency }: { value: number | string | null | und
 
 // For screens where cost is hidden: say why, once (D-121, D-127).
 export function NoCostNote() {
-  return <p className="small muted pq-nocost">Prices are shown only to people with “View cost” (D-077, D-121, D-127).</p>;
+  return <p className="small muted pq-nocost">Prices are shown only to people with “View cost”.</p>;
 }
 
 // ---------------------------------------------------------------- states

@@ -101,7 +101,7 @@ function Inbox({ items }: { items: Pending[] | null }) {
     <div className="page ap-page">
       <Crumbs items={[{ label: 'All aircraft', to: '/' }, { label: 'Approvals inbox' }]} />
       <BackButton to="/" label="All aircraft" />
-      <PageHead title="Approvals inbox" sub="Waiting for your decision, oldest first. Each decision is signed with your PIN (D-094)." />
+      <PageHead title="Approvals inbox" sub="Waiting for your decision, oldest first. Each decision is signed with your PIN." />
       {message && <div className={/provisional|queued/.test(message) ? 'offline-banner' : 'success'} role="status">{message}</div>}
 
       {items === null && <p className="muted">Loading…</p>}
@@ -194,7 +194,7 @@ type Step = { step_no: number; name: string };
 // Who may decide at each work order step, as shown under the title.
 const WHO_DECIDES: Record<number, string> = {
   1: 'Quality only · online + PIN',
-  2: 'CO or acting deputy (D-067) · online + PIN · no verbal approval',
+  2: 'CO or acting deputy · online + PIN · no verbal approval',
 };
 
 function DecisionPage({ requestId, items, onDecided }: { requestId: string; items: Pending[] | null; onDecided: () => void }) {
@@ -251,7 +251,7 @@ function DecisionPage({ requestId, items, onDecided }: { requestId: string; item
   async function decide(decision: 'approve' | 'reject', e?: FormEvent) {
     e?.preventDefault();
     setError('');
-    if (decision === 'reject' && !reason.trim()) return setError('A rejection needs a reason; the requester sees it (D-079).');
+    if (decision === 'reject' && !reason.trim()) return setError('A rejection needs a reason; the requester sees it.');
     if (!/^[0-9]{4,8}$/.test(pin)) return setError('Enter your PIN (4 to 8 digits) to sign.');
     setBusy(decision);
     const { data, error: err } = await actions.rpc('decide_approval', {
@@ -329,9 +329,9 @@ function DecisionPage({ requestId, items, onDecided }: { requestId: string; item
       <form onSubmit={(e) => decide('approve', e)}>
         <Section title="Your decision" tone="strong">
           {iDecidedBefore && (
-            <div className="notice">You decided an earlier step of this request. Nobody approves two steps of the same request (D-146); the database will refuse.</div>
+            <div className="notice">You decided an earlier step of this request. Nobody approves two steps of the same request; the database will refuse.</div>
           )}
-          <label htmlFor="ap-reason" style={{ marginTop: 0 }}>Reason <span className="hint">(needed to reject; the requester sees it, D-079. Optional note when approving)</span></label>
+          <label htmlFor="ap-reason" style={{ marginTop: 0 }}>Reason <span className="hint">(needed to reject; the requester sees it. Optional note when approving)</span></label>
           <textarea id="ap-reason" value={reason} onChange={(e) => setReason(e.target.value)} />
           <PinField id="ap-pin" value={pin} onChange={setPin} />
           {error && <div className="error" role="alert">{error}</div>}
@@ -342,7 +342,7 @@ function DecisionPage({ requestId, items, onDecided }: { requestId: string; item
             </button>
           </div>
           <p className="panel-note">
-            After approval: {last ? (isWo ? 'the work order opens and work can start (D-063).' : isAuth ? 'the certifying authorization becomes active (D-032).' : 'the new limit applies.') : `${next?.name ?? 'the next step'}.`}
+            After approval: {last ? (isWo ? 'the work order opens and work can start.' : isAuth ? 'the certifying authorization becomes active.' : 'the new limit applies.') : `${next?.name ?? 'the next step'}.`}
           </p>
         </Section>
       </form>

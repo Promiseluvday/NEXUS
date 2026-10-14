@@ -176,8 +176,8 @@ export function Home() {
 // Placeholder for subsections built in later slices, so every rail link
 // goes somewhere and the map of the app is visible now.
 const LATER: Record<string, string> = {
-  'flight-scheduling': 'Built after the Phase 1 snag workflow (D-205).',
-  'crew-scheduling': 'Built after the Phase 1 snag workflow (D-205).',
+  'flight-scheduling': 'Built after the Phase 1 snag workflow.',
+  'crew-scheduling': 'Built after the Phase 1 snag workflow.',
 };
 
 export function ComingSoon() {

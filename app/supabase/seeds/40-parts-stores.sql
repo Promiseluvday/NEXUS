@@ -47,7 +47,7 @@ select v.* from (values
   ('10000000-0000-0000-0000-0000000000d1'::uuid, 'store',      null,  false, null,            'FWD', 'Initial set-up', '10000000-0000-0000-0000-000000000002'::uuid),
   ('10000000-0000-0000-0000-0000000000d1'::uuid, 'permission', null,  false, 'ISSUE_PARTS',   null,  'Initial set-up', '10000000-0000-0000-0000-000000000002'::uuid),
   ('10000000-0000-0000-0000-0000000000d1'::uuid, 'permission', null,  false, 'RECEIVE_PARTS', null,  'Initial set-up', '10000000-0000-0000-0000-000000000002'::uuid),
-  ('10000000-0000-0000-0000-000000000008'::uuid, 'permission', null,  false, 'RECEIVE_PARTS', null,  'Receiving inspection (D-074)', '10000000-0000-0000-0000-000000000002'::uuid)
+  ('10000000-0000-0000-0000-000000000008'::uuid, 'permission', null,  false, 'RECEIVE_PARTS', null,  'Receiving inspection', '10000000-0000-0000-0000-000000000002'::uuid)
 ) as v(person_id, grant_type, department_code, is_home, permission_code, store_code, reason, granted_by)
 where not exists (select 1 from public.access_grant g
                    where g.person_id = v.person_id and g.grant_type = v.grant_type and g.revoked_at is null

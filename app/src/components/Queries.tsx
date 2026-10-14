@@ -221,14 +221,14 @@ export function QueryDetail({ q, onChange }: { q: QueryRow; onChange: () => void
 
       {q.status === 'open' ? (
         <form onSubmit={addNote} className="tq-note-form">
-          <label htmlFor={`note-${q.id}`}>Add a note <span className="hint">(notes are never edited, D-207)</span></label>
+          <label htmlFor={`note-${q.id}`}>Add a note <span className="hint">(notes are never edited)</span></label>
           <textarea id={`note-${q.id}`} rows={3} placeholder="Write your note" value={note} onChange={(e) => setNote(e.target.value)} />
           <div className="action-row">
             <button type="submit" disabled={busy}>{busy ? 'Adding…' : 'Add note'}</button>
             <span className="outline-button button tq-soon" aria-disabled="true">Add photo or PDF <span className="rail-tag">Soon</span></span>
             {mine
               ? <button type="button" className="outline-button" disabled={busy} onClick={close}>Close query</button>
-              : <button type="button" className="outline-button" disabled title="Only the person who raised it can close it (D-207)">Close (only the person who raised it)</button>}
+              : <button type="button" className="outline-button" disabled title="Only the person who raised it can close it">Close (only the person who raised it)</button>}
           </div>
         </form>
       ) : (
@@ -296,7 +296,7 @@ export function RaiseQuery({ recordTable, recordId, recordText, onDone, onCancel
           </select>
         </div>
       </div>
-      <p className="small muted">The query never changes the record (D-207). Photos and PDFs on queries <span className="rail-tag">Soon</span></p>
+      <p className="small muted">The query never changes the record. Photos and PDFs on queries <span className="rail-tag">Soon</span></p>
       {error && <div className="error" role="alert">{error}</div>}
       <div className="action-row">
         <button type="submit" disabled={busy}>{busy ? 'Sending…' : 'Raise query'}</button>

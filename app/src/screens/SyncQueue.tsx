@@ -7,6 +7,7 @@
 import { Link } from 'react-router';
 import { useAuth } from '../lib/auth';
 import { formatDateTime, type DisplaySettings } from '../lib/format';
+import { hideRefs } from '../lib/supabase';
 import { useOnline, useOutbox } from '../lib/offline/hooks';
 import { removeFailed, retry, syncNow } from '../lib/offline/outbox';
 import type { OutboxItem } from '../lib/offline/db';
@@ -28,7 +29,7 @@ function Row({ i, display }: { i: OutboxItem; display: DisplaySettings }) {
         {i.kind === 'signed' && <> <span className="chip tone-amber provisional">Signed offline</span></>}
         <div className="small muted">made {formatDateTime(new Date(i.createdAt), display)}
           {i.sentAt && ` · accepted ${formatDateTime(new Date(i.sentAt), display)}`}</div>
-        {i.error && <div className="small sq-reason">{i.error}</div>}
+        {i.error && <div className="small sq-reason">{hideRefs(i.error)}</div>}
       </td>
       <td data-label="State"><span className={`chip tone-${s.tone}`}>{s.label}</span></td>
       <td data-label="Record">{i.recordPath ? <Link to={i.recordPath}>Open</Link> : <span className="muted">—</span>}</td>
@@ -66,7 +67,7 @@ export function SyncQueue() {
 
       {refused.length > 0 && (
         <Section title={`Refused by the server: review (${refused.length})`} tone="warn">
-          <p className="small">The server checked these and refused them, with the reason shown. Open the record to see what changed, then try again or remove the item. Nothing official was changed (D-217).</p>
+          <p className="small">The server checked these and refused them, with the reason shown. Open the record to see what changed, then try again or remove the item. Nothing official was changed.</p>
           <table className="board sq-table">
             <thead><tr><th>Item</th><th>State</th><th>Record</th><th aria-label="Actions" /></tr></thead>
             <tbody>{refused.map((i) => <Row key={i.id} i={i} display={display} />)}</tbody>

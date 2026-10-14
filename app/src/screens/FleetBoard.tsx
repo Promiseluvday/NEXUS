@@ -224,7 +224,7 @@ export function FleetBoard() {
           ))}
           {rows.length > 0 && shown.length === 0 && <p className="muted">No aircraft match this filter.</p>}
           {loadedAt && rows.length === 0 && !error && (
-            <p className="muted">No aircraft in your aircraft scope. A Super Admin grants aircraft access (D-121).</p>
+            <p className="muted">No aircraft in your aircraft scope. A Super Admin grants aircraft access.</p>
           )}
         </section>
         <NeedsAttention rows={rows} now={now} approvals={pending?.length ?? 0} display={display} />

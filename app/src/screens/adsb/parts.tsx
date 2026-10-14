@@ -39,7 +39,7 @@ export function NextDue({ r, showFlag = true }: { r: AdSbEntry; showFlag?: boole
       {figs && <span className="mono">{figs}</span>}
       {r.next_due_text && <span className="small">{r.next_due_text}</span>}
       {showFlag && <FlagChip flag={r.due_flag} />}
-      {figureOnly && <span className="small muted" title="Hours and cycles are compared only once flight-record totals exist (D-022, D-028).">entered figure · no totals to compare</span>}
+      {figureOnly && <span className="small muted" title="Hours and cycles are compared only once flight-record totals exist.">entered figure · no totals to compare</span>}
     </span>
   );
 }
@@ -107,7 +107,7 @@ export function AdSbPanelBody({ aircraftId, limit = 6 }: { aircraftId: string; l
       )}
       <p className="panel-note">
         Every AD and SB entry, including applicability and next due, is made by an engineer and verified by Quality.
-        Nothing is imported or calculated (D-016, D-021).
+        Nothing is imported or calculated.
       </p>
     </>
   );

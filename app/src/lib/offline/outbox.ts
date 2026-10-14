@@ -9,7 +9,7 @@
 //   upload  a photo or scan: the file first, then its record (D-026, D-065).
 // Only the signed-in person's items are sent: an engineer's offline signature
 // waits until that engineer signs in again on the tablet.
-import { actions, db } from '../supabase';
+import { actions, db, hideRefs } from '../supabase';
 import { local, type OutboxItem } from './db';
 import { isNetworkError, setReachable } from './net';
 import { checkIn } from './device';
@@ -80,14 +80,14 @@ async function send(item: OutboxItem): Promise<'sent' | 'offline' | { error: str
   if (item.kind === 'rpc') {
     const { error } = await actions.rpc(item.action as 'report_snag', item.args as never);
     if (isNetworkError(error)) return 'offline';
-    return error ? { error: error.message } : 'sent';
+    return error ? { error: hideRefs(error.message) } : 'sent';
   }
   if (item.kind === 'signed') {
     const { data, error } = await actions.rpc('submit_offline_signature', {
       p_payload: item.payload!, p_signature: item.signature!,
     });
     if (isNetworkError(error)) return 'offline';
-    if (error) return { error: error.message };
+    if (error) return { error: hideRefs(error.message) };
     const r = data as { ok: boolean; reason?: string };
     return r.ok ? 'sent' : { error: `Refused by the server: ${r.reason ?? 'no reason given'}` };
   }
@@ -96,10 +96,10 @@ async function send(item: OutboxItem): Promise<'sent' | 'offline' | { error: str
     mime_type: string; size_bytes: number; storage_path: string; uploaded_by: string; device_time: string };
   const up = await db.storage.from('attachments').upload(a.storage_path, item.file!, { contentType: a.mime_type });
   if (up.error && isNetworkError(up.error)) return 'offline';
-  if (up.error && !/already exists|Duplicate/i.test(up.error.message)) return { error: up.error.message };
+  if (up.error && !/already exists|Duplicate/i.test(up.error.message)) return { error: hideRefs(up.error.message) };
   const row = await db.from('attachment').insert(a);
   if (isNetworkError(row.error)) return 'offline';
-  if (row.error && !/duplicate key/i.test(row.error.message)) return { error: row.error.message };
+  if (row.error && !/duplicate key/i.test(row.error.message)) return { error: hideRefs(row.error.message) };
   return 'sent';
 }
 

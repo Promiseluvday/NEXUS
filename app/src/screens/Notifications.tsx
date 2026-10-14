@@ -17,7 +17,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { useAuth } from '../lib/auth';
-import { actions, db, errorText } from '../lib/supabase';
+import { actions, db, errorText, hideRefs } from '../lib/supabase';
 import { cached } from '../lib/offline/cache';
 import { useOutbox } from '../lib/offline/hooks';
 import { useApproachingDays } from '../lib/settings';
@@ -219,7 +219,7 @@ export function Notifications() {
   const refusedItems: Item[] = outbox.filter((i) => i.status === 'failed').map((i) => ({
     key: String(i.id), to: '/sync', at: i.createdAt, tone: 'red', tag: 'Refused',
     text: <>{i.label}</>,
-    meta: <>{i.error ?? 'Refused by the server'} · made {formatDateTime(new Date(i.createdAt), display)}</>,
+    meta: <>{i.error ? hideRefs(i.error) : 'Refused by the server'} · made {formatDateTime(new Date(i.createdAt), display)}</>,
   }));
 
   // ---- DDLS and NADD items due soon (soonest first)

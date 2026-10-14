@@ -152,7 +152,7 @@ export function Flights() {
           ? <LogFlightForm aircraft={aircraft} aircraftId={tailId} basis={totals?.hours_basis}
               baselineAsAt={data.baseline && !data.baseline.is_void ? data.baseline.flight_date : null}
               onDone={(m) => done(m)} onCancel={() => go()} />
-          : <p className="muted">Flight records are entered by pilots (Operations) and Engineering (D-027).</p>}
+          : <p className="muted">Flight records are entered by pilots (Operations) and Engineering.</p>}
       </div>
     );
   }
@@ -164,10 +164,10 @@ export function Flights() {
         <TailTop aircraftId={tailId} tail={tail?.tail} here={[listCrumb, { label: 'Brought-forward totals' }]} back={listBack} full={false} />
         <PageHead title={<>Brought-forward totals · <span className="mono">{tail?.tail}</span></>}
           sub="The totals from the paper records, as at a date · entered once by Engineering with a reason and PIN" />
-        {!isEngineer ? <p className="muted">Only Engineering enters brought-forward totals (D-027).</p>
+        {!isEngineer ? <p className="muted">Only Engineering enters brought-forward totals.</p>
           : data.baseline ? (
             <p>This tail already has brought-forward totals (as at {formatPlainDate(data.baseline.flight_date)}).{' '}
-              <Link to={route(tailId, { record: data.baseline.id, do: 'correct' })}>Correct them</Link> to change them (new version, D-023).</p>
+              <Link to={route(tailId, { record: data.baseline.id, do: 'correct' })}>Correct them</Link> to change them (new version).</p>
           ) : <BaselineForm aircraftId={tailId} firstFlight={data.flights.filter((f) => !f.is_void).at(-1)?.flight_date ?? null}
                 onDone={(m) => done(m)} onCancel={() => go()} />}
       </div>
@@ -201,11 +201,11 @@ export function Flights() {
               isEngineer
                 ? <CorrectForm current={newest} original={versions[0]}
                     onDone={(m, id) => done(m, { record: id })} onCancel={() => go({ record: newest.id })} />
-                : <p className="muted">Only Engineering corrects flight records (D-027).</p>
+                : <p className="muted">Only Engineering corrects flight records.</p>
             )}
             <Section title="Version history" id="versions">
               <VersionTable versions={versions} />
-              <p className="small muted" style={{ margin: 0 }}>Every version is kept. The newest one counts in the totals (D-023).</p>
+              <p className="small muted" style={{ margin: 0 }}>Every version is kept. The newest one counts in the totals.</p>
             </Section>
           </>
         )}
@@ -240,7 +240,7 @@ export function Flights() {
       </Section>
 
       {!canRead ? (
-        <p className="muted">Flight records are kept by Operations and Engineering. You see the totals only (D-120).</p>
+        <p className="muted">Flight records are kept by Operations and Engineering. You see the totals only.</p>
       ) : data.error ? <div className="error" role="alert">{data.error}</div>
         : !data.rows ? <p className="muted">Loading…</p>
         : <FlightTable flights={data.flights} baseline={data.baseline} versions={data.versions}
@@ -446,7 +446,7 @@ function LogFlightForm({ aircraft, aircraftId, basis, baselineAsAt, onDone, onCa
             <AircraftPicker id="fr-aircraft" aircraft={aircraft} value={tailId} onChange={setTailId} />
           </>
         )}
-        <div className="small muted">Entered by {me?.fullName} · <span className="mono">{me?.tlc}</span> · with the device time and the server time (D-024)</div>
+        <div className="small muted">Entered by {me?.fullName} · <span className="mono">{me?.tlc}</span> · with the device time and the server time</div>
       </Section>
       <Section title="The flight" tone="strong">
         <FigureFields f={f} set={set} basis={basis} />
@@ -487,7 +487,7 @@ function CorrectForm({ current, original, onDone, onCancel }: {
     setError('');
     const n = voided ? { hours: 0, cycles: 0, landings: 0, apuHours: null, apuCycles: null } : readFigures(f, current.kind);
     if ('error' in n) return setError(n.error!);
-    if (isBase && !reason.trim()) return setError('Give the reason for the correction (D-027).');
+    if (isBase && !reason.trim()) return setError('Give the reason for the correction.');
     if (isBase && !pin) return setError('Sign with your PIN.');
     setBusy(true);
     const { data, error: err } = await anyActions.rpc('correct_flight_record', {
@@ -536,7 +536,7 @@ function CorrectForm({ current, original, onDone, onCancel }: {
         <a className="button outline-button" href="#versions">Version history</a>
         <button type="button" className="outline-button" onClick={onCancel}>Cancel</button>
       </div>
-      {isBase && <p className="small muted" style={{ margin: 0 }}>Brought-forward corrections need a connection: the PIN is checked by the server (D-104).</p>}
+      {isBase && <p className="small muted" style={{ margin: 0 }}>Brought-forward corrections need a connection: the PIN is checked by the server.</p>}
     </form>
   );
 }
@@ -562,7 +562,7 @@ function BaselineForm({ aircraftId, firstFlight, onDone, onCancel }: {
     if (firstFlight && f.date >= firstFlight) {
       return setError(`The first logged flight is on ${formatPlainDate(firstFlight, display)}. The "as at" date must be before it.`);
     }
-    if (!reason.trim()) return setError('Give the source of the figures (D-027).');
+    if (!reason.trim()) return setError('Give the source of the figures.');
     if (!pin) return setError('Sign with your PIN.');
     setBusy(true);
     const { error: err } = await anyActions.rpc('set_flight_baseline', {

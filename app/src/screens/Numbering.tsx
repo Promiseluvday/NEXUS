@@ -13,7 +13,7 @@
 // when. The database checks the rules again.
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { useAuth } from '../lib/auth';
-import { actions, db, errorText } from '../lib/supabase';
+import { actions, db, errorText, hideRefs } from '../lib/supabase';
 import { formatDateTime } from '../lib/format';
 import { PinField } from '../components/PinField';
 import { Crumbs, PageHead, Section } from '../components/PageFrame';
@@ -82,7 +82,7 @@ export function AdminNumbering() {
   const done = (m: string) => { setMessage(m); setEditing(null); setReload((n) => n + 1); };
 
   if (!mayManageNumbering(me)) {
-    return <div className="page"><p>Numbering is set by Super Admins and Quality (D-220).</p></div>;
+    return <div className="page"><p>Numbering is set by Super Admins and Quality.</p></div>;
   }
   const doc = rows?.find((r) => r.series === editing);
 
@@ -90,7 +90,7 @@ export function AdminNumbering() {
     <div className="page">
       <Crumbs items={[{ label: 'Administration' }, { label: 'Numbering' }]} />
       <PageHead title="Numbering"
-        sub="How each document is numbered (D-220). Changes apply to new documents only: numbers already issued never change." />
+        sub="How each document is numbered. Changes apply to new documents only: numbers already issued never change." />
       {message && <div className="success" role="status">{message}</div>}
       {error && <div className="error" role="alert">{error}</div>}
 
@@ -109,7 +109,7 @@ export function AdminNumbering() {
                     <td className="mono">{r.next_number}</td>
                     <td className="small">
                       {r.changed_at
-                        ? <>{r.changed_by ? <span className="mono">{r.changed_by}</span> : 'Set-up'} · {formatDateTime(r.changed_at, display)}{r.reason && <> · {r.reason}</>}</>
+                        ? <>{r.changed_by ? <span className="mono">{r.changed_by}</span> : 'Set-up'} · {formatDateTime(r.changed_at, display)}{r.reason && <> · {hideRefs(r.reason)}</>}</>
                         : <span className="muted">—</span>}
                     </td>
                     <td>

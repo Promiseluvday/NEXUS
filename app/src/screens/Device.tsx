@@ -53,7 +53,7 @@ export function DevicePage() {
       <Section title="This tablet">
         {!dev.deviceId ? (
           <form onSubmit={register}>
-            <p className="small muted">Only line tablets enrolled by a Super Admin can sign offline (D-217). Phones can still report and view offline.</p>
+            <p className="small muted">Only line tablets enrolled by a Super Admin can sign offline. Phones can still report and view offline.</p>
             <label htmlFor="dev-label">Tablet name</label>
             <input id="dev-label" value={label} onChange={(e) => setLabel(e.target.value)} placeholder="Line tablet 3, Hangar 2" />
             <p><button type="submit" disabled={!online}>Register this tablet</button></p>

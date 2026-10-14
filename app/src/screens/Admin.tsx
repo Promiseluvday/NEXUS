@@ -97,14 +97,14 @@ export function AdminUsers() {
     <div className="page">
       <Crumbs items={[{ label: 'Administration' }, { label: 'Users and roles' }]} />
       <PageHead title="Users and roles"
-        sub={mayAdminAll(me.adminDepartments) ? 'Super Admin for all departments (D-035)' : `Super Admin for ${me.adminDepartments.map((c) => me.allDepartments.find((d) => d.code === c)?.name ?? c).join(', ')} (D-035)`}>
+        sub={mayAdminAll(me.adminDepartments) ? 'Super Admin for all departments' : `Super Admin for ${me.adminDepartments.map((c) => me.allDepartments.find((d) => d.code === c)?.name ?? c).join(', ')}`}>
         <Link className="button" to="/admin/users/new">Create account</Link>
       </PageHead>
 
       {pending.length > 0 && (
         <Section title={`Account requests waiting (${pending.length})`} tone="strong">
           <p className="small muted" style={{ margin: 0 }}>
-            A person who asked for an account has no rights until you approve it (D-123). Open the request to approve or refuse it.
+            A person who asked for an account has no rights until you approve it. Open the request to approve or refuse it.
           </p>
           <table className="ptable">
             <thead><tr><th>Name</th><th>3LC</th><th>Username</th><th>Asked for</th><th>Asked on</th></tr></thead>
@@ -165,7 +165,7 @@ function NotAdmin() {
   return (
     <div className="page">
       <Section title="Users and roles">
-        <p>Only a Super Admin can manage accounts (D-123). Ask your department CO.</p>
+        <p>Only a Super Admin can manage accounts. Ask your department CO.</p>
       </Section>
     </div>
   );
@@ -180,7 +180,7 @@ function DepartmentsField({ options, value, onChange, mine }: {
   const homeChoices = options.departments.filter((d) => mayAdminAll(mine) || mine.includes(d.code));
   return (
     <>
-      <label htmlFor="home-dept">Home department <span className="hint">(their left rail and fleet board follow it, D-124)</span></label>
+      <label htmlFor="home-dept">Home department <span className="hint">(their left rail and fleet board follow it)</span></label>
       <select id="home-dept" value={value.home} onChange={(e) => onChange({ home: e.target.value, extra: value.extra.filter((x) => x !== e.target.value) })} style={{ maxWidth: 320 }}>
         <option value="">Choose…</option>
         {homeChoices.map((d) => <option key={d.code} value={d.code}>{d.name}</option>)}
@@ -210,16 +210,16 @@ function PermissionsField({ options, value, onChange, departments }: {
         {list.map((p) => {
           const blocked = p.code === 'VIEW_COST' && quality;
           return (
-            <label key={p.code} className="check" title={blocked ? 'Quality never sees cost (D-127)' : undefined}>
+            <label key={p.code} className="check" title={blocked ? 'Quality never sees cost' : undefined}>
               <input type="checkbox" disabled={blocked} checked={value.includes(p.code)}
                 onChange={(e) => onChange(e.target.checked ? [...value, p.code] : value.filter((x) => x !== p.code))} />
               {p.name}{p.department ? <span className="small muted"> · {options.departments.find((d) => d.code === p.department)?.name}</span> : null}
-              {blocked && <span className="small muted"> · not for Quality (D-127)</span>}
+              {blocked && <span className="small muted"> · not for Quality</span>}
             </label>
           );
         })}
       </div>
-      <p className="small muted" style={{ margin: 0 }}>Only permissions for the departments chosen appear. Belonging to a department does not grant them (D-121).</p>
+      <p className="small muted" style={{ margin: 0 }}>Only permissions for the departments chosen appear. Belonging to a department does not grant them.</p>
     </>
   );
 }
@@ -257,7 +257,7 @@ function ScopeField({ options, value, onChange }: { options: Options; value: Sco
           ))}
         </div>
       )}
-      <p className="small muted" style={{ margin: 0 }}>By type includes tails of that type added later. Pick tails gives only the tails ticked (D-121).</p>
+      <p className="small muted" style={{ margin: 0 }}>By type includes tails of that type added later. Pick tails gives only the tails ticked.</p>
     </>
   );
 }
@@ -292,11 +292,11 @@ function AccessBlock({ category, options, access, setAccess, mine }: {
       return <ScopeField options={options} value={access.scope} onChange={(v) => setAccess({ ...access, scope: v })} />;
     case 'stores':
       return <TickList items={options.stores} value={access.stores} onChange={(v) => setAccess({ ...access, stores: v })}
-        note="Stores search and transfers show only the stores ticked here (D-152)." />;
+        note="Stores search and transfers show only the stores ticked here." />;
     case 'sections':
       return depts.includes('ENG')
         ? <TickList items={options.sections} value={access.sections} onChange={(v) => setAccess({ ...access, sections: v })}
-            note="Only ticked sections appear in the person's left rail (D-018)." />
+            note="Only ticked sections appear in the person's left rail." />
         : <p className="small muted" style={{ margin: 0 }}>Engineering sections need the Engineering department.</p>;
   }
 }
@@ -353,7 +353,7 @@ export function AdminCreateAccount() {
     e.preventDefault();
     setError('');
     if (!fullName.trim()) return setError('Enter the person\'s full name.');
-    if (!/^[A-Za-z]{3}$/.test(tlc)) return setError('The 3LC is three letters (D-162).');
+    if (!/^[A-Za-z]{3}$/.test(tlc)) return setError('The 3LC is three letters.');
     if (!isValidUsername(username)) return setError('A username is 3 to 32 letters, numbers, dots, dashes or underscores.');
     if (!access.departments.home) return setError('Choose a home department.');
     if (!reason.trim()) return setError('Give a reason.');
@@ -377,7 +377,7 @@ export function AdminCreateAccount() {
     <div className="page">
       <Crumbs items={[{ label: 'Administration' }, { label: 'Users and roles', to: '/admin/users' }, { label: 'Create account' }]} />
       <BackButton to="/admin/users" label="Users and roles" />
-      <PageHead title="Create account" sub="Super Admins only · the person cannot change their own departments or access later (D-123)" />
+      <PageHead title="Create account" sub="Super Admins only · the person cannot change their own departments or access later" />
       {!options ? <p className="muted">Loading…</p> : (
         <form onSubmit={submit} className="admin-form">
           <Section title="Person">
@@ -391,7 +391,7 @@ export function AdminCreateAccount() {
               <div><label htmlFor="ca-user">Username <span className="hint">(used to sign in)</span></label>
                 <input id="ca-user" className="mono" autoCapitalize="none" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="e.g. kdo.eng" /></div>
             </div>
-            <label htmlFor="ca-pass">Temporary password <span className="hint">(give it to the person; they set their own at first sign-in, D-219)</span></label>
+            <label htmlFor="ca-pass">Temporary password <span className="hint">(give it to the person; they set their own at first sign-in)</span></label>
             <div className="row">
               <input id="ca-pass" className="mono" value={password} onChange={(e) => setPassword(e.target.value)} />
               <button type="button" className="outline-button" style={{ flex: '0 0 auto' }} onClick={() => setPassword(makeTemporaryPassword())}>New one</button>
@@ -404,8 +404,8 @@ export function AdminCreateAccount() {
           ))}
           <Section title="Privileges">
             <p className="small" style={{ margin: 0 }}>
-              Certifying privileges are not granted here. Quality issues them and the CO or ECO approves (D-032).
-              Super Admin and approval steps follow appointments, not accounts (D-036).
+              Certifying privileges are not granted here. Quality issues them and the CO or ECO approves.
+              Super Admin and approval steps follow appointments, not accounts.
             </p>
           </Section>
           <Section title="Confirm" tone="strong">
@@ -415,7 +415,7 @@ export function AdminCreateAccount() {
               <button type="submit" disabled={busy}>{busy ? 'Creating…' : 'Create account'}</button>
               <Link to="/admin/users" className="button outline-button">Cancel</Link>
             </div>
-            <p className="small muted" style={{ margin: 0 }}>Recorded in the account change log with your name and time (D-033).</p>
+            <p className="small muted" style={{ margin: 0 }}>Recorded in the account change log with your name and time.</p>
           </Section>
         </form>
       )}
@@ -472,7 +472,7 @@ export function AdminAccount() {
 
   if (!me?.adminDepartments?.length) return <NotAdmin />;
   if (person === undefined || !options) return <div className="page muted">Loading…</div>;
-  if (person === null) return <div className="page"><p>This person is not one you look after as Super Admin (D-035).</p></div>;
+  if (person === null) return <div className="page"><p>This person is not one you look after as Super Admin.</p></div>;
   const own = person.person_id === me.personId;
   const done = (m: string) => { setMessage(m); load(); };
 
@@ -486,11 +486,11 @@ export function AdminAccount() {
       {created && temp && (
         <div className="success" role="status">
           Account created. Give <strong className="mono">{created}</strong> this temporary password: <strong className="mono">{temp}</strong>.
-          They set their own password and PIN at first sign-in (D-219). It is not shown again.
+          They set their own password and PIN at first sign-in. It is not shown again.
         </div>
       )}
       {message && <div className="success" role="status">{message}</div>}
-      {own && <div className="notice">This is your own account. Nobody can change their own account (D-033); ask another Super Admin.</div>}
+      {own && <div className="notice">This is your own account. Nobody can change their own account; ask another Super Admin.</div>}
 
       {person.status === 'pending' && !own && (
         <StatusBox person={person} onDone={done} kind="request" />
@@ -522,7 +522,7 @@ export function AdminAccount() {
             </tbody>
           </table>
         </div>
-        <p className="small muted" style={{ margin: 0 }}>Entries are never edited or deleted (D-023).</p>
+        <p className="small muted" style={{ margin: 0 }}>Entries are never edited or deleted.</p>
       </Section>
     </div>
   );
@@ -615,14 +615,14 @@ function StatusBox({ person, onDone, kind }: { person: PersonRow; onDone: (m: st
     setReason('');
     onDone(kind === 'request'
       ? (status === 'active' ? `Request approved. ${person.full_name} can sign in; set their permissions and aircraft scope below.` : 'Request refused.')
-      : (status === 'active' ? 'Account reactivated.' : 'Account deactivated. Their records stay attached to their name (D-030).'));
+      : (status === 'active' ? 'Account reactivated.' : 'Account deactivated. Their records stay attached to their name.'));
   }
   const title = kind === 'request' ? `Account request · asked for ${person.requested_department ?? '—'}` : 'Account';
   return (
     <Section title={title} tone={kind === 'request' ? 'strong' : undefined}>
       {kind === 'request'
-        ? <p className="small" style={{ margin: 0 }}>Approving makes the account active with {person.requested_department ?? 'the requested department'} as home department. Then set permissions and aircraft scope (D-123).</p>
-        : <p className="small" style={{ margin: 0 }}>{person.status === 'active' ? 'Active.' : 'Deactivated.'} Accounts are deactivated, never deleted (D-030).</p>}
+        ? <p className="small" style={{ margin: 0 }}>Approving makes the account active with {person.requested_department ?? 'the requested department'} as home department. Then set permissions and aircraft scope.</p>
+        : <p className="small" style={{ margin: 0 }}>{person.status === 'active' ? 'Active.' : 'Deactivated.'} Accounts are deactivated, never deleted.</p>}
       <SignOff reason={reason} setReason={setReason} pin={pin} setPin={setPin} idPrefix={`st-${kind}`} />
       {error && <div className="error" role="alert">{error}</div>}
       <div className="action-row">

@@ -91,7 +91,7 @@ export function OutsideMroList() {
       <Crumbs items={[{ label: 'All aircraft', to: '/' }, { label: 'Outside-MRO jobs' }]} />
       <BackButton to="/" label="All aircraft" />
       <ProcurementTabs />
-      <PageHead title="Outside-MRO jobs" sub="Commercial oversight by Procurement; technical acceptance by Engineering and Quality (D-144, D-020)">
+      <PageHead title="Outside-MRO jobs" sub="Commercial oversight by Procurement; technical acceptance by Engineering and Quality">
         {rights.manage_mro && !f.open && <button type="button" onClick={() => setF({ ...f, open: true })}>New outside-MRO job</button>}
       </PageHead>
       {error && <div className="error" role="alert">{error}</div>}
@@ -100,7 +100,7 @@ export function OutsideMroList() {
         <Section title="Job sent to an outside MRO">
           <form className="pq-form" onSubmit={create}>
             <div className="row pq-row">
-              <div><label htmlFor="mj-sup">Outside MRO (approved list, D-148)</label>
+              <div><label htmlFor="mj-sup">Outside MRO (approved list)</label>
                 <select id="mj-sup" value={f.supplier} onChange={(e) => setF({ ...f, supplier: e.target.value })} required>
                   <option value="">Choose</option>
                   {suppliers.map((s) => <option key={s.id} value={s.id}>{s.name} ({s.code})</option>)}
@@ -325,7 +325,7 @@ export function OutsideMroPage() {
                   {nextStatuses.map((s) => <option key={s} value={s}>{({ in_work: 'In work at MRO', returned: 'Returned from MRO', closed: 'Closed' } as Record<string, string>)[s]}</option>)}
                   <option value="cancelled">Cancelled</option>
                 </select>
-                {j.status === 'quoting' && <div className="small muted">Record the agreed cost before work goes ahead (D-144).</div>}</div>
+                {j.status === 'quoting' && <div className="small muted">Record the agreed cost before work goes ahead.</div>}</div>
               {(status.to === 'in_work' || status.to === 'returned') && <div><label htmlFor="ms-date">Date</label><input id="ms-date" type="date" value={status.date} onChange={(e) => setStatus({ ...status, date: e.target.value })} /></div>}
               {status.to === 'cancelled' && <div><label htmlFor="ms-r">Reason</label><input id="ms-r" value={status.reason} onChange={(e) => setStatus({ ...status, reason: e.target.value })} required /></div>}
             </div>
@@ -339,7 +339,7 @@ export function OutsideMroPage() {
           <p>Accepted by <span className="mono">{j.acceptance.by}</span> {j.acceptance.by_name} · {formatDateTime(j.acceptance.at, display)}<br />
             <span className="small">{j.acceptance.note}</span></p>
         ) : <p className="small muted">Not recorded yet.</p>}
-        <p className="small muted">Recorded by Engineering or Quality, not by Procurement (D-020, D-144). Nexus records what they state.</p>
+        <p className="small muted">Recorded by Engineering or Quality, not by Procurement. Nexus records what they state.</p>
         {j.can.accept && (
           <form className="pq-form" onSubmit={async (e) => { e.preventDefault(); if (await call('record_mro_technical_acceptance', { p_job: j.id, p_note: acc.note, p_pin: acc.pin }, 'Technical acceptance recorded')) setAcc({ note: '', pin: '' }); }}>
             <label htmlFor="ta-note">What was accepted, against which record</label>

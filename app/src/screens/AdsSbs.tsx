@@ -118,7 +118,7 @@ function ListPage({ aircraftId, aircraft }: { aircraftId: string; aircraft: Airc
           </>}
       <PageHead
         title={aircraftId ? <>ADs and SBs · <span className="mono">{tail?.tail}</span></> : 'ADs and SBs · all tails'}
-        sub="Entered by engineers · verified by Quality · next due as entered, never calculated (D-016, D-021)">
+        sub="Entered by engineers · verified by Quality · next due as entered, never calculated">
         <select aria-label="Status" value={status} onChange={(e) => set('status', e.target.value)}>
           {Object.entries(STATUS_FILTERS).map(([k, v]) => <option key={k} value={k}>Show: {v}</option>)}
         </select>
@@ -187,7 +187,7 @@ function ListPage({ aircraftId, aircraft }: { aircraftId: string; aircraft: Airc
 
       {aircraftId && notAssessed.length > 0 && (
         <Section title={`In the register for the ${tail?.type ?? 'type'}, not yet entered on ${tail?.tail ?? 'this tail'}`}>
-          <p className="small muted adsb-tight">Nexus does not decide whether these apply. An engineer records applicability for each (D-016).</p>
+          <p className="small muted adsb-tight">Nexus does not decide whether these apply. An engineer records applicability for each.</p>
           <ul className="adsb-plain-list">
             {notAssessed.map((d) => (
               <li key={d.document_key}>
@@ -201,7 +201,7 @@ function ListPage({ aircraftId, aircraft }: { aircraftId: string; aircraft: Airc
       <p className="small muted">
         <span className="chip tone-amber">Approaching</span> inside the operator's margin ·{' '}
         <span className="chip tone-red">Reached</span> at the entered figure · dates against today; hours and cycles against
-        the aircraft totals from flight records, when they exist · no projections (D-028). Nexus never grounds an aircraft (D-020).
+        the aircraft totals from flight records, when they exist · no projections. Nexus never grounds an aircraft.
       </p>
     </div>
   );
@@ -223,10 +223,10 @@ function NewEntryPage({ aircraftId, aircraft }: { aircraftId: string; aircraft: 
       <TailTop aircraftId={aircraftId} tail={tail?.tail} full={false}
         here={[{ label: 'ADs and SBs', to: listTo }, { label: 'Record an entry' }]} back={{ to: listTo, label: 'ADs and SBs' }} />
       <PageHead title={<>Record an AD or SB entry · <span className="mono">{tail?.tail}</span></>}
-        sub="Engineer entry, signed with your PIN · Quality verifies it next (D-016)">
+        sub="Engineer entry, signed with your PIN · Quality verifies it next">
         <Link className="button outline-button" to="/ads-sbs?view=register&do=register">Register a new AD or SB</Link>
       </PageHead>
-      {!isEngineer ? <p className="muted">Only engineers record AD and SB entries (D-016).</p>
+      {!isEngineer ? <p className="muted">Only engineers record AD and SB entries.</p>
         : !docs || !rows ? <p className="muted">Loading…</p>
         : (
           <Section title="Entry">
@@ -311,7 +311,7 @@ function EntryPage({ aircraftId, entryKey, correcting, aircraft }: {
               ? <Section title={`Correct version ${entry.version}`}>
                   <EntryForm aircraftId={aircraftId} tail={entry.tail} entry={entry} onDone={(m) => done(m)} onCancel={() => navigate(here)} />
                 </Section>
-              : <p className="muted">Only engineers correct AD and SB entries (D-016).</p>
+              : <p className="muted">Only engineers correct AD and SB entries.</p>
           ) : (
             <>
               <Section title="Entry" actions={<><AdSbStatusChip status={entry.status} /><FlagChip flag={entry.due_flag} /></>}>
@@ -330,13 +330,13 @@ function EntryPage({ aircraftId, entryKey, correcting, aircraft }: {
                 </div>
                 {(entry.hours_flag || entry.cycles_flag || entry.totals_available) && (
                   <p className="small muted adsb-tight">
-                    Aircraft totals now: <span className="mono">{figures(entry.current_hours, entry.current_cycles) || '—'}</span> (sum of entered flight records, D-022).
+                    Aircraft totals now: <span className="mono">{figures(entry.current_hours, entry.current_cycles) || '—'}</span> (sum of entered flight records).
                   </p>
                 )}
                 {!entry.totals_available && (entry.next_due_hours !== null || entry.next_due_cycles !== null) && (entry.status === 'open' || entry.status === 'recurring') && (
-                  <p className="small muted adsb-tight">Hours and cycles are shown as entered. They are flagged once flight-record totals exist for this tail (D-028).</p>
+                  <p className="small muted adsb-tight">Hours and cycles are shown as entered. They are flagged once flight-record totals exist for this tail.</p>
                 )}
-                {entry.next_due_on && <p className="small muted adsb-tight">Due date entered: {formatPlainDate(entry.next_due_on, display)}. Nexus never calculates it (D-021).</p>}
+                {entry.next_due_on && <p className="small muted adsb-tight">Due date entered: {formatPlainDate(entry.next_due_on, display)}. Nexus never calculates it.</p>}
               </Section>
 
               <Section title="Quality verification" actions={<VerifyChip state={entry.verification_state} />}>
@@ -347,7 +347,7 @@ function EntryPage({ aircraftId, entryKey, correcting, aircraft }: {
                 {entry.verification_state === 'awaiting' && (
                   isQuality && !ownEntry ? <QualityForm entry={entry} onDone={done} />
                     : isQuality && ownEntry ? <p className="muted adsb-tight">You entered this record; another Quality person verifies it.</p>
-                    : <p className="muted adsb-tight">Unverified: waiting for Quality to countersign (D-016).</p>
+                    : <p className="muted adsb-tight">Unverified: waiting for Quality to countersign.</p>
                 )}
               </Section>
 
@@ -377,7 +377,7 @@ function EntryPage({ aircraftId, entryKey, correcting, aircraft }: {
                     </tbody>
                   </table>
                 </div>
-                <p className="small muted adsb-tight">Nothing is deleted or edited: a correction adds a version (D-023).</p>
+                <p className="small muted adsb-tight">Nothing is deleted or edited: a correction adds a version.</p>
               </Section>
             </>
           )}
@@ -451,10 +451,10 @@ function Register() {
       <div className="page dd-page adsb-page">
         <Crumbs items={crumbs} />
         <BackButton to={regTo} label="Register" />
-        <PageHead title="Register an AD or SB" sub="Typed in by an engineer from the operator's own copy · nothing imported (D-016)" />
+        <PageHead title="Register an AD or SB" sub="Typed in by an engineer from the operator's own copy · nothing imported" />
         {isEngineer
           ? <Section title="Document"><DocumentForm types={types} onDone={done} onCancel={() => navigate(regTo)} /></Section>
-          : <p className="muted">Only engineers add to the register (D-016).</p>}
+          : <p className="muted">Only engineers add to the register.</p>}
       </div>
     );
   }
@@ -474,7 +474,7 @@ function Register() {
             {doing === 'correct' ? (
               isEngineer
                 ? <Section title={`Correct version ${doc.version}`}><DocumentForm types={types} doc={doc} onDone={done} onCancel={() => navigate(`${regTo}&document=${docKey}`)} /></Section>
-                : <p className="muted">Only engineers correct the register (D-016).</p>
+                : <p className="muted">Only engineers correct the register.</p>
             ) : (
               <>
                 <Section title="Document">

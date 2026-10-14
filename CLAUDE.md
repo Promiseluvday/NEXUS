@@ -27,6 +27,9 @@ mainstream, well-documented solutions over clever ones. Ask before large structu
 6. **Uploads are PDF and images only** (D-026).
 7. The code is **proprietary to Liebetag**. Don't copy code, screens or text from
    AMOS or other commercial MRO systems (D-113).
+8. **Decision numbers are private.** Never show D-xxx, O-xx, P-xx or Q-xx references
+   in anything a user sees (screens, messages, prints, data). Keep them in code
+   comments and docs only (Promise, 14 Oct).
 
 ## Stack
 - React Progressive Web App (one codebase for phone, tablet, desktop)
@@ -85,5 +88,6 @@ You are the BUILDER. You own app/ and Git.
 - 11 Oct: Phase 2 built in five areas (migrations 0026-0031, 438 tests): people, qualifications and certifying authorizations (Quality issues, CO approves in the inbox); flight records (Pilots and Engineering; totals = sums, D-022) shown on dashboard and aircraft page; ADs and SBs (engineer-entered, Quality verified); parts and stores (reserve at server time, issue after WO approval, release documents, quarantine, Main/Forward transfers); procurement (requisitions, approval chains by value and AOG, POs, in clearing, cost only with View cost, buyer ≠ receiver, outside-MRO jobs). Quick bar fully live. End-to-end use case passed. New sample users: fsk, sco. Open for Promise: ATA limits on authorizations; flight vs block hours; AOG self-confirmation; Quality seeing stock levels (D-127); 60-day licence warning; who may correct flight records (any Engineering, D-027).
 - 11 Oct (later): Promise's answers applied (migration 0032). D-220 logged: operator numbering formats ({ORG} {UNIT} {YYYY} {YY} {MM} {TAIL} {0000}, yearly restart, Administration ▸ Numbering for Super Admins and Quality), work order corrections shown as R1/R2 and re-approved; amber "In work · WO" chip beside the status (option B; not for pilots); ＋ New ▸ Raise technical query opens the raise form. Migration 0033 (476 tests). Sign-in page has a placeholder watermark video (public/login-watermark.*, Gemini draft); to be replaced by the final animation. 14 Oct: logged D-221 to D-225 (11 Oct answers), D-226 (In work chip), D-227 (rectified notices), D-228 (one deployment per operator).
 - 12 Oct: "Rectified" notices (migration 0034, 497 tests): when a work order is certified (or a NADD rectified directly) Quality and the CO are notified (recipients = work order approval chain) and each acknowledges (who, when, optional note; approves nothing, blocks nothing). Bell counts them; Notifications page has Acknowledge; certified work order shows who acknowledged. Logged as D-227.
+- 14 Oct: decision numbers removed from every screen, message and sample data (migration 0035; app hides any left in server messages).
 - Next: Promise tests on PC and a real tablet; then Phase 2 planning (CRS and check packages, parts and stores). Open: offline sign-in for shared tablets (only the signed-in engineer can work offline). Promise runs Prompts 9 and 10 in Claude Design. Open: O-1 to O-7 (O-5 urgent), O-14, O-15, O-20.
 - Six-month target: Phase 0 (foundations) + Phase 1 (snag workflow end to end).

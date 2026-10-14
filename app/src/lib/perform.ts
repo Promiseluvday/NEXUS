@@ -10,7 +10,7 @@
 //     everything else (approvals, requests) → "needs a connection"
 //
 // The PIN is used on the tablet to sign and is never stored or queued.
-import { actions } from './supabase';
+import { actions, hideRefs } from './supabase';
 import { enqueue } from './offline/outbox';
 import { isNetworkError, isOnline, setReachable } from './offline/net';
 import { offlineSigningProblem, signOffline } from './offline/signing';
@@ -52,7 +52,7 @@ export async function perform(action: string, args: Record<string, unknown>, met
       setReachable(true);
       return { data };
     }
-    if (!isNetworkError(error)) return { error: { message: error.message } };
+    if (!isNetworkError(error)) return { error: { message: hideRefs(error.message) } };
     setReachable(false);
   }
   return performOffline(action, args, meta);
@@ -74,15 +74,15 @@ async function performOffline(action: string, args: Record<string, unknown>, met
       await enqueue({ userId: currentUser, kind: 'signed', action, args: rest, ...signed, ...meta });
       return { queued: 'signed-offline' };
     } catch (e) {
-      return { error: { message: e instanceof Error ? e.message : String(e) } };
+      return { error: { message: hideRefs(e instanceof Error ? e.message : String(e)) } };
     }
   }
-  return { error: { message: 'This needs a connection to the Nexus server (D-104, D-217).' } };
+  return { error: { message: 'This needs a connection to the Nexus server.' } };
 }
 
 // The words shown after an action was queued instead of sent.
 export function queuedText(o: { queued?: Outcome['queued'] }, what: string): string {
   return o.queued === 'signed-offline'
-    ? `${what}: signed offline, provisional. It is sent and checked by the server when the connection returns (D-217).`
+    ? `${what}: signed offline, provisional. It is sent and checked by the server when the connection returns.`
     : `${what}: queued, not sent. It is sent when the connection returns.`;
 }

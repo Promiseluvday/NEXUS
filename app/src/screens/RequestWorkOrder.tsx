@@ -68,7 +68,7 @@ export function RequestWorkOrder() {
         : tailId ? <BackButton to={`/aircraft/${tailId}`} label={`${tail || 'aircraft'} overview`} />
         : <BackButton to="/" label="All aircraft" />}
       <PageHead title={<>Work order request{tail && <> · <span className="mono">{tail}</span></>}</>}
-        sub="Raised from an assessed snag. Any rectification, troubleshooting or no fault found needs Quality, then the CO, to approve (D-063, D-218)." />
+        sub="Raised from an assessed snag. Any rectification, troubleshooting or no fault found needs Quality, then the CO, to approve." />
       {message && <div className="success" role="status">{message} <Link to={`/work-orders?aircraft=${tailId}`}>Work orders for {tail}</Link></div>}
 
       <Section title="1 · Aircraft">
@@ -121,11 +121,11 @@ export function RequestWorkOrder() {
           <dl className="facts">
             <dt>Raised from</dt>
             <dd><span className="mono">{snag.number}</span> · {snag.description} <SnagStateChip status={snag.status} disposition={snag.disposition} /></dd>
-            <dt>Work order number</dt><dd className="muted">Assigned on submission (D-064)</dd>
+            <dt>Work order number</dt><dd className="muted">Assigned on submission</dd>
             <dt>Requested by</dt><dd><span className="mono">{me?.tlc}</span> {me?.fullName && <span className="muted">· {me.fullName} (from sign-in)</span>}</dd>
           </dl>
           {snag.status === 'deferred' && (
-            <p className="panel-note">The deferral stays in force until this work order is certified; certifying clears its DDLS entry or NADD (D-218).</p>
+            <p className="panel-note">The deferral stays in force until this work order is certified; certifying clears its DDLS entry or NADD.</p>
           )}
           <WorkOrderForm key={snag.id} snag={snag} deferred={snag.status === 'deferred'}
             onDone={(m) => { setChosen(null); setMessage(m); }} />
@@ -133,7 +133,7 @@ export function RequestWorkOrder() {
             <button type="button" className="outline-button" onClick={() => setChosen(null)}>Cancel</button>
           </div>
           <h3 className="sub-head">Parts <span className="rail-tag">Soon</span></h3>
-          <p className="panel-note">Reserving parts before approval (D-068) comes with stores in Phase 2.</p>
+          <p className="panel-note">Reserving parts before approval comes with stores in Phase 2.</p>
         </Section>
       )}
     </div>

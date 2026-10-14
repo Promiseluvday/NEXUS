@@ -75,10 +75,10 @@ export function CabinItem() {
     setError('');
     if (!aircraftId) return setError('Choose the aircraft.');
     if (zones.length > 0 && !zone) return setError('Tap the zone on the cabin map.');
-    if (zone?.is_emergency_equipment) return setError('Emergency equipment is never a NADD. Report a snag instead (D-209).');
+    if (zone?.is_emergency_equipment) return setError('Emergency equipment is never a NADD. Report a snag instead.');
     if (!description.trim()) return setError('Describe the item.');
     if (confirmNow) {
-      if (!declared) return setError('Tick the declaration: not covered by the MEL and no airworthiness effect (D-160).');
+      if (!declared) return setError('Tick the declaration: not covered by the MEL and no airworthiness effect.');
       if (!/^[0-9]{4,8}$/.test(pin)) return setError('Enter your PIN (4 to 8 digits) to sign.');
     }
     setBusy(true);
@@ -107,7 +107,7 @@ export function CabinItem() {
     if (c.error) {
       return setDone({ id, problem: true, text: `${number} was logged as proposed, but the confirmation was not recorded: ${errorText(c.error)} Confirm it from the NADD page.` });
     }
-    setDone({ id, text: c.queued ? queuedText(c, `${number} logged; confirmation`) : `${number} logged and confirmed on ${tail}. Its countdown runs from the report date (D-160).` });
+    setDone({ id, text: c.queued ? queuedText(c, `${number} logged; confirmation`) : `${number} logged and confirmed on ${tail}. Its countdown runs from the report date.` });
   }
 
   function reset() {
@@ -171,7 +171,7 @@ export function CabinItem() {
           )}
           {zone?.is_emergency_equipment && (
             <div className="notice">
-              <strong>{zone.name}</strong> is emergency equipment. It is never a NADD (D-209); it goes through the snag workflow.
+              <strong>{zone.name}</strong> is emergency equipment. It is never a NADD; it goes through the snag workflow.
               <p><Link className="button" to={`/report-snag?aircraft=${aircraftId}`}>Report a snag instead</Link></p>
             </div>
           )}
@@ -199,7 +199,7 @@ export function CabinItem() {
                 <textarea id="cabin-description" value={description} onChange={(e) => setDescription(e.target.value)} />
               </div>
               <div className="small muted">Photo (PDF or image only) <span className="rail-tag">Soon</span></div>
-              <div className="small">Reported <span className="mono">{formatDateTime(reportedAt, display)}</span> · the countdown starts on this date (D-160)</div>
+              <div className="small">Reported <span className="mono">{formatDateTime(reportedAt, display)}</span> · the countdown starts on this date</div>
             </Section>
 
             {isEngineer && (
@@ -209,7 +209,7 @@ export function CabinItem() {
                   <input id="n-limit" className="mono dd-short" inputMode="numeric" placeholder={String(defaultLimit)} value={limit} onChange={(e) => setLimit(e.target.value.replace(/[^0-9]/g, ''))} />
                 </div>
                 <label className="check"><input type="checkbox" checked={declared} onChange={(e) => setDeclared(e.target.checked)} />
-                  <span>Not covered by the MEL and no effect on airworthiness (D-160).</span></label>
+                  <span>Not covered by the MEL and no effect on airworthiness.</span></label>
                 <PinField id="n-pin" value={pin} onChange={setPin} />
               </Section>
             )}

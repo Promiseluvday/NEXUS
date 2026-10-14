@@ -69,12 +69,12 @@ export function Suppliers() {
       <Crumbs items={[{ label: 'All aircraft', to: '/' }, { label: 'Approved suppliers' }]} />
       <BackButton to="/" label="All aircraft" />
       <ProcurementTabs />
-      <PageHead title="Approved suppliers" sub="Quality's approved supplier list (D-148). Orders go only to approved suppliers.">
+      <PageHead title="Approved suppliers" sub="Quality's approved supplier list. Orders go only to approved suppliers.">
         {rights.maintain_suppliers && !add.open && <button type="button" onClick={() => setAdd({ ...add, open: true })}>Add supplier</button>}
       </PageHead>
       {message && <div className="success" role="status">{message}</div>}
       {error && <div className="error" role="alert">{error}</div>}
-      {!rights.maintain_suppliers && <p className="small muted">Only Quality changes this list (D-148).</p>}
+      {!rights.maintain_suppliers && <p className="small muted">Only Quality changes this list.</p>}
 
       {add.open && (
         <Section title="Add to the approved list">

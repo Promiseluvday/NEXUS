@@ -23,7 +23,20 @@ export function errorText(error: { message?: string } | null | undefined): strin
   const m = error.message ?? 'Something went wrong.';
   if (m.includes('Failed to fetch')) return 'Cannot reach the Nexus server. Check your connection.';
   if (m.includes('Invalid login credentials')) return 'Username or password not recognised.';
-  return m;
+  return hideRefs(m);
+}
+
+// Decision numbers (D-xxx) are Liebetag's private design log and are never
+// shown to users. The database's messages and some older stored text still
+// carry them, so text from the server passes through this before display:
+// "PIN not accepted (D-094)." -> "PIN not accepted."
+// "(Quality's list, D-148)"   -> "(Quality's list)"
+const REF_LIST = String.raw`D-\d{3}(?:\s*(?:,|and|to)\s*D-\d{3})*`;
+const REF_ALONE = new RegExp(String.raw`\s*\((?:see )?${REF_LIST}(?:\s*\([^()]*\))?\)`, 'g');
+const REF_TAIL = new RegExp(String.raw`[,;]\s*${REF_LIST}(?=\))`, 'g');
+const REF_LEAD = new RegExp(String.raw`(^|\s)${REF_LIST}:\s+`, 'g');
+export function hideRefs(text: string): string {
+  return text.replace(REF_ALONE, '').replace(REF_TAIL, '').replace(REF_LEAD, '$1');
 }
 
 // The same connection without the generated type list. Used by screens whose

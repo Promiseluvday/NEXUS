@@ -89,7 +89,7 @@ export function SignIn() {
           {error && <div className="error" role="alert">{error}</div>}
           <button type="submit" className="login-submit" disabled={busy}>{busy ? 'Signing in…' : 'Sign in'}</button>
           <p className="login-note">
-            Forgotten password: your department Super Admin resets it (D-033). Your PIN is not affected.
+            Forgotten password: your department Super Admin resets it. Your PIN is not affected.
             On a shared terminal, sign out when you leave.
           </p>
           <button type="button" className="link-button" onClick={() => setRequesting(true)}>Request an account</button>
@@ -130,7 +130,7 @@ function RequestAccount({ onBack }: { onBack: () => void }) {
     <form className="login-card" onSubmit={submit}>
       <h1>Request an account</h1>
       <p className="small muted" style={{ marginTop: 0 }}>
-        A Super Admin of the department you choose confirms your department, permissions and aircraft before the account works (D-123).
+        A Super Admin of the department you choose confirms your department, permissions and aircraft before the account works.
       </p>
       <label htmlFor="rq-name">Full name</label>
       <input id="rq-name" value={f.fullName} onChange={set('fullName')} />

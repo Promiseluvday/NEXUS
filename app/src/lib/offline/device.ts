@@ -4,7 +4,7 @@
 // Super Admin of Engineering enrols it. Each time the tablet reaches the
 // server it "checks in": the server notes the contact and replies with the
 // tablet's status and the server time (for the offline clock).
-import { actions } from '../supabase';
+import { actions, hideRefs } from '../supabase';
 import { getMeta, setMeta } from './db';
 import { noteServerTime } from './clock';
 import { isNetworkError, setReachable } from './net';
@@ -46,7 +46,7 @@ export async function loadDevice(): Promise<void> {
 
 export async function registerDevice(label: string): Promise<string | null> {
   const { data, error } = await actions.rpc('request_device', { p_label: label });
-  if (error) return error.message;
+  if (error) return hideRefs(error.message);
   await setMeta('deviceId', data as string);
   await setMeta('deviceLabel', label);
   await loadDevice();

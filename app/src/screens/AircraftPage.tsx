@@ -305,7 +305,7 @@ export function AircraftPage() {
       </Panel>
 
       <Panel id="open" title="Open items" link={isEngineer ? { to: `/request-work-order?aircraft=${id}`, label: 'Request work order' } : { to: `/snags?aircraft=${id}`, label: 'All snags' }} open={open.open} onToggle={() => toggle('open')}>
-        {!seesEngineering && <p className="panel-note" style={{ margin: 0 }}>Snags listed are the ones you reported; Engineering sees all of them (D-120).</p>}
+        {!seesEngineering && <p className="panel-note" style={{ margin: 0 }}>Snags listed are the ones you reported; Engineering sees all of them.</p>}
         {r.blocked_by && (
           <div className={`block${down ? ' down' : ''}`}>
             <div className="block-label">Blocked by</div>

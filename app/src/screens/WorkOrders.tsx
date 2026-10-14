@@ -152,7 +152,7 @@ export function WorkOrderList() {
         ? <BackButton to={`/aircraft/${tail}`} label={`${tailName || 'aircraft'} overview`} />
         : <BackButton to="/" label="All aircraft" />}
       {tail && <TailFrame aircraftId={tail} />}
-      <PageHead title="Work orders" sub={tail ? `${tailName} · numbers run in one fleet-wide sequence (D-064)` : 'One fleet-wide sequence (D-064)'}>
+      <PageHead title="Work orders" sub={tail ? `${tailName} · numbers run in one fleet-wide sequence` : 'One fleet-wide sequence'}>
         {isEngineer && (
           <Link className="button" to={tail ? `/request-work-order?aircraft=${tail}` : '/request-work-order'}>Request work order</Link>
         )}
@@ -394,11 +394,11 @@ export function WorkOrderPage() {
         </ul>
       </Section>
 
-      {locked && <div className="wo-locked">Locked until Quality and the CO approve: no entries, scans or certification yet (D-063).</div>}
+      {locked && <div className="wo-locked">Locked until Quality and the CO approve: no entries, scans or certification yet.</div>}
       {wo.status === 'rejected' && (
         <div className="wo-locked wo-locked-red">
           Rejected{rejection?.reason && <>: {rejection.reason}</>}. The snag goes back to the engineer, who may request a new
-          work order (D-079).
+          work order.
         </div>
       )}
 
@@ -445,7 +445,7 @@ export function WorkOrderPage() {
               {deferred && (
                 <p className="panel-note">
                   Deferred: the deferral stays in force until this work order is certified. Certifying clears its DDLS entry
-                  or rectifies its NADD with the same signature (D-218).
+                  or rectifies its NADD with the same signature.
                 </p>
               )}
             </>
@@ -480,7 +480,7 @@ export function WorkOrderPage() {
 
       <Section id="evidence" title="Completion evidence" tone={wo.status === 'work_complete' ? 'strong' : undefined}>
         {locked || wo.status === 'rejected' || wo.status === 'cancelled' ? (
-          <p className="small muted" style={{ margin: 0 }}>Scans are attached once the work is under way, before certifying (D-065).</p>
+          <p className="small muted" style={{ margin: 0 }}>Scans are attached once the work is under way, before certifying.</p>
         ) : (
           <>
             <ul className="wo-evidence">
@@ -498,7 +498,7 @@ export function WorkOrderPage() {
                 );
               })}
             </ul>
-            <p className="panel-note">Which scans are required is set in operator settings (D-065, D-069). Accepted: PDF or image (D-026).</p>
+            <p className="panel-note">Which scans are required is set in operator settings. Accepted: PDF or image.</p>
           </>
         )}
         <Attachments recordTable="work_order" recordId={wo.id} canUpload={canUpload} onChange={checkMissing}
@@ -517,7 +517,7 @@ export function WorkOrderPage() {
           <Acknowledgements woId={wo.id} />
           {isEngineer && (
             <>
-              <p className="small muted" style={{ margin: 0 }}>The snag is closed. The tail status is unchanged until you set it (D-046).</p>
+              <p className="small muted" style={{ margin: 0 }}>The snag is closed. The tail status is unchanged until you set it.</p>
               <SetTailStatus aircraftId={wo.aircraft_id} tail={tail} current={tailStatus} onDone={(m) => done(m ?? `Status of ${tail} recorded.`)} />
             </>
           )}
@@ -700,14 +700,14 @@ function CertifyForm({ wo, missing, canCertify, onDone }: {
   return (
     <FormBox title="Certify and close" onSubmit={submit} tone="strong">
       {!canCertify && (
-        <div className="notice">This needs a certifying engineer for the {wo.aircraft?.aircraft_type_code} (D-043). The database will refuse your signature.</div>
+        <div className="notice">This needs a certifying engineer for the {wo.aircraft?.aircraft_type_code}. The database will refuse your signature.</div>
       )}
       {missing.length > 0 && (
-        <div className="notice">Attach the required scans first: {missing.map((k) => KIND_LABEL[k] ?? k).join(', ')} (D-065).</div>
+        <div className="notice">Attach the required scans first: {missing.map((k) => KIND_LABEL[k] ?? k).join(', ')}.</div>
       )}
       <label className="check" style={{ marginTop: 0 }}>
         <input type="checkbox" checked={nff} onChange={(e) => setNff(e.target.checked)} />
-        No fault found: the troubleshooting found nothing to rectify (D-218)
+        No fault found: the troubleshooting found nothing to rectify
       </label>
       <label htmlFor="wo-cert">{nff ? 'What was checked, and the result' : 'Certification statement'}</label>
       <textarea id="wo-cert" value={note} onChange={(e) => setNote(e.target.value)} />
