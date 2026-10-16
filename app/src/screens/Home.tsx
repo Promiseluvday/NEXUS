@@ -14,7 +14,8 @@ import { Rail } from '../components/Rail';
 import { TailSearch, useAircraftList } from '../components/AircraftPicker';
 import { Menu, MenuItem } from '../components/Menu';
 import { usePendingApprovals } from './Approvals';
-import { useNoticeCount } from './Notifications';
+import { useMessageCount, useNoticeCount } from './Notifications';
+import { useIdleSignOut } from '../lib/idle';
 import { useOnline, useOutbox } from '../lib/offline/hooks';
 import { startAutoSync } from '../lib/offline/outbox';
 import { getCurrentUser } from '../lib/perform';
@@ -127,7 +128,9 @@ export function Home() {
     return () => window.removeEventListener('nexus:approvals', loadPending);
   }, [loadPending]);
   const approvals = pending?.length ?? 0;
-  const notices = useNoticeCount();   // rectified notices to acknowledge (Quality and the CO)
+  useIdleSignOut();                  // signs out after the set idle minutes
+  const notices = useNoticeCount();
+  const messages = useMessageCount();  // new case-chat messages   // rectified notices to acknowledge (Quality and the CO)
   // Send waiting actions whenever the connection allows (D-102).
   useEffect(() => startAutoSync(getCurrentUser), []);
   // Save the MEL and cabin zones for offline use (D-102, D-217).
@@ -153,7 +156,7 @@ export function Home() {
           <TailSearch aircraft={aircraft} onPick={(id) => navigate(`/aircraft/${id}`)} />
         </div>
         <SyncPill />
-        <Bell count={approvals + notices} />
+        <Bell count={approvals + notices + messages} />
         <NewMenu />
         <span className="spacer" />
         <UserMenu />

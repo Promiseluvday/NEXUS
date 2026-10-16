@@ -501,6 +501,7 @@ export function AdminAccount() {
       ))}
 
       {person.status !== 'pending' && !own && <StatusBox person={person} onDone={done} kind="status" />}
+      {!own && <LockBox person={person} onDone={done} />}
       {person.status === 'active' && !own && <PasswordBox person={person} onDone={done} />}
 
       <Section title="Change log">
@@ -633,6 +634,47 @@ function StatusBox({ person, onDone, kind }: { person: PersonRow; onDone: (m: st
         {kind === 'status' && person.status === 'active' && <button type="button" className="outline-button danger-button" disabled={busy} onClick={() => set('deactivated')}>Deactivate account</button>}
         {kind === 'status' && person.status === 'deactivated' && <button type="button" disabled={busy} onClick={() => set('active')}>Reactivate account</button>}
       </div>
+    </Section>
+  );
+}
+
+// Locked after too many wrong passwords (D-232): only a Super Admin unlocks,
+// with a reason and their PIN. Shown only while the account is locked.
+function LockBox({ person, onDone }: { person: PersonRow; onDone: (m: string) => void }) {
+  const { display } = useAuth();
+  const [lock, setLock] = useState<{ locked_at: string | null; failed_sign_ins: number } | null>(null);
+  const [reason, setReason] = useState('');
+  const [pin, setPin] = useState('');
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+  const load = useCallback(() => {
+    actions.rpc('admin_lock_state', { p_person: person.person_id })
+      .then(({ data }) => setLock(data as { locked_at: string | null; failed_sign_ins: number } | null));
+  }, [person.person_id]);
+  useEffect(() => { load(); }, [load]);
+  if (!lock?.locked_at) return null;
+  async function unlock() {
+    setError('');
+    if (!reason.trim()) return setError('Give a reason, e.g. how you confirmed who is asking.');
+    if (!/^[0-9]{4,8}$/.test(pin)) return setError('Enter your PIN to confirm.');
+    setBusy(true);
+    const { error: err } = await actions.rpc('admin_unlock_account', { p_person: person.person_id, p_reason: reason.trim(), p_pin: pin });
+    setBusy(false);
+    setPin('');
+    if (err) return setError(errorText(err));
+    setReason('');
+    load();
+    onDone(`${person.full_name}'s account is unlocked. They can sign in with their password.`);
+  }
+  return (
+    <Section title="Account locked" tone="warn">
+      <p className="small" style={{ margin: 0 }}>
+        Locked {formatDateTime(lock.locked_at, display)} after {lock.failed_sign_ins} wrong passwords in a row. Confirm who is
+        asking before unlocking. If they have forgotten the password, unlock and then set a temporary one below.
+      </p>
+      <SignOff reason={reason} setReason={setReason} pin={pin} setPin={setPin} idPrefix="unlock" />
+      {error && <div className="error" role="alert">{error}</div>}
+      <div className="action-row"><button type="button" disabled={busy} onClick={unlock}>{busy ? 'Unlocking…' : 'Unlock account'}</button></div>
     </Section>
   );
 }

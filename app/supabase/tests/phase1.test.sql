@@ -406,18 +406,17 @@ select pg_temp.act_as(:QAR);
 select lives_ok(format($$ insert into public.technical_query_note (query_id, note, author) values (%L, 'Trend reviewed; no action', %L) $$,
                         :'tq1', '10000000-0000-0000-0000-000000000004'),
   'D-207: the assigned department answers with a note');
--- Quality is not the raiser: the security rules hide the row from its update,
--- so the attempt runs but touches nothing.
+-- Since 14 Oct anyone who can see the query may close it, not only the raiser.
 select lives_ok(format($$ update public.technical_query set status = 'closed' where id = %L $$, :'tq1'),
-  'D-207: a non-raiser''s close attempt is quietly ignored');
+  'D-237: Quality (not the raiser) closes the query');
 select pg_temp.admin();
-select is((select status from public.technical_query where id = :'tq1'), 'open',
-  'D-207: only the raiser closes the query (still open after Quality tried)');
+select is((select status from public.technical_query where id = :'tq1'), 'closed',
+  'D-237: the query is closed');
 select pg_temp.act_as(:KDO);
-select lives_ok(format($$ update public.technical_query set status = 'closed' where id = %L $$, :'tq1'),
-  'D-207: the raiser closes the query');
+select throws_like(format($$ update public.technical_query set status = 'closed' where id = %L $$, :'tq1'),
+  '%already closed%', 'D-237: a closed query stays closed');
 select pg_temp.admin();
-select is((select closed_by from public.technical_query where id = :'tq1'), '10000000-0000-0000-0000-000000000005'::uuid,
+select is((select closed_by from public.technical_query where id = :'tq1'), '10000000-0000-0000-0000-000000000004'::uuid,
   'D-207: the closure records who closed it');
 select throws_like($$ update public.technical_query_note set note = 'edited' $$, '%append-only%',
   'D-207: notes are never edited');

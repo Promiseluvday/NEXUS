@@ -21,6 +21,9 @@ function useNumberSetting(key: string, fallback: number): number {
 // (one-aircraft page) and listed under Needs attention (dashboard).
 export const useApproachingDays = () => useNumberSetting('attention.approaching_days', 3);
 
+// Minutes without activity before signing out (D-233).
+export const useIdleMinutes = () => useNumberSetting('auth.idle_minutes', 30);
+
 // How a corrected work order shows its number (D-220): the operator's
 // revision style, e.g. "{NUMBER} R{REV}" gives "WO-000002 R1". An
 // uncorrected work order shows its number alone.

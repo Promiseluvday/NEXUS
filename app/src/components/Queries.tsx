@@ -21,7 +21,7 @@ import { Section } from './PageFrame';
 
 export type QueryRow = {
   id: string; number: string; subject: string; body: string; status: string; urgent: boolean;
-  due_on: string | null; created_at: string; closed_at: string | null;
+  due_on: string | null; created_at: string; closed_at: string | null; closed_reason: string | null;
   assigned_department: string | null; assigned_person: string | null; raised_by: string;
   record_table: string; record_id: string;
   raiser: { three_letter_code: string } | null;
@@ -29,7 +29,7 @@ export type QueryRow = {
   notes: { id: string; note: string; created_at: string; author: string; writer: { three_letter_code: string } | null }[];
 };
 
-export const QUERY_SELECT = `id, number, subject, body, status, urgent, due_on, created_at, closed_at,
+export const QUERY_SELECT = `id, number, subject, body, status, urgent, due_on, created_at, closed_at, closed_reason,
   assigned_department, assigned_person, raised_by, record_table, record_id,
   raiser:raised_by (three_letter_code), closer:closed_by (three_letter_code),
   notes:technical_query_note (id, note, created_at, author, writer:author (three_letter_code))`;
@@ -168,7 +168,6 @@ export function QueryDetail({ q, onChange }: { q: QueryRow; onChange: () => void
   const [note, setNote] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
-  const mine = q.raised_by === me?.personId;
   const notes = q.notes.slice().sort((a, b) => a.created_at.localeCompare(b.created_at));
 
   async function addNote(e: FormEvent) {
@@ -226,13 +225,12 @@ export function QueryDetail({ q, onChange }: { q: QueryRow; onChange: () => void
           <div className="action-row">
             <button type="submit" disabled={busy}>{busy ? 'Adding…' : 'Add note'}</button>
             <span className="outline-button button tq-soon" aria-disabled="true">Add photo or PDF <span className="rail-tag">Soon</span></span>
-            {mine
-              ? <button type="button" className="outline-button" disabled={busy} onClick={close}>Close query</button>
-              : <button type="button" className="outline-button" disabled title="Only the person who raised it can close it">Close (only the person who raised it)</button>}
+            {/* Anyone who can see the query may close it; it also closes by itself when its case closes. */}
+            <button type="button" className="outline-button" disabled={busy} onClick={close}>Close query</button>
           </div>
         </form>
       ) : (
-        <p className="small muted">Closed{q.closer && <> by <span className="mono">{q.closer.three_letter_code}</span></>} · {formatDateTime(q.closed_at, display)}. No more notes can be added.</p>
+        <p className="small muted">Closed{q.closer && <> by <span className="mono">{q.closer.three_letter_code}</span></>} · {formatDateTime(q.closed_at, display)}{q.closed_reason && <> · {q.closed_reason}</>}. No more notes can be added.</p>
       )}
       {error && <div className="error" role="alert">{error}</div>}
     </div>

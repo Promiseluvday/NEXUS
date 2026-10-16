@@ -34,6 +34,7 @@ import { useFleetBoard } from './FleetBoard';
 import { cached } from '../lib/offline/cache';
 import { usePendingFor } from '../lib/offline/hooks';
 import { perform, queuedText } from '../lib/perform';
+import { CaseChat, CaseHoldBanner, useCaseHold } from '../components/CaseHold';
 
 type Person = { three_letter_code: string; full_name?: string } | null;
 type Snag = {
@@ -70,6 +71,8 @@ export function SnagDetail() {
   const [linked, setLinked] = useState<Linked>({ workOrders: [], ddls: [], nadds: [] });
   const [repeat, setRepeat] = useState<Repeat | null>(null);
   const [similar, setSimilar] = useState<Similar[] | null>(null);
+  // Someone from my department already working on it? Then read-only.
+  const { hold, refresh: refreshHold, lockedOut } = useCaseHold('snag', id);
   const [canCertify, setCanCertify] = useState(false);
   const [tailStatus, setTailStatus] = useState<string | null>(null);
   const [message, setMessage] = useState('');
@@ -218,7 +221,9 @@ export function SnagDetail() {
           <Link to="/sync">Send queue</Link>
         </div>
       )}
+      <CaseHoldBanner hold={hold} table="snag" id={snag.id} onReleased={() => { void refreshHold(); }} />
 
+      <fieldset className="case-lock" disabled={lockedOut}>
       {/* ---------------------------------------------- WF-D3 Assess snag */}
       {view === 'assess' && (
         <>
@@ -376,6 +381,9 @@ export function SnagDetail() {
           </Section>
         </>
       )}
+      </fieldset>
+
+      {view === '' && <CaseChat table="snag" id={snag.id} />}
     </div>
   );
 }

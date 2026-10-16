@@ -50,6 +50,30 @@ export function useNoticeCount(): number {
   return n;
 }
 
+// The bell's share for case chat: unread messages in threads I follow.
+export function useMessageCount(): number {
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    const load = () => actions.rpc('my_unread_messages').then(({ data }) => setN(typeof data === 'number' ? data : 0));
+    load();
+    const t = setInterval(load, 60_000);
+    window.addEventListener('nexus:messages', load);
+    return () => { clearInterval(t); window.removeEventListener('nexus:messages', load); };
+  }, []);
+  return n;
+}
+
+type Thread = { record_table: string; record_id: string; aircraft_id: string; title: string; unread: number;
+  last_body: string; last_author: string; last_at: string };
+
+function useThreads() {
+  const [rows, setRows] = useState<Thread[] | null>(null);
+  useEffect(() => {
+    actions.rpc('my_case_threads').then(({ data }) => setRows((data ?? []) as unknown as Thread[]));
+  }, []);
+  return rows;
+}
+
 const recordLink = (n: { record_table: string; record_id: string; aircraft_id: string }) =>
   n.record_table === 'work_order' ? `/work-orders/${n.record_id}` : `/nadds?aircraft=${n.aircraft_id}`;
 
@@ -179,6 +203,7 @@ export function Notifications() {
   const outbox = useOutbox();
   const { ddls, nadds } = useDueSoon(margin);
   const notices = useNoticeCount();   // rectified notices waiting for my acknowledgement
+  const threads = useThreads();       // case chat with new messages
 
   // ---- approvals waiting for your PIN
   const approvalItems: Item[] = (approvals ?? []).map((p) => ({
@@ -202,7 +227,7 @@ export function Notifications() {
         queryItems.push({
           key: q.id, to: `/queries?q=${q.id}`, at: new Date(last.created_at).getTime(), tag: 'Answered?',
           text: <><span className="mono">{q.number}</span> {q.subject} · new note from <span className="mono">{last.writer?.three_letter_code}</span></>,
-          meta: <>You raised it · only you can close it · {formatDateTime(last.created_at, display)}</>,
+          meta: <>You raised it · {formatDateTime(last.created_at, display)}</>,
         });
       }
     } else if (q.assigned_person === me?.personId || (q.assigned_department && myDepts.has(q.assigned_department))) {
@@ -240,7 +265,14 @@ export function Notifications() {
 
   const newestFirst = (list: Item[]) => list.slice().sort((a, b) => b.at - a.at);
   const loading = approvals === null || queries === null || ddls === null || nadds === null;
-  const total = notices + approvalItems.length + queryItems.length + refusedItems.length + dueItems.length;
+  const messageItems: Item[] = (threads ?? []).map((t) => ({
+    key: `${t.record_table}:${t.record_id}`,
+    to: `${t.record_table === 'work_order' ? '/work-orders/' : t.record_table === 'snag' ? '/snags/' : '/nadds?aircraft='}${t.record_table === 'nadd' ? t.aircraft_id : t.record_id}#case-chat`,
+    at: new Date(t.last_at).getTime(), tag: `${t.unread} new`,
+    text: <>{t.title}</>,
+    meta: <><span className="mono">{t.last_author}</span>: {t.last_body.slice(0, 120)} · {formatDateTime(t.last_at, display)}</>,
+  }));
+  const total = messageItems.length + notices + approvalItems.length + queryItems.length + refusedItems.length + dueItems.length;
 
   return (
     <div className="page">
@@ -254,6 +286,7 @@ export function Notifications() {
 
       <RectifiedNotices />
 
+      {messageItems.length > 0 && <Group title="Case chat, new messages" items={messageItems} empty="" />}
       <Group title="Approvals waiting for you" items={newestFirst(approvalItems)} empty="No approvals waiting for you."
         more={approvalItems.length > 0 ? { to: '/approvals', label: 'Open approvals' } : undefined} />
       <Group title="Technical queries" items={newestFirst(queryItems)} empty="No queries waiting on you."

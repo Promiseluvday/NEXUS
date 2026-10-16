@@ -286,6 +286,14 @@ max_frequency = "5s"
 # enabled = true
 # uri = "pg-functions://<database>/<schema>/<hook_name>"
 
+# Nexus: every password attempt is checked by the database, which locks an
+# account after too many wrong passwords (migration 0036). On a self-hosted
+# server set GOTRUE_HOOK_PASSWORD_VERIFICATION_ATTEMPT_ENABLED=true and
+# GOTRUE_HOOK_PASSWORD_VERIFICATION_ATTEMPT_URI to the same value.
+[auth.hook.password_verification_attempt]
+enabled = true
+uri = "pg-functions://postgres/public/hook_password_verification_attempt"
+
 # Configure one of the supported SMS providers: `twilio`, `twilio_verify`, `messagebird`, `textlocal`, `vonage`.
 [auth.sms.twilio]
 enabled = false

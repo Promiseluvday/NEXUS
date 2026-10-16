@@ -224,9 +224,13 @@ export function ServiceabilityPrint() {
           {ops && ' The Operations copy leaves out part numbers, snag technical detail and MEL (M) procedures.'}
           {' '}Uncontrolled when printed: the electronic record is the master.
         </p>
+        {/* Sign-off: the originator (whoever printed it) and Quality's "Approved" stamp. */}
         <div className="prs-signs">
-          <div>Prepared by ({ops ? '3LC' : 'duty engineer, 3LC'}) · signature</div>
-          <div>{ops ? 'Received by Operations (3LC) · signature · time' : 'Checked by (3LC) · signature'}</div>
+          <div>
+            Originator: <strong>{me?.fullName}</strong> (<span className="mono">{me?.tlc}</span>) ·{' '}
+            {formatDateTime(new Date(), display)} · signature
+          </div>
+          <div className="prs-stamp">Quality Approved · stamp</div>
         </div>
         {settings.marking && <div className="prs-marking">{settings.marking}</div>}
         <div className="print-foot">

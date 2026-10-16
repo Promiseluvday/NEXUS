@@ -29,6 +29,7 @@ import { Queries } from '../components/Queries';
 import { BackButton, Crumbs, PageHead, Section, TailHeader, TailTabs, type Crumb } from '../components/PageFrame';
 import { useFleetBoard } from './FleetBoard';
 import { useWorkOrderLabel } from '../lib/settings';
+import { CaseChat, CaseHoldBanner, useCaseHold } from '../components/CaseHold';
 import { NoticeSteps, type NoticeStep } from './Notifications';
 
 const WO_STATE: Record<string, { label: string; tone: string }> = {
@@ -321,6 +322,8 @@ export function WorkOrderPage() {
   }, [id, me, checkMissing]);
 
   useEffect(() => { load(); }, [load]);
+  // Someone from my department already working on it? Then read-only.
+  const { hold, refresh: refreshHold, lockedOut } = useCaseHold('work_order', id);
 
   if (wo === undefined) return <div className="page muted">Loading…</div>;
   if (wo === null) return <div className="page"><p>This work order does not exist or is outside what you may see.</p></div>;
@@ -329,7 +332,7 @@ export function WorkOrderPage() {
   const number = woLabel(wo.number, wo.revision);
   const done = (m: string) => { setMessage(m); setRevising(false); load(); };
   // A work order can be corrected until the work is complete (D-220).
-  const canRevise = isEngineer && ['requested', 'pre_approved', 'open'].includes(wo.status);
+  const canRevise = isEngineer && !lockedOut && ['requested', 'pre_approved', 'open'].includes(wo.status);
   const decided = new Map(decisions.map((d) => [d.step_no, d]));
   const rejection = decisions.find((d) => d.decision !== 'approve');
   const locked = wo.status === 'requested' || wo.status === 'pre_approved';
@@ -349,6 +352,7 @@ export function WorkOrderPage() {
       ]} />
       <BackButton to={listLink} label="Work orders" />
       <TailHead aircraftId={wo.aircraft_id} />
+      <CaseHoldBanner hold={hold} table="work_order" id={wo.id} onReleased={() => { void refreshHold(); }} />
       <PageHead
         title={<>Work order <span className="mono">{number}</span> · <span className="mono">{tail}</span></>}
         sub={<>One sequence for the fleet · raised{wo.snag && <> from <span className="mono">{wo.snag.number}</span></>} by{' '}
@@ -359,6 +363,8 @@ export function WorkOrderPage() {
           <button type="button" className="outline-button" onClick={() => setRevising(true)}>Correct work order</button>
         )}
       </PageHead>
+
+      <fieldset className="case-lock" disabled={lockedOut}>
 
       <WorkOrderSteps status={wo.status} rejectedStep={rejection?.step_no} />
 
@@ -525,6 +531,9 @@ export function WorkOrderPage() {
       )}
 
       <Queries recordTable="work_order" recordId={wo.id} startOpen={params.get('query') === 'new'} />
+      </fieldset>
+
+      <CaseChat table="work_order" id={wo.id} />
     </div>
   );
 }

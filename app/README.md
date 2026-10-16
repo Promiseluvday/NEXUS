@@ -70,13 +70,17 @@ app/
     │   └── …0032_promise_answers_11oct.sql  AOG self-confirmation, 90-day warning, flight corrections
     │   └── …0033_numbering_revisions_in_work.sql  Operator number formats, WO revisions R1/R2, "In work" chip (D-220)
     │   └── …0034_rectification_notices.sql  "Rectified" notices to Quality and the CO, each acknowledges
+    │   └── …0035_hide_decision_refs.sql  Keeps internal reference numbers out of names users see
+    │   └── …0036_lockout_idle_queries.sql  Account lock after wrong passwords, idle sign-out setting, query closing
+    │   └── …0037_case_holds_and_chat.sql  "In hand" holds on a case and case chat
     ├── seed.sql            Fictional sample data (NX tails, invented people, sample MEL)
     └── tests/
         ├── foundations.test.sql      37 checks of the Phase 0 rules
         ├── phase1.test.sql           100 checks of the snag workflow rules
         ├── offline.test.sql          23 checks of offline signing
         ├── numbering.test.sql        38 checks of number formats and work order revisions
-        └── notices.test.sql          21 checks of rectified notices and acknowledgements
+        ├── notices.test.sql          21 checks of rectified notices and acknowledgements
+        └── holds_chat_lock.test.sql  31 checks of account lock, query closing, holds and case chat
 ```
 
 Each migration file starts with a plain-English explanation of what it does and which decisions (D-xxx) it implements.
@@ -142,7 +146,7 @@ Then, in PowerShell:
 cd C:\Users\USER\Downloads\NEXUS\app
 npm install          # downloads the tools (first time, and after a pull that adds tools)
 npm run db:start     # starts the database (first time downloads ~2 GB; later it's quick)
-npm run db:test      # runs all 497 database checks; should end with "Result: PASS"
+npm run db:test      # runs all 528 database checks; should end with "Result: PASS"
 ```
 
 ### Trying offline (Phase 1C)
@@ -207,3 +211,17 @@ Other commands:
 - Flight and crew scheduling (after Phase 1, D-205)
 - Copy of the audit log to a separate machine; PIN lock-out after failed attempts (Phase 4 hardening)
 - Aircraft admins created by fleet-level authorities, one level only (D-034)
+
+## Account lock on a self-hosted server
+
+Wrong passwords are counted by the database through Supabase's password
+verification hook (migration 0036). Locally `supabase/config.toml` switches it
+on. On an operator's own server, set these two settings for the Auth service:
+
+```
+GOTRUE_HOOK_PASSWORD_VERIFICATION_ATTEMPT_ENABLED=true
+GOTRUE_HOOK_PASSWORD_VERIFICATION_ATTEMPT_URI=pg-functions://postgres/public/hook_password_verification_attempt
+```
+
+Without them accounts never lock. After changing `config.toml` locally, run
+`npm run db:stop` then `npm run db:start`.

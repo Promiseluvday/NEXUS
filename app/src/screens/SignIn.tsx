@@ -11,6 +11,7 @@
 import { useState, type FormEvent } from 'react';
 import { useAuth } from '../lib/auth';
 import { configMissing } from '../lib/supabase';
+import { IDLE_FLAG } from '../lib/idle';
 
 export function SignIn() {
   const { signIn } = useAuth();
@@ -20,6 +21,10 @@ export function SignIn() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [showPw, setShowPw] = useState(false);
+  // Set by the idle sign-out (D-233); shown once.
+  const [idleMinutes] = useState(() => {
+    try { const v = sessionStorage.getItem(IDLE_FLAG); sessionStorage.removeItem(IDLE_FLAG); return v; } catch { return null; }
+  });
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -55,6 +60,7 @@ export function SignIn() {
         {requesting ? <RequestAccount onBack={() => setRequesting(false)} /> : (
         <form className="login-card" onSubmit={submit}>
           <h1>Sign in</h1>
+          {idleMinutes && <div className="offline-banner" role="status">Signed out after {idleMinutes} minutes without activity.</div>}
           {configMissing && (
             <div className="error">
               The app is not connected to a database. Run <span className="mono">npm run env:local</span>, then restart{' '}
